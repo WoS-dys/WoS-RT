@@ -1,0 +1,16 @@
+{
+  "name": "Whiteout Rally Timer",
+  "short_name": "Rally Timer",
+  "description": "Rally, counter-rally and garrison timer for Whiteout Survival.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0c1a26",
+  "theme_color": "#1c78b8",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

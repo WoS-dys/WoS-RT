@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rally Timer – Whiteout Survival</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1c78b8">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Rally Timer">
+<style>
+:root{--go:#1e9b57;--gotx:#fff;--bg:#e8eff5;--bg2:#d9e6ef;--panel:#fbfdff;--ink:#0f2230;--mute:#587084;--line:#d2dee8;--field:#f1f6fa;--accent:#1c78b8;--accent2:#52b8e6;--hot:#d8432d;--ok:#23915a;--warn:#c58400;--track:#e3ecf3;--sh:0 1px 2px rgba(15,34,48,.06),0 6px 20px -10px rgba(15,34,48,.25)}
+:root[data-theme=dark]{--go:#3cd184;--gotx:#04200f;--bg:#070f17;--bg2:#0c1a26;--panel:#0f1e2b;--ink:#e5eef5;--mute:#8aa3b5;--line:#213546;--field:#0a1722;--accent:#4db9ec;--accent2:#8fe0ff;--hot:#ff6a52;--ok:#4fcf8a;--warn:#f2b632;--track:#172a39;--sh:0 1px 2px rgba(0,0,0,.4),0 10px 24px -12px rgba(0,0,0,.7)}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--bg2),var(--bg) 320px) fixed;font:15px/1.45 "Segoe UI Variable Text","Avenir Next","Segoe UI",system-ui,sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:18px 16px 40px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
+h1{font:700 22px/1 "Segoe UI Variable Display","Avenir Next","Segoe UI",sans-serif;margin:0;display:flex;align-items:center;gap:10px;letter-spacing:-.2px}
+h1 svg{width:26px;height:26px;color:var(--accent)}
+h2{font-size:15px;font-weight:700;margin:0 0 12px}
+h3{font-size:13px;margin:16px 0 8px}
+.gtitle{margin:14px 0 8px;font-size:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:var(--sh)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+label{display:flex;flex-direction:column;font-size:12px;color:var(--mute);gap:4px}
+input,select,button{font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:38px}
+input:hover,select:hover{border-color:var(--accent)}
+input:disabled,select:disabled{opacity:.6;cursor:not-allowed}
+input[type=checkbox]{width:18px;height:18px;min-height:0;padding:0;accent-color:var(--accent)}
+button{cursor:pointer;font-weight:600}
+button:hover{border-color:var(--accent)}
+button.pri{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04202e;border-color:transparent}
+button.start{background:var(--go);color:var(--gotx);border-color:transparent}
+button.stop{background:var(--hot);color:#fff;border-color:transparent}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.chk{flex-direction:row;align-items:center;gap:7px;font-size:13px;color:var(--ink)}
+.muted{color:var(--mute);font-size:13px}
+.empty{padding:20px;text-align:center;color:var(--mute);border:1px dashed var(--line);border-radius:10px;margin-bottom:10px}
+.gname{font:inherit;font-weight:600;font-size:17px;width:170px;min-height:34px;padding:2px 9px;background:transparent;border:1px dashed var(--line);border-radius:8px}
+.gname::placeholder{color:var(--mute);font-weight:400}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;border-radius:0;background:var(--field);color:var(--mute);padding:6px 14px;min-height:36px}
+.seg button.on{background:var(--accent);color:#04202e}
+body:not(.advanced) .adv{display:none!important}
+body.advanced .mainonly{display:none!important}
+.rw{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:var(--panel);transition:border-color .2s,background .2s}
+.rw.next{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--panel))}
+.rw.done{opacity:.5}
+.rw.new{animation:fl 1.8s}
+@keyframes fl{from{background:color-mix(in srgb,var(--ok) 28%,var(--panel))}}
+.top{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
+.ord{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#04202e;font-weight:800;display:grid;place-items:center;font-size:13px;align-self:center;flex:none}
+.rw.g .ord{background:var(--warn);color:#241800}
+.rw.h .ord{background:var(--hot);color:#fff}
+.nm{flex:1 1 130px;min-width:110px;font-weight:600}
+.mt{width:72px;font-variant-numeric:tabular-nums;text-align:center}
+.f select{padding-right:4px}
+.pet{align-self:end;height:38px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--field)}
+.x{padding:0 11px;color:var(--mute)}
+.x:hover{color:var(--hot);border-color:var(--hot)}
+.trk{display:flex;height:14px;margin:10px 0 6px;border-radius:7px;background:var(--track);overflow:hidden;position:relative}
+.trk i{display:block;height:100%}
+.trk .rl{background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:7px 0 0 7px}
+.trk .mr{background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--accent) 42%,transparent) 0 5px,color-mix(in srgb,var(--accent) 16%,transparent) 5px 10px)}
+.trk::after{content:"";position:absolute;right:0;top:0;bottom:0;width:3px;background:var(--hot)}
+.meta{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12.5px;color:var(--mute);font-variant-numeric:tabular-nums}
+.meta b{color:var(--ink)}
+.meta .st{margin-left:auto;font-weight:700;color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px}
+.legend span::before{content:"";display:inline-block;width:18px;height:8px;border-radius:4px;margin-right:6px;vertical-align:middle;background:var(--sw)}
+/* live timer */
+[hidden]{display:none!important}
+.big{padding:0;overflow:hidden}
+.big.multi{padding:14px}
+#gcards{display:grid;gap:12px}
+.gcard{text-align:center;padding:18px 14px 0;overflow:hidden;border-top:4px solid var(--accent)}
+.big.multi .gcard{--gc:var(--accent);background:color-mix(in srgb,var(--gc) 8%,var(--field));border:1px solid var(--gc);border-left:7px solid var(--gc);border-top:4px solid var(--gc);border-radius:10px;padding:12px 12px 0}
+.big.multi .cname{color:var(--gc);font-size:15px}
+.big.multi .prog i{background:var(--gc)}
+.big.multi .gcard.go{border-top-color:var(--hot)}.big.multi .gcard.soon{border-top-color:var(--warn)}.big.multi .gcard.fin{border-top-color:var(--ok)}.big.multi .gcard.paused{border-top-color:var(--mute)}
+.cname{font-weight:700;color:var(--accent)}
+.cphase{display:inline-block;padding:2px 12px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin:4px 0 2px}
+.ph-wait{background:var(--track);color:var(--mute)}
+.ph-fill{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--accent)}
+.ph-march{background:color-mix(in srgb,var(--ok) 22%,transparent);color:var(--ok)}
+.ph-fin{background:var(--ok);color:#fff}
+.ccount{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+.csub{color:var(--mute);min-height:1.4em}
+.cwho{font-size:34px;font-weight:800;line-height:1.1;word-break:break-word;letter-spacing:-.5px}
+.ccd{font-size:62px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15;letter-spacing:-1px}
+.big.multi .cwho{font-size:21px}
+.big.multi .ccd{font-size:40px}
+.gcard.go{border-top-color:var(--hot)}.gcard.go .ccd,.gcard.go .cwho{color:var(--hot)}
+.gcard.soon{border-top-color:var(--warn)}.gcard.soon .ccd{color:var(--warn)}
+.gcard.fin{border-top-color:var(--ok)}.gcard.fin .cwho{color:var(--ok)}
+.gcard.paused{border-top-color:var(--mute)}
+.gcard.off .ccd,.gcard.off .cwho{color:var(--mute)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;text-align:left}
+.stats div{background:var(--field);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-width:0}
+.big.multi .stats div{background:var(--panel)}
+.stats span{display:block;font-size:12px;color:var(--mute)}
+.stats b{display:block;font-size:26px;font-variant-numeric:tabular-nums;line-height:1.2;letter-spacing:-.5px}
+.big.multi .stats b{font-size:19px}
+.stats small{display:block;color:var(--mute);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prog{height:6px;background:var(--track);margin:14px -14px 0}
+.big.multi .prog{margin:12px -12px 0}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.bextra{padding:0 14px 14px}
+.big.multi .bextra{padding:12px 0 0}
+.adj{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin-top:12px}
+.adj span{font-size:12px;color:var(--mute);margin-right:4px}
+.adj button{min-width:50px;padding:6px 8px;min-height:34px}
+.cstartw{margin-top:12px}
+.cstartw button{width:100%}
+.big.idle .bextra .adj{display:none}
+.gbox{margin-top:12px;text-align:left;background:var(--field);border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:10px;padding:8px 12px}
+.gh{display:flex;justify-content:space-between;font-size:12px;color:var(--mute)}
+.gmain{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+#gwho{font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#gcd{font-size:26px;font-variant-numeric:tabular-nums}
+.gbox.soon #gcd{color:var(--warn)}
+.gmeta{font-size:12px;color:var(--mute)}
+/* schedule now-line */
+.gwrap{position:relative}
+.nowline{position:absolute;top:0;bottom:10px;width:2px;margin-left:-1px;background:var(--warn);box-shadow:0 0 6px var(--warn);border-radius:1px;left:calc(var(--off,13px) + (100% - 2*var(--off,13px))*var(--p,0));display:none;pointer-events:none;z-index:2}
+.gwrap.live .nowline{display:block}
+/* details */
+details>summary{cursor:pointer;list-style-position:inside}
+details.panel>summary{font-size:15px;font-weight:700;margin:0}
+details.panel[open]>summary{margin-bottom:12px}
+.gdet{flex:1 1 100%;margin-top:6px}
+.gdet summary{font-size:12.5px;color:var(--mute)}
+.gdet .row{margin-top:8px}
+#landDet{flex:1 1 100%}
+#landDet summary{font-size:13px;color:var(--mute);font-weight:600}
+.rcolin{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.rcol{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.gwrap{--off:13px}
+.gwrap.grouped{--off:25px;border:2px solid var(--gc);border-radius:14px;padding:10px 12px 2px;margin-bottom:16px;background:color-mix(in srgb,var(--gc) 6%,transparent)}
+.gwrap.grouped .gtitle{color:var(--gc);margin:0 0 10px;font-size:15px}
+.gwrap.grouped .ord{background:var(--gc);color:#fff}
+.gwrap.grouped .rw.next{border-color:var(--gc)}
+.gdot{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--gc);margin-right:8px;vertical-align:-1px}
+#glist .rw{border-left:6px solid var(--gc,var(--line))}
+#glist .ord{background:var(--gc,var(--accent));color:#fff}
+.h3first{margin-top:0}
+.hl{display:flex;justify-content:space-between;align-items:baseline;padding:2px 0}
+.hl span{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hl b{font-variant-numeric:tabular-nums;font-size:24px;color:var(--hot)}
+.hl.done b{color:var(--mute);font-size:16px}
+#glive{margin-bottom:6px}
+/* layout */
+.layout{display:flex;flex-direction:column}
+.col-run,.col-main,.col-live{display:contents}
+#runPanel{order:-3}#big{order:-2}#reinPanel{order:-1}
+.big.idle:not(.multi){display:none}
+@media (min-width:900px) and (orientation:landscape){
+ .wrap{max-width:1180px}
+ .layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-areas:"run live" "main live";gap:14px;align-items:start}
+ .col-run,.col-main,.col-live{display:flex;flex-direction:column;gap:14px;min-width:0}
+ .col-run{grid-area:run}.col-main{grid-area:main}
+ .col-live{grid-area:live;position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto}
+ .layout .panel{margin-bottom:0}
+ .col-run>*,.col-main>*,.col-live>*{flex:none}
+ #runPanel,#big,#reinPanel{order:0}
+ .big.idle:not(.multi){display:block}
+ .big:not(.multi) .ccd{font-size:70px}
+}
+@media (min-width:1180px) and (orientation:landscape){
+ .wrap{max-width:1640px}
+ .layout{grid-template-columns:230px minmax(0,1.15fr) minmax(0,1fr);grid-template-areas:"run main live"}
+ .col-run{position:sticky;top:14px}
+ #runPanel .rcol{flex-direction:column;align-items:stretch;flex-wrap:nowrap}
+}
+@media(max-width:520px){.big:not(.multi) .ccd{font-size:46px}.big:not(.multi) .cwho{font-size:26px}.mt{width:64px}}
+@media(prefers-reduced-motion:no-preference){.gcard.go{animation:p 1s infinite}@keyframes p{50%{background:color-mix(in srgb,var(--hot) 12%,var(--panel))}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5"/></svg>Rally timer<input id="grp" class="gname" maxlength="24" placeholder="Group name" aria-label="Group name"></h1>
+  <div class="row">
+    <div class="seg" role="group" aria-label="Mode"><button type="button" data-mode="easy">Main</button><button type="button" data-mode="adv">Advanced</button></div>
+    <label class="chk"><input type="checkbox" id="voice" checked> Voice</label>
+    <label class="chk"><input type="checkbox" id="snd" checked> Sound</label>
+    <button id="theme" type="button">Dark mode</button>
+  </div>
+</header>
+<main class="layout">
+
+<aside class="col-run">
+<section class="panel" id="runPanel">
+  <h2>Run</h2>
+  <div class="rcol">
+    <button class="start" id="start" type="button">Start timer</button>
+    <button id="pause" data-pause type="button" hidden>Pause</button>
+    <button class="stop" id="stop" type="button" hidden>Stop</button>
+    <label>Prep countdown<select id="prep"><option value="0">Off</option><option value="10" selected>10 sec</option><option value="20">20 sec</option></select></label>
+    <label>Voice<select id="vg"><option value="female">Female</option><option value="male">Male</option></select></label>
+    <details class="mainonly" id="landDet"><summary>Landing time (optional)</summary>
+      <div class="rcolin">
+        <label>Land at clock time<input id="target" type="time" step="1"></label>
+        <label>Or lands in (mm:ss)<input id="lin" placeholder="02:30" size="7"></label>
+        <span class="muted">Leave empty to start now. Use it to match an incoming hit.</span>
+      </div>
+    </details>
+    <span class="muted adv">Each group has its own Start button and landing time.</span>
+    <button id="clear" type="button">Clear all</button>
+  </div>
+</section>
+</aside>
+
+<div class="col-main">
+<details class="panel" id="addPanel" open>
+  <summary>Add rally leader</summary>
+  <form class="row" id="form" onsubmit="return false">
+    <label>Name<input id="name" required placeholder="Player name" maxlength="24"></label>
+    <label>March (mm:ss)<input id="march" required value="01:00" pattern="\d{1,3}:[0-5]\d" size="6"></label>
+    <label>Rally length<select id="len"><option value="60">1 min</option><option value="180">3 min</option><option value="300" selected>5 min</option><option value="600">10 min</option><option value="900">15 min</option><option value="1800">30 min</option></select></label>
+    <label class="adv">Group<select id="agrp"></select></label>
+    <label class="chk pet"><input type="checkbox" id="pet"> Pet bonus</label>
+    <button class="pri" type="submit">Add</button>
+  </form>
+  <div class="row" style="margin-top:12px">
+    <label class="chk">Pet bonus cuts march time by <input id="petpct" type="number" min="0" max="90" value="10" style="width:68px"> %</label>
+  </div>
+</details>
+
+<details class="panel adv" id="grpPanel" open>
+  <summary>Rally groups <span class="muted" id="gcount"></span></summary>
+  <div class="row">
+    <label>Number of groups<input id="ngc" type="number" min="1" max="6" value="1" style="width:90px"></label>
+    <span class="muted" style="padding-bottom:10px">Each group has its own leaders, landing time, Start button and timer.</span>
+  </div>
+  <div id="glist" style="margin-top:12px"></div>
+</details>
+
+<section class="panel" id="schedPanel">
+  <h2>Schedule</h2>
+  <div id="list"></div>
+  <div class="legend muted" id="leg" hidden>
+    <span style="--sw:linear-gradient(90deg,var(--accent),var(--accent2))">Rally open</span>
+    <span style="--sw:repeating-linear-gradient(45deg,color-mix(in srgb,var(--accent) 42%,transparent) 0 3px,color-mix(in srgb,var(--accent) 16%,transparent) 3px 6px)">Marching</span>
+    <span style="--sw:var(--hot)">Impact</span>
+    <span style="--sw:var(--warn)">Now</span>
+  </div>
+  <p class="muted" id="hint" style="margin-bottom:0"></p>
+</section>
+</div>
+
+<div class="col-live">
+<section class="panel big idle" id="big" aria-live="polite">
+  <div id="gcards"></div>
+  <div class="bextra">
+    <div class="gbox adv" id="gbox" hidden>
+      <div class="gh"><span>Enemy incoming / send garrison</span><span id="gsum"></span></div>
+      <div id="glive"></div>
+      <div class="gmain"><b id="gwho"></b><b id="gcd"></b></div>
+      <div class="gmeta" id="gmeta"></div>
+    </div>
+    <div class="adj"><button type="button" data-pause>Pause</button><span>Adjust all</span><button type="button" data-adj="-10" title="Calls come 10s earlier">−10s</button><button type="button" data-adj="-1" title="1s earlier">−1s</button><button type="button" data-adj="1" title="1s later">+1s</button><button type="button" data-adj="10" title="Calls come 10s later">+10s</button></div>
+  </div>
+</section>
+
+<details class="panel adv" id="reinPanel" open>
+  <summary>Enemy incoming &amp; send garrison <span class="muted" id="rcount"></span></summary>
+  <h3 class="h3first">Enemy incoming rally</h3>
+  <form class="row" id="hform" onsubmit="return false">
+    <label>Name<input id="hname" maxlength="20" placeholder="Enemy 1" size="10"></label>
+    <label>March to impact (mm:ss)<input id="hmarch" required placeholder="01:00" pattern="\d{1,3}:[0-5]\d" size="7"></label>
+    <label>Rally time left (mm:ss)<input id="hrally" required placeholder="00:30" pattern="\d{1,3}:[0-5]\d" size="7"></label>
+    <button class="start" type="submit">Add &amp; start</button>
+  </form>
+  <div id="hlist" style="margin-top:12px"></div>
+  <p class="muted">Type what the game shows and press Add. The countdown starts at once and your senders are called so they arrive just after impact. Editing a time moves the landing by the difference.</p>
+  <h3>Send garrison / reinforcements</h3>
+  <form class="row" id="rform" onsubmit="return false">
+    <label>Name<input id="rname" required maxlength="24" placeholder="Sender"></label>
+    <label>March to garrison<input id="rmarch" required value="01:00" pattern="\d{1,3}:[0-5]\d" size="6"></label>
+    <label>Counts toward<select id="rref"></select></label>
+    <label>Arrive<select id="roff"><option value="0">With impact</option><option value="0.5">0.5s after</option><option value="1" selected>1s after</option><option value="2">2s after</option><option value="3">3s after</option><option value="5">5s after</option></select></label>
+    <button class="pri" type="submit">Add</button>
+  </form>
+  <div id="rlist" style="margin-top:12px"></div>
+  <p class="muted" style="margin-bottom:0">Send time = landing + arrive offset − march to garrison. "Next enemy hit" follows whichever enemy rally lands next. Pick a specific rally to reinforce between two hits, or "Own" to time it to one of your groups.</p>
+</details>
+</div>
+
+</main>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let rallies=[],reinf=[],hits=[],lastAdded=null,groups=[{name:'Group 1',lin:'',clock:''}];
+let runs=[],paused=null,sst={},ridc=0;
+try{rallies=JSON.parse(localStorage.getItem('wos_rallies')||'[]')}catch(e){}
+try{reinf=JSON.parse(localStorage.getItem('wos_reinf')||'[]')}catch(e){}
+try{const g=JSON.parse(localStorage.getItem('wos_groups')||'null');if(Array.isArray(g)&&g.length)groups=g}catch(e){}
+reinf.forEach(x=>{if(!(x.off>=0))x.off=0;if(!x.ref||x.ref==='imp')x.ref='g0'});
+const save=()=>{try{localStorage.setItem('wos_rallies',JSON.stringify(rallies));localStorage.setItem('wos_reinf',JSON.stringify(reinf));localStorage.setItem('wos_groups',JSON.stringify(groups));localStorage.setItem('wos_grp',$('grp').value);localStorage.setItem('wos_pct',$('petpct').value);localStorage.setItem('wos_prep',$('prep').value);localStorage.setItem('wos_vg',$('vg').value);localStorage.setItem('wos_voice',$('voice').checked?'1':'0');localStorage.setItem('wos_snd',$('snd').checked?'1':'0')}catch(e){}};
+try{const p=localStorage.getItem('wos_pct');if(p!==null)$('petpct').value=p;const q=localStorage.getItem('wos_prep');if(q!==null)$('prep').value=q;const g=localStorage.getItem('wos_vg');if(g)$('vg').value=g;const v=localStorage.getItem('wos_voice');if(v)$('voice').checked=v==='1';const gp=localStorage.getItem('wos_grp');if(gp)$('grp').value=gp;const n=localStorage.getItem('wos_snd');if(n)$('snd').checked=n==='1'}catch(e){}
+
+function setTheme(t){document.documentElement.dataset.theme=t;$('theme').textContent=t==='dark'?'Light mode':'Dark mode';try{localStorage.setItem('wos_theme',t)}catch(e){}}
+let th=null;try{th=localStorage.getItem('wos_theme')}catch(e){}
+setTheme(th||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+$('theme').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
+
+const pad=n=>String(n).padStart(2,'0');
+const fmt=s=>{s=Math.max(0,Math.ceil(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return (h?h+':'+pad(m):m)+':'+pad(s%60)};
+const mmss=s=>{s=Math.round(s);return Math.floor(s/60)+':'+pad(s%60)};
+const parseMS=v=>{const[m,s]=v.split(':').map(Number);return m*60+s};
+const MS=/^\d{1,3}:[0-5]\d$/;
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pct=()=>Math.min(90,Math.max(0,+$('petpct').value||0));
+const ADV=()=>document.body.classList.contains('advanced');
+const ngEff=()=>ADV()?groups.length:1;
+const gname=k=>(groups[k]&&groups[k].name)||'Group '+(k+1);
+const gIdx=r=>ADV()?Math.min(Math.max(+r.grp||0,0),groups.length-1):0;
+const effMarch=r=>r.pet?Math.round(r.march*(1-pct()/100)):r.march;
+const total=r=>r.len+effMarch(r);
+const inGroup=k=>rallies.filter(r=>gIdx(r)===k);
+const sorted=k=>[...inGroup(k)].sort((a,b)=>total(b)-total(a)||a.name.localeCompare(b.name));
+const hitOf=x=>hits.find(h=>String(h.id)===String(x.ref))||null;
+const refGroup=x=>{const m=/^g(\d+)$/.exec(x.ref||'');return m?Math.min(+m[1],groups.length-1):null};
+const GG=k=>Math.max(0,...inGroup(k).map(total),...(ADV()?reinf:[]).filter(x=>refGroup(x)===k).map(x=>x.march-x.off));
+const rkey=x=>{const g=refGroup(x);return g===null?-1:g};
+const sortedR=()=>[...reinf].sort((a,b)=>rkey(a)-rkey(b)||(b.march-b.off)-(a.march-a.off)||a.name.localeCompare(b.name));
+const OFFS=[[0,'With impact'],[0.5,'0.5s after'],[1,'1s after'],[2,'2s after'],[3,'3s after'],[5,'5s after']];
+const refOpts=sel=>'<option value="next"'+(sel==='next'?' selected':'')+'>Next enemy hit</option>'+hits.map(h=>`<option value="${h.id}"${String(h.id)===sel?' selected':''}>Enemy: ${esc(h.name)}</option>`).join('')+groups.map((g,k)=>`<option value="g${k}"${sel==='g'+k?' selected':''}>${groups.length>1?'Own: '+esc(gname(k)):'Own rally'}</option>`).join('');
+const selRef=x=>refGroup(x)!==null?'g'+refGroup(x):(hitOf(x)?String(x.ref):'next');
+const GC=['#1c78b8','#d8832d','#8a5cd6','#1e9b57','#d6407a','#2a9fa6'];
+const gcol=k=>GC[k%GC.length];
+const nowT=()=>paused||Date.now();
+const anyRun=()=>runs.some(Boolean);
+function setMode(m){document.body.classList.toggle('advanced',m==='adv');document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));try{localStorage.setItem('wos_mode',m)}catch(e){}}
+function targetOf(x){
+  const g=refGroup(x);
+  if(g!==null){const R=runs[g];return R?{key:'g'+g+'#'+R.rid,ref:R.impact,label:groups.length>1?gname(g):'own rally'}:null}
+  let h=hitOf(x);
+  if(!h)h=[...hits].sort((a,b)=>a.t-b.t).find(h=>h.t+6000>nowT());
+  return h?{key:'h'+h.id,ref:h.t,label:h.name}:null;
+}
+function senderT(x){const t=targetOf(x);return t?{call:t.ref+(x.off-x.march)*1000,ms:t.ref+x.off*1000,key:t.key,label:t.label}:null}
+
+/* ---------- rendering ---------- */
+function rowHtml(r,i,k,max,n){
+  const R=runs[k],lock=R?'disabled':'',it=R&&R.items.find(x=>x.id===r.id),em=effMarch(r);
+  const opts=[[60,'1 min'],[180,'3 min'],[300,'5 min'],[600,'10 min'],[900,'15 min'],[1800,'30 min']].map(([v,l])=>`<option value="${v}" ${v===r.len?'selected':''}>${l}</option>`).join('');
+  const gsel=n>1?`<label class="f">Group<select data-f="grp" aria-label="Group" ${lock}>${groups.map((g,j)=>`<option value="${j}" ${j===k?'selected':''}>${esc(gname(j))}</option>`).join('')}</select></label>`:'';
+  return `<div class="rw${r.id===lastAdded?' new':''}" data-id="${r.id}">
+<div class="top"><span class="ord">${i+1}</span>
+<input class="nm" data-f="name" value="${esc(r.name)}" maxlength="24" aria-label="Name" ${lock}>
+<label class="f">March<input class="mt" data-f="march" value="${mmss(r.march)}" aria-label="March time mm:ss" ${lock}></label>
+<label class="f">Rally<select data-f="len" aria-label="Rally length" ${lock}>${opts}</select></label>${gsel}
+<label class="chk pet"><input type="checkbox" data-f="pet" ${r.pet?'checked':''} ${lock}> Pet</label>
+<button class="x" data-del="${r.id}" aria-label="Remove ${esc(r.name)}" ${lock}>✕</button></div>
+<div class="trk" role="img" aria-label="${esc(r.name)} timeline"><i style="width:${(max-total(r))/max*100}%"></i><i class="rl" style="width:${r.len/max*100}%"></i><i class="mr" style="width:${em/max*100}%"></i></div>
+<div class="meta"><span>Call at <b>T+${mmss(max-total(r))}</b>${it?' · <b>'+new Date(it.call).toLocaleTimeString()+'</b>':''}</span><span>March ${mmss(em)}${r.pet?' (pet −'+pct()+'%)':''}</span><span>Total ${mmss(total(r))}</span><span class="st"></span></div></div>`;
+}
+function render(){
+  renderR();renderGroups();
+  const n=ngEff();
+  $('leg').hidden=!rallies.length;
+  if(!rallies.length){$('list').innerHTML='<div class="empty">No rally leaders yet. Add a name, march time and rally length above.</div>';$('hint').textContent=''}
+  else{
+    $('list').innerHTML=Array.from({length:n},(_,k)=>{
+      const rs=sorted(k),max=GG(k)||1;
+      const head=n>1?`<h3 class="gtitle"><span class="gdot"></span>${esc(gname(k))} <span class="muted">· ${rs.length} leader${rs.length===1?'':'s'}${rs.length?' · total '+mmss(max):''}</span></h3>`:'';
+      return `<div class="gwrap${n>1?' grouped':''}" data-k="${k}"${n>1?` style="--gc:${gcol(k)}"`:''}><i class="nowline"></i>${head}${rs.length?rs.map((r,i)=>rowHtml(r,i,k,max,n)).join(''):'<div class="empty">No leaders in this group yet.</div>'}</div>`;
+    }).join('');
+    $('hint').textContent='Longest total (rally + march) calls first so every march lands together'+(n>1?' within each group.':'.')+' The orange line shows where the timer is now.';
+  }
+  lastAdded=null;buildCards();syncButtons();step();
+}
+function renderGroups(){
+  $('ngc').value=groups.length;$('ngc').disabled=anyRun();$('gcount').textContent='· '+groups.length+(groups.length===1?' group':' groups');
+  $('glist').innerHTML=groups.map((g,k)=>{const lock=runs[k]?'disabled':'';
+    const sum=g.lin?'Lands in '+esc(g.lin):g.clock?'Lands at '+esc(g.clock):'Landing time (optional)';
+    return `<div class="rw" data-k="${k}" style="--gc:${gcol(k)}"><div class="top"><span class="ord">${k+1}</span>
+<input class="nm" data-gf="name" value="${esc(gname(k))}" maxlength="20" aria-label="Group name" ${lock}>
+<details class="gdet" data-k="${k}" ${g.open?'open':''}><summary>${sum}</summary><div class="row">
+<label class="f">Lands in<input class="mt" data-gf="lin" value="${esc(g.lin||'')}" placeholder="mm:ss" aria-label="Lands in mm:ss" ${lock}></label>
+<label class="f">or at clock<input type="time" step="1" data-gf="clock" value="${esc(g.clock||'')}" aria-label="Land at clock time" ${lock}></label>
+<span class="muted">Empty = start right away.</span></div></details></div></div>`}).join('');
+  const a=$('agrp'),cur=a.value;a.innerHTML=groups.map((g,k)=>`<option value="${k}">${esc(gname(k))}</option>`).join('');if(cur&&+cur<groups.length)a.value=cur;
+}
+function renderR(){
+  const s=sortedR(),sel=$('rref'),cur=sel.value||'next';
+  sel.innerHTML=refOpts(cur);
+  $('rcount').textContent='· '+hits.length+(hits.length===1?' enemy rally':' enemy rallies')+' · '+reinf.length+(reinf.length===1?' sender':' senders');
+  $('hlist').innerHTML=hits.length?[...hits].sort((a,b)=>a.t-b.t).map(h=>`<div class="rw h${h.id===lastAdded?' new':''}" data-id="${h.id}"><div class="top"><span class="ord">!</span>
+<input class="nm" data-f="name" value="${esc(h.name)}" maxlength="20" aria-label="Enemy rally name">
+<label class="f">March<input class="mt" data-f="march" value="${mmss(h.march)}" aria-label="March to impact"></label>
+<label class="f">Rally left<input class="mt" data-f="rally" value="${mmss(h.rally)}" aria-label="Rally time left when added"></label>
+<button class="x" data-del="${h.id}" aria-label="Remove ${esc(h.name)}">✕</button></div>
+<div class="meta"><span>Lands at <b>${new Date(h.t).toLocaleTimeString()}</b></span><span class="st"></span></div></div>`).join(''):'<div class="empty">No incoming enemy rally. Enter its march time and rally time left, then press Add &amp; start.</div>';
+  $('rlist').innerHTML=s.length?s.map(x=>{
+    const T=senderT(x),h=hitOf(x),g=refGroup(x);
+    const opts=OFFS.map(([v,l])=>`<option value="${v}" ${v===x.off?'selected':''}>${l}</option>`).join('');
+    const tgt=g!==null?(groups.length>1?esc(gname(g)):'own rally'):(h?'enemy '+esc(h.name):'the next enemy rally');
+    return `<div class="rw g${x.id===lastAdded?' new':''}" data-id="${x.id}">
+<div class="top"><span class="ord">↗</span>
+<input class="nm" data-f="name" value="${esc(x.name)}" maxlength="24" aria-label="Name">
+<label class="f">March<input class="mt" data-f="march" value="${mmss(x.march)}" aria-label="March to garrison mm:ss"></label>
+<label class="f">Toward<select data-f="ref" aria-label="Counts toward">${refOpts(selRef(x))}</select></label>
+<label class="f">Arrive<select data-f="off" aria-label="Arrival offset">${opts}</select></label>
+<button class="x" data-del="${x.id}" aria-label="Remove ${esc(x.name)}">✕</button></div>
+<div class="meta"><span>Send <b>${mmss(x.march-x.off)}</b> before landing${T?' · <b>'+new Date(T.call).toLocaleTimeString()+'</b>':''}</span><span>Arrives ${x.off?x.off+'s after':'with'} ${tgt}</span><span class="st"></span></div></div>`}).join(''):'<div class="empty">No senders yet. Add a sender and their march time to the garrison.</div>';
+}
+function buildCards(){
+  const n=ngEff(),multi=n>1;
+  $('big').classList.toggle('multi',multi);
+  $('gcards').innerHTML=Array.from({length:n},(_,k)=>`<div class="gcard off" data-k="${k}"${multi?` style="--gc:${gcol(k)}"`:''}>
+<div class="cname">${multi?esc(gname(k)):''}</div><div class="cphase"></div><div class="ccount"></div><div class="csub"></div><div class="cwho"></div><div class="ccd"></div>
+<div class="stats"><div><span>Until march</span><b class="csm"></b><small class="csmn"></small></div><div><span>Until impact</span><b class="csi"></b><small class="csit"></small></div></div>
+${multi?`<div class="cstartw"><button type="button" class="start" data-start="${k}">Start ${esc(gname(k))}</button></div><div class="adj cadj" hidden><span>This group</span><button type="button" data-adj="-10" data-k="${k}">−10s</button><button type="button" data-adj="-1" data-k="${k}">−1s</button><button type="button" data-adj="1" data-k="${k}">+1s</button><button type="button" data-adj="10" data-k="${k}">+10s</button><button type="button" class="stop" data-stopg="${k}">Stop</button></div>`:''}
+<div class="prog"><i class="cpg"></i></div></div>`).join('');
+}
+let wake=null,waking=false;
+async function syncWake(){
+  const need=anyRun()||hits.length>0;
+  if(waking)return;waking=true;
+  try{
+    if(need&&!wake&&'wakeLock' in navigator&&document.visibilityState==='visible'){wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>{wake=null})}
+    else if(!need&&wake){await wake.release();wake=null}
+  }catch(e){wake=null}
+  waking=false;
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')syncWake()});
+function syncButtons(){
+  const adv=ADV(),any=anyRun()||hits.length>0;
+  $('start').hidden=!adv&&anyRun();$('start').textContent=adv&&groups.length>1?'Start all groups':'Start timer';
+  $('stop').hidden=!any;$('pause').hidden=!any;
+  document.querySelectorAll('[data-pause]').forEach(b=>b.textContent=paused?'Resume':'Pause');
+  syncWake();
+}
+
+/* ---------- input handlers ---------- */
+const enterBlur=e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT')e.target.blur()};
+$('form').addEventListener('submit',()=>{
+  const name=$('name').value.trim();if(!name||!MS.test($('march').value))return;
+  lastAdded=Date.now()+Math.random();
+  rallies.push({id:lastAdded,name,march:parseMS($('march').value),len:+$('len').value,pet:$('pet').checked,grp:ADV()?+$('agrp').value||0:0});
+  $('name').value='';$('name').focus();save();render();
+});
+$('list').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(!b)return;const r=rallies.find(r=>String(r.id)===b.dataset.del);if(r&&!runs[gIdx(r)]){rallies=rallies.filter(x=>x!==r);save();render()}});
+$('list').addEventListener('change',e=>{
+  const f=e.target.dataset.f;if(!f)return;
+  const r=rallies.find(r=>String(r.id)===e.target.closest('.rw').dataset.id);if(!r||runs[gIdx(r)])return;
+  if(f==='name'){const v=e.target.value.trim();if(v)r.name=v}
+  else if(f==='march'){if(MS.test(e.target.value.trim()))r.march=parseMS(e.target.value.trim())}
+  else if(f==='len')r.len=+e.target.value;
+  else if(f==='grp')r.grp=+e.target.value;
+  else if(f==='pet')r.pet=e.target.checked;
+  lastAdded=r.id;save();render();
+});
+$('list').addEventListener('keydown',enterBlur);
+$('ngc').addEventListener('change',()=>{
+  const n=Math.max(1,Math.min(6,Math.round(+$('ngc').value)||1));
+  while(groups.length<n)groups.push({name:'Group '+(groups.length+1),lin:'',clock:''});
+  groups.length=n;rallies.forEach(r=>{if((+r.grp||0)>=n)r.grp=n-1});runs.length=Math.min(runs.length,n);save();render();
+});
+$('glist').addEventListener('change',e=>{
+  const f=e.target.dataset.gf;if(!f)return;
+  const k=+e.target.closest('.rw').dataset.k,g=groups[k],v=e.target.value.trim();if(runs[k])return;
+  if(f==='name')g.name=v||'Group '+(k+1);else if(f==='lin'){if(!v||MS.test(v))g.lin=v}else g.clock=e.target.value;
+  save();render();
+});
+$('glist').addEventListener('toggle',e=>{const d=e.target;if(d.dataset&&d.dataset.k!==undefined&&groups[+d.dataset.k])groups[+d.dataset.k].open=d.open},true);
+$('glist').addEventListener('keydown',enterBlur);
+$('rform').addEventListener('submit',()=>{
+  const name=$('rname').value.trim();if(!name||!MS.test($('rmarch').value))return;
+  lastAdded=Date.now()+Math.random();reinf.push({id:lastAdded,name,march:parseMS($('rmarch').value),off:+$('roff').value,ref:$('rref').value||'next'});
+  $('rname').value='';$('rname').focus();save();render();
+});
+$('rlist').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(b){reinf=reinf.filter(x=>String(x.id)!==b.dataset.del);save();render()}});
+$('rlist').addEventListener('change',e=>{
+  const f=e.target.dataset.f;if(!f)return;
+  const x=reinf.find(x=>String(x.id)===e.target.closest('.rw').dataset.id);if(!x)return;
+  if(f==='name'){const v=e.target.value.trim();if(v)x.name=v}
+  else if(f==='march'){if(MS.test(e.target.value.trim()))x.march=parseMS(e.target.value.trim())}
+  else if(f==='off')x.off=+e.target.value;
+  else if(f==='ref')x.ref=e.target.value;
+  lastAdded=x.id;save();render();
+});
+$('rlist').addEventListener('keydown',enterBlur);
+$('hform').addEventListener('submit',()=>{
+  const mv=$('hmarch').value.trim(),rv=$('hrally').value.trim();
+  if(!MS.test(mv)||!MS.test(rv))return;
+  const march=parseMS(mv),rally=parseMS(rv);lastAdded=Date.now()+Math.random();
+  hits.push({id:lastAdded,name:$('hname').value.trim()||'Enemy '+(hits.length+1),march,rally,t:nowT()+(march+rally)*1000,done:false});
+  $('hname').value='';$('hmarch').value='';$('hrally').value='';$('hmarch').focus();
+  beep(600,.12);render();
+});
+$('hlist').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(b){hits=hits.filter(h=>String(h.id)!==b.dataset.del);if(!anyRun()&&!hits.length)paused=null;render()}});
+$('hlist').addEventListener('change',e=>{
+  const f=e.target.dataset.f;if(!f)return;
+  const h=hits.find(h=>String(h.id)===e.target.closest('.rw').dataset.id);if(!h)return;
+  const v=e.target.value.trim();
+  if(f==='name'){if(v)h.name=v}
+  else if(MS.test(v)){const nv=parseMS(v);h.t+=(nv-h[f])*1000;h[f]=nv;h.done=h.t<=nowT()}
+  lastAdded=h.id;render();
+});
+$('hlist').addEventListener('keydown',enterBlur);
+function setGrp(){const v=$('grp').value.trim();document.title='Rally timer'+(v?' – '+v:'')}
+$('grp').addEventListener('input',()=>{setGrp();save()});
+$('petpct').addEventListener('change',()=>{save();render()});
+$('prep').onchange=save;$('voice').onchange=save;$('snd').onchange=save;
+$('vg').onchange=()=>{save();say('Voice test. Call rally now')};
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{setMode(b.dataset.mode);render()});
+$('clear').onclick=()=>{stopAll();if((rallies.length||reinf.length||hits.length)&&confirm('Remove all rally leaders, senders and enemy hits?')){rallies=[];reinf=[];hits=[];save();render()}};
+
+/* ---------- audio ---------- */
+let ac=null;
+function beep(f=880,d=.18){if(!$('snd').checked)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=.15;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+let voices=[];
+if(window.speechSynthesis){const lv=()=>{voices=speechSynthesis.getVoices()};lv();speechSynthesis.onvoiceschanged=lv}
+const FEM=/female|samantha|zira|victoria|karen|moira|tessa|fiona|susan|hazel|jenny|aria|serena|allison|ava|libby|sonia|natasha|linda|heather|catherine/i;
+const MAL=/male|daniel|david|alex|fred|mark|guy|thomas|oliver|george|james|ryan|liam|ralph|rishi|arthur|aaron/i;
+function pickVoice(g){const en=voices.filter(v=>/^en/i.test(v.lang));const pool=en.length?en:voices;return pool.find(v=>g==='female'?FEM.test(v.name):(MAL.test(v.name)&&!/female/i.test(v.name)))}
+function say(t){
+  if(!$('voice').checked||!window.speechSynthesis)return;
+  try{const g=$('vg').value,u=new SpeechSynthesisUtterance(t),v=pickVoice(g);
+    if(v)u.voice=v;else u.pitch=g==='female'?1.35:0.65;
+    speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}
+}
+
+/* ---------- run control ---------- */
+function startGroup(k,quiet){
+  if(runs[k])return true;
+  if(paused){if(!quiet)alert('Resume the timer first.');return false}
+  const adv=ADV(),leaders=inGroup(k);
+  if(!leaders.length){if(!quiet)alert('Add a rally leader to '+(adv&&groups.length>1?gname(k):'the schedule')+' first.');return false}
+  const S=Date.now(),prep=+$('prep').value,g=GG(k),src=adv?groups[k]:{lin:$('lin').value.trim(),clock:$('target').value};let impact;
+  if(src.lin){if(!MS.test(src.lin)){alert('Use mm:ss for "Lands in", for example 02:30.');return false}impact=S+parseMS(src.lin)*1000}
+  else if(src.clock){const[h,m,sec]=src.clock.split(':').map(Number);const d=new Date();d.setHours(h,m,sec||0,0);if(d<=S)d.setDate(d.getDate()+1);impact=d.getTime()}
+  else impact=S+(g+(prep||3))*1000;
+  if((src.lin||src.clock)&&impact-g*1000<S-500&&!confirm((groups.length>1&&adv?gname(k)+': ':'')+'that landing time is too soon for the first call. Start anyway with the first calls late?'))return false;
+  const items=leaders.map(r=>({id:r.id,name:r.name,call:impact-total(r)*1000,ms:impact-effMarch(r)*1000,pre:false,called:false,lb:null})).sort((a,b)=>a.call-b.call);
+  runs[k]={rid:++ridc,start:S,impact,span:g||1,items,fin:false};
+  beep(660,.1);say(adv&&groups.length>1?gname(k)+' started':'Timer started');
+  syncButtons();render();return true;
+}
+function stopGroup(k){runs[k]=null;if(!anyRun()&&!hits.length)paused=null;syncButtons();render()}
+function stopAll(){runs=[];hits=[];sst={};paused=null;try{speechSynthesis.cancel()}catch(e){}syncButtons();render()}
+$('start').onclick=()=>{
+  if(ADV()){if(!rallies.length){alert('Add a rally leader first.');return}for(let k=0;k<groups.length;k++)startGroup(k,true)}
+  else startGroup(0);
+};
+$('stop').onclick=stopAll;
+
+function shiftAll(ms,withStart){runs.forEach(R=>{if(!R)return;R.impact+=ms;if(withStart)R.start+=ms;for(const it of R.items){it.call+=ms;it.ms+=ms}});for(const h of hits)h.t+=ms}
+function adjust(d,k){
+  const ms=d*1000;
+  if(k==null)shiftAll(ms,false);else{const R=runs[k];if(!R)return;R.impact+=ms;for(const it of R.items){it.call+=ms;it.ms+=ms}}
+  const now=nowT();runs.forEach(R=>{if(R&&R.impact>now)R.fin=false});
+  render();
+}
+function togglePause(){
+  if(!anyRun()&&!hits.length)return;
+  if(paused){const d=Date.now()-paused;paused=null;shiftAll(d,true)}
+  else{paused=Date.now();try{speechSynthesis.cancel()}catch(e){}}
+  syncButtons();render();
+}
+document.addEventListener('click',e=>{
+  if(e.target.closest('[data-pause]'))return togglePause();
+  const b=e.target.closest('[data-adj]');if(b)return adjust(+b.dataset.adj,b.dataset.k===undefined?null:+b.dataset.k);
+  const s=e.target.closest('[data-start]');if(s)return void startGroup(+s.dataset.start);
+  const t=e.target.closest('[data-stopg]');if(t)stopGroup(+t.dataset.stopg);
+});
+
+/* ---------- tick ---------- */
+const q=(c,s)=>c.querySelector(s);
+function step(){
+  const now=nowT(),prep=+$('prep').value,multi=ngEff()>1,pf=k=>multi?gname(k)+', ':'';
+  const nextR=[];let changed=false;
+  runs.forEach((R,k)=>{
+    if(!R)return;
+    for(const it of R.items){
+      const dt=(it.call-now)/1000;
+      if(it.called&&dt>0){it.called=false;it.pre=false;it.lb=null}
+      if(prep&&!it.pre&&dt<=prep&&dt>0){it.pre=true;say('Get ready, '+pf(k)+it.name+', in '+Math.round(dt)+' seconds')}
+      if(prep&&dt>0&&dt<=5){const c=Math.ceil(dt);if(it.lb!==c){it.lb=c;beep(700,.08)}}
+      if(!it.called&&dt<=0){it.called=true;it.pre=true;beep(1000,.4);say(pf(k)+it.name+', call rally now')}
+      if(!it.called&&nextR[k]===undefined)nextR[k]=it;
+    }
+  });
+  const adv=ADV(),sen=[];
+  if(adv){
+    for(const h of hits){if(!h.done&&h.t<=now){h.done=true;beep(500,.3)}}
+    for(const x of reinf){
+      const T=senderT(x);if(!T)continue;
+      const key=x.id+'|'+T.key,st=sst[key]||(sst[key]={pre:false,called:false,lb:null}),dt=(T.call-now)/1000;
+      if(st.called&&dt>0){st.called=false;st.pre=false;st.lb=null}
+      if(prep&&!st.pre&&dt<=prep&&dt>0){st.pre=true;say('Get ready, '+x.name+', send in '+Math.round(dt)+' seconds')}
+      if(prep&&dt>0&&dt<=5){const c=Math.ceil(dt);if(st.lb!==c){st.lb=c;beep(700,.08)}}
+      if(!st.called&&dt<=0){st.called=true;st.pre=true;beep(1000,.4);say(x.name+', send reinforcements now')}
+      sen.push({x,T,st,dt});
+    }
+  }
+  const pendSen=adv?reinf.filter(x=>!senderT(x)).length:0;
+  const nextG=sen.filter(s=>!s.st.called).sort((a,b)=>a.T.call-b.T.call)[0]||null;
+  for(const r of rallies){
+    const k=gIdx(r),R=runs[k],row=document.querySelector(`.rw[data-id="${r.id}"]`);if(!row)continue;
+    const it=R&&R.items.find(i=>i.id===r.id);
+    if(!it){row.className='rw';q(row,'.st').textContent='';continue}
+    const dt=(it.call-now)/1000;
+    row.className='rw'+(it.called?' done':it===nextR[k]?' next':'');
+    q(row,'.st').textContent=!it.called?'Waiting · call in '+fmt(dt):now>=R.impact?'Landed':now>=it.ms?'Marching':'Filling · march in '+fmt((it.ms-now)/1000);
+  }
+  for(const x of reinf){
+    const row=document.querySelector(`.rw[data-id="${x.id}"]`);if(!row)continue;
+    const s=sen.find(s=>s.x===x),g=refGroup(x);
+    row.className='rw g'+(s&&s.st.called?' done':s&&s===nextG?' next':'');
+    q(row,'.st').textContent=!adv?'':!s?'Waiting for '+(g!==null?gname(g)+' to start':'an enemy rally'):!s.st.called?'Send in '+fmt(s.dt)+' · for '+s.T.label:now>=s.T.ms?'Arrived':'Sent, arrives in '+fmt((s.T.ms-now)/1000);
+  }
+  for(const h of hits){const row=document.querySelector(`.rw[data-id="${h.id}"] .st`);if(row)row.textContent=h.t<=now?'Landed':'Lands in '+fmt((h.t-now)/1000)}
+  document.querySelectorAll('.gwrap').forEach(w=>{const k=+w.dataset.k,R=runs[k];
+    if(R){const span=R.span*1000,p=Math.min(1,Math.max(0,(now-(R.impact-span))/span));w.classList.add('live');w.style.setProperty('--p',p)}else w.classList.remove('live')});
+  const cards=$('gcards').children;
+  for(let k=0;k<cards.length;k++){
+    const c=cards[k],R=runs[k],sw=q(c,'.cstartw'),aj=q(c,'.cadj');
+    if(sw)sw.hidden=!!R;if(aj)aj.hidden=!R;
+    if(!R){
+      const src=ADV()?groups[k]:{lin:$('lin').value.trim(),clock:$('target').value},n=inGroup(k).length;
+      c.className='gcard off';const ph=q(c,'.cphase');ph.className='cphase ph-wait';ph.textContent='Not started';
+      q(c,'.ccount').textContent=n+' leader'+(n===1?'':'s');
+      q(c,'.csub').textContent=src.lin?'Lands in '+src.lin:src.clock?'Lands at '+src.clock:'Starts right away';
+      q(c,'.cwho').textContent='Timer idle';q(c,'.ccd').textContent='--:--';q(c,'.csm').textContent='--:--';q(c,'.csmn').textContent='';q(c,'.csi').textContent='--:--';q(c,'.csit').textContent='';q(c,'.cpg').style.width='0';
+      continue;
+    }
+    const left=(R.impact-now)/1000,nx=nextR[k];
+    let nm=null,wait=0,open=0,march=0;
+    for(const it of R.items){if(!it.called)wait++;else if(now<it.ms)open++;else march++;if(it.ms>now&&(!nm||it.ms<nm.ms))nm=it}
+    let phase,pcls;
+    if(left<=0){phase='Impact';pcls='ph-fin'}
+    else if(wait===R.items.length){phase='Waiting';pcls='ph-wait'}
+    else if(wait>0||open>0){phase='Filling rallies';pcls='ph-fill'}
+    else{phase='Marching';pcls='ph-march'}
+    const ph=q(c,'.cphase');ph.className='cphase '+pcls;ph.textContent=phase;
+    q(c,'.ccount').textContent=wait+' waiting · '+open+' open · '+march+' marching';
+    q(c,'.csm').textContent=nm?fmt((nm.ms-now)/1000):'--:--';q(c,'.csmn').textContent=nm?nm.name+' marches':'All marching';
+    q(c,'.csi').textContent=fmt(Math.max(0,left));q(c,'.csit').textContent='lands '+new Date(R.impact).toLocaleTimeString();
+    q(c,'.cpg').style.width=Math.min(100,Math.max(0,(now-R.start)/(R.impact-R.start)*100))+'%';
+    let cls='gcard',sub,who,cd;
+    if(nx){const dt=(nx.call-now)/1000;if(prep&&dt<=prep)cls+=' soon';if(dt<=1.5)cls+=' go';sub=(prep&&dt<=prep?'Get ready: ':'Next: ')+'call rally';who=nx.name;cd=fmt(dt)}
+    else if(left>0){sub='Landing in';who='All rallies called';cd=fmt(left)}
+    else{cls+=' fin';sub='';who='Impact!';cd='';if(!R.fin){R.fin=true;beep(1200,.5);say((multi?gname(k)+', ':'')+'impact')}}
+    if(paused){cls+=' paused';sub='Paused · '+sub}
+    c.className=cls;q(c,'.csub').textContent=sub;q(c,'.cwho').textContent=who;q(c,'.ccd').textContent=cd;
+  }
+  const gb=$('gbox'),gshow=adv&&(hits.length>0||sen.length>0);gb.hidden=!gshow;
+  if(gshow){
+    $('glive').innerHTML=[...hits].sort((a,b)=>a.t-b.t).map(h=>`<div class="hl${h.t<=now?' done':''}"><span>${esc(h.name)}</span><b>${h.t<=now?'Landed':fmt((h.t-now)/1000)}</b></div>`).join('');
+    $('gsum').textContent=sen.length?sen.filter(s=>s.st.called).length+'/'+sen.length+' sent':'';
+    const after=sen.filter(s=>!s.st.called&&s!==nextG).sort((a,b)=>a.T.call-b.T.call)[0];
+    if(nextG){$('gwho').textContent='Send '+nextG.x.name;$('gcd').textContent=fmt(nextG.dt);gb.className='gbox adv'+(prep&&nextG.dt<=prep?' soon':'');$('gmeta').textContent='to arrive with '+nextG.T.label+(after?' · then '+after.x.name+' in '+fmt(after.dt):'')}
+    else{$('gwho').textContent=!reinf.length?'No senders added':pendSen?'Waiting for a target':'All sent';$('gcd').textContent='';gb.className='gbox adv';$('gmeta').textContent=''}
+  }
+  $('big').classList.toggle('idle',!anyRun()&&!gshow);
+  if(!paused){
+    runs.forEach((R,k)=>{if(R&&now>Math.max(R.impact,...R.items.map(i=>i.ms))+30000){runs[k]=null;changed=true}});
+    const keep=hits.filter(h=>now<h.t+30000);if(keep.length!==hits.length){hits=keep;changed=true}
+    if(changed){if(!anyRun()&&!hits.length)paused=null;setTimeout(()=>{syncButtons();render()},0)}
+  }
+}
+setInterval(step,200);
+
+let md='easy';try{md=localStorage.getItem('wos_mode')||'easy'}catch(e){}
+setMode(md);setGrp();render();
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>

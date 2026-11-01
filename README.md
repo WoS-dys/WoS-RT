@@ -16,3 +16,4 @@ Static web app. No build step. Files:
 ## Notes
 - Keep the app on screen while timing. It asks the browser to keep the screen awake while a timer runs.
 - Leaders, groups and settings are saved in the browser on each device, not shared between devices.
+- v3

@@ -201,6 +201,7 @@ details.panel[open]>summary{margin-bottom:12px}
     <button class="stop" id="stop" type="button" hidden>Stop</button>
     <label>Prep countdown<select id="prep"><option value="0">Off</option><option value="10" selected>10 sec</option><option value="20">20 sec</option></select></label>
     <label>Voice<select id="vg"><option value="female">Female</option><option value="male">Male</option></select></label>
+    <label>Voice style<select id="vstyle"><option value="1">1 · Name only</option><option value="2" selected>2 · Name + countdown</option></select></label>
     <details class="mainonly" id="landDet"><summary>Landing time (optional)</summary>
       <div class="rcolin">
         <label>Land at clock time<input id="target" type="time" step="1"></label>
@@ -301,8 +302,8 @@ try{rallies=JSON.parse(localStorage.getItem('wos_rallies')||'[]')}catch(e){}
 try{reinf=JSON.parse(localStorage.getItem('wos_reinf')||'[]')}catch(e){}
 try{const g=JSON.parse(localStorage.getItem('wos_groups')||'null');if(Array.isArray(g)&&g.length)groups=g}catch(e){}
 reinf.forEach(x=>{if(!(x.off>=0))x.off=0;if(!x.ref||x.ref==='imp')x.ref='g0'});
-const save=()=>{try{localStorage.setItem('wos_rallies',JSON.stringify(rallies));localStorage.setItem('wos_reinf',JSON.stringify(reinf));localStorage.setItem('wos_groups',JSON.stringify(groups));localStorage.setItem('wos_grp',$('grp').value);localStorage.setItem('wos_pct',$('petpct').value);localStorage.setItem('wos_prep',$('prep').value);localStorage.setItem('wos_vg',$('vg').value);localStorage.setItem('wos_voice',$('voice').checked?'1':'0');localStorage.setItem('wos_snd',$('snd').checked?'1':'0')}catch(e){}};
-try{const p=localStorage.getItem('wos_pct');if(p!==null)$('petpct').value=p;const q=localStorage.getItem('wos_prep');if(q!==null)$('prep').value=q;const g=localStorage.getItem('wos_vg');if(g)$('vg').value=g;const v=localStorage.getItem('wos_voice');if(v)$('voice').checked=v==='1';const gp=localStorage.getItem('wos_grp');if(gp)$('grp').value=gp;const n=localStorage.getItem('wos_snd');if(n)$('snd').checked=n==='1'}catch(e){}
+const save=()=>{try{localStorage.setItem('wos_rallies',JSON.stringify(rallies));localStorage.setItem('wos_reinf',JSON.stringify(reinf));localStorage.setItem('wos_groups',JSON.stringify(groups));localStorage.setItem('wos_grp',$('grp').value);localStorage.setItem('wos_pct',$('petpct').value);localStorage.setItem('wos_prep',$('prep').value);localStorage.setItem('wos_vg',$('vg').value);localStorage.setItem('wos_vstyle',$('vstyle').value);localStorage.setItem('wos_voice',$('voice').checked?'1':'0');localStorage.setItem('wos_snd',$('snd').checked?'1':'0')}catch(e){}};
+try{const p=localStorage.getItem('wos_pct');if(p!==null)$('petpct').value=p;const q=localStorage.getItem('wos_prep');if(q!==null)$('prep').value=q;const g=localStorage.getItem('wos_vg');if(g)$('vg').value=g;const vs0=localStorage.getItem('wos_vstyle');if(vs0)$('vstyle').value=vs0;const v=localStorage.getItem('wos_voice');if(v)$('voice').checked=v==='1';const gp=localStorage.getItem('wos_grp');if(gp)$('grp').value=gp;const n=localStorage.getItem('wos_snd');if(n)$('snd').checked=n==='1'}catch(e){}
 
 function setTheme(t){document.documentElement.dataset.theme=t;$('theme').textContent=t==='dark'?'Light mode':'Dark mode';try{localStorage.setItem('wos_theme',t)}catch(e){}}
 let th=null;try{th=localStorage.getItem('wos_theme')}catch(e){}
@@ -511,6 +512,7 @@ $('grp').addEventListener('input',()=>{setGrp();save()});
 $('petpct').addEventListener('change',()=>{save();render()});
 $('prep').onchange=save;$('voice').onchange=save;$('snd').onchange=save;
 $('vg').onchange=()=>{save();say('Voice test. Call rally now')};
+$('vstyle').onchange=()=>{save();say($('vstyle').value==='2'?'Anna, call rally in, 3, 2, 1, now':'Anna')};
 document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{setMode(b.dataset.mode);render()});
 $('clear').onclick=()=>{stopAll();if((rallies.length||reinf.length||hits.length)&&confirm('Remove all rally leaders, senders and enemy hits?')){rallies=[];reinf=[];hits=[];save();render()}};
 
@@ -574,18 +576,23 @@ document.addEventListener('click',e=>{
 });
 
 /* ---------- tick ---------- */
+function vcd(o,dt,intro){
+  if(dt>6){o.v0=o.v1=o.v2=o.v3=false}
+  if(dt>3.6&&dt<=5.5&&!o.v0){o.v0=true;say(intro)}
+  if(dt>0&&dt<=3.2){const n=Math.max(1,Math.ceil(dt-0.2));if(!o['v'+n]){for(let i=n;i<=3;i++)o['v'+i]=true;say(String(n))}}
+}
 const q=(c,s)=>c.querySelector(s);
 function step(){
-  const now=nowT(),prep=+$('prep').value,multi=ngEff()>1,pf=k=>multi?gname(k)+', ':'';
+  const now=nowT(),prep=+$('prep').value,multi=ngEff()>1,pf=k=>multi?gname(k)+', ':'',vs2=$('vstyle').value==='2';
   const nextR=[];let changed=false;
   runs.forEach((R,k)=>{
     if(!R)return;
     for(const it of R.items){
       const dt=(it.call-now)/1000;
       if(it.called&&dt>0){it.called=false;it.pre=false;it.lb=null}
-      if(prep&&!it.pre&&dt<=prep&&dt>0){it.pre=true;say('Get ready, '+pf(k)+it.name+', in '+Math.round(dt)+' seconds')}
       if(prep&&dt>0&&dt<=5){const c=Math.ceil(dt);if(it.lb!==c){it.lb=c;beep(700,.08)}}
-      if(!it.called&&dt<=0){it.called=true;it.pre=true;beep(1000,.4);say(pf(k)+it.name+', call rally now')}
+      if(vs2&&!it.called)vcd(it,dt,pf(k)+it.name+', call rally in');
+      if(!it.called&&dt<=0){it.called=true;it.pre=true;beep(1000,.4);say(vs2?'now':pf(k)+it.name)}
       if(!it.called&&nextR[k]===undefined)nextR[k]=it;
     }
   });
@@ -596,9 +603,9 @@ function step(){
       const T=senderT(x);if(!T)continue;
       const key=x.id+'|'+T.key,st=sst[key]||(sst[key]={pre:false,called:false,lb:null}),dt=(T.call-now)/1000;
       if(st.called&&dt>0){st.called=false;st.pre=false;st.lb=null}
-      if(prep&&!st.pre&&dt<=prep&&dt>0){st.pre=true;say('Get ready, '+x.name+', send in '+Math.round(dt)+' seconds')}
       if(prep&&dt>0&&dt<=5){const c=Math.ceil(dt);if(st.lb!==c){st.lb=c;beep(700,.08)}}
-      if(!st.called&&dt<=0){st.called=true;st.pre=true;beep(1000,.4);say(x.name+', send reinforcements now')}
+      if(vs2&&!st.called)vcd(st,dt,x.name+', send in');
+      if(!st.called&&dt<=0){st.called=true;st.pre=true;beep(1000,.4);say(vs2?'now':x.name+', send')}
       sen.push({x,T,st,dt});
     }
   }

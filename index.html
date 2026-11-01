@@ -152,6 +152,7 @@ details.panel[open]>summary{margin-bottom:12px}
 .hl b{font-variant-numeric:tabular-nums;font-size:24px;color:var(--hot)}
 .hl.done b{color:var(--mute);font-size:16px}
 #glive{margin-bottom:6px}
+#upd{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--accent);border-radius:12px;padding:10px 14px;box-shadow:var(--sh);z-index:50}
 /* layout */
 .layout{display:flex;flex-direction:column}
 .col-run,.col-main,.col-live{display:contents}
@@ -292,7 +293,9 @@ details.panel[open]>summary{margin-bottom:12px}
 </div>
 
 </main>
+<p class="muted" style="text-align:center;margin-top:18px">Version <span id="ver"></span></p>
 </div>
+<div id="upd" hidden><span>A new version is ready.</span><button id="updbtn" type="button" class="pri">Reload</button></div>
 
 <script>
 const $=id=>document.getElementById(id);
@@ -679,7 +682,13 @@ setInterval(step,200);
 
 let md='easy';try{md=localStorage.getItem('wos_mode')||'easy'}catch(e){}
 setMode(md);setGrp();render();
-if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+const APP_VERSION='v4';$('ver').textContent=APP_VERSION;
+$('updbtn').onclick=()=>location.reload();
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){
+  let had=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!had){had=true;return}if(anyRun()||hits.length)$('upd').hidden=false;else location.reload()});
+  navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>{reg.update();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')reg.update()})}).catch(()=>{});
+}
 </script>
 </body>
 </html>

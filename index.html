@@ -194,11 +194,12 @@ details.panel[open]>summary{margin-bottom:12px}
 <body>
 <div class="wrap">
 <header>
-  <h1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5"/></svg>Rally timer<input id="grp" class="gname" maxlength="24" placeholder="Group name" aria-label="Group name"></h1>
+  <h1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5"/></svg>Rally timer<input id="grp" class="gname" maxlength="24" placeholder="Preset name" aria-label="Preset name"></h1>
   <div class="row">
     <div class="seg" role="group" aria-label="Mode"><button type="button" data-mode="easy">Main</button><button type="button" data-mode="adv">Advanced</button></div>
     <label class="chk"><input type="checkbox" id="voice" checked> Voice</label>
     <label class="chk"><input type="checkbox" id="snd" checked> Sound</label>
+    <select id="lang" aria-label="Language"><option value="en">English</option><option value="fr">Français</option><option value="de">Deutsch</option></select>
     <button id="theme" type="button">Dark mode</button>
   </div>
 </header>
@@ -231,7 +232,6 @@ details.panel[open]>summary{margin-bottom:12px}
 <div class="tabbar" id="tabbar">
   <div class="tabs" id="tabs" role="tablist" aria-label="Presets"></div>
   <div class="row tabctl">
-    <label>Preset name<input id="tabname" maxlength="20"></label>
     <button type="button" id="tabdup">Duplicate</button>
     <button type="button" id="tabdel">Delete tab</button>
   </div>
@@ -325,7 +325,7 @@ try{reinf=JSON.parse(localStorage.getItem('wos_reinf')||'[]')}catch(e){}
 try{const g=JSON.parse(localStorage.getItem('wos_groups')||'null');if(Array.isArray(g)&&g.length)groups=g}catch(e){}
 let tabs=[],curTab=0;
 try{const t=JSON.parse(localStorage.getItem('wos_tabs')||'null');if(Array.isArray(t)&&t.length){tabs=t.slice(0,3);curTab=Math.min(Math.max(+localStorage.getItem('wos_tab')||0,0),tabs.length-1);const c=tabs[curTab];rallies=c.rallies||[];reinf=c.reinf||[];groups=c.groups&&c.groups.length?c.groups:groups}}catch(e){}
-if(!tabs.length)tabs=[{name:'Preset 1'}];
+if(!tabs.length){let lg='';try{lg=localStorage.getItem('wos_grp')||''}catch(e){}tabs=[{name:lg||'Preset 1'}]}
 const PET_MS=2*3600*1000;
 const migrate=()=>{
   for(const t of tabs)for(const r of (t.rallies||[])){if(r.pet&&!r.petEnd)r.petEnd=Date.now()+PET_MS;if(r.pet&&r.petEnd<=Date.now()){r.pet=false;r.petEnd=null}}
@@ -334,7 +334,7 @@ const migrate=()=>{
   for(const x of reinf){if(!(x.off>=0))x.off=0;if(!x.ref||x.ref==='imp')x.ref='g0'}
 };
 migrate();
-const save=()=>{tabs[curTab]=Object.assign(tabs[curTab]||{name:'Preset '+(curTab+1)},{rallies,reinf,groups});try{localStorage.setItem('wos_tabs',JSON.stringify(tabs));localStorage.setItem('wos_tab',String(curTab));localStorage.setItem('wos_grp',$('grp').value);localStorage.setItem('wos_pct',$('petpct').value);localStorage.setItem('wos_prep',$('prep').value);localStorage.setItem('wos_vg',$('vg').value);localStorage.setItem('wos_vstyle',$('vstyle').value);localStorage.setItem('wos_voice',$('voice').checked?'1':'0');localStorage.setItem('wos_snd',$('snd').checked?'1':'0')}catch(e){}};
+const save=()=>{tabs[curTab]=Object.assign(tabs[curTab]||{name:'Preset '+(curTab+1)},{rallies,reinf,groups});try{localStorage.setItem('wos_tabs',JSON.stringify(tabs));localStorage.setItem('wos_tab',String(curTab));localStorage.setItem('wos_pct',$('petpct').value);localStorage.setItem('wos_prep',$('prep').value);localStorage.setItem('wos_vg',$('vg').value);localStorage.setItem('wos_vstyle',$('vstyle').value);localStorage.setItem('wos_voice',$('voice').checked?'1':'0');localStorage.setItem('wos_snd',$('snd').checked?'1':'0')}catch(e){}};
 try{const p=localStorage.getItem('wos_pct');if(p!==null)$('petpct').value=p;const q=localStorage.getItem('wos_prep');if(q!==null)$('prep').value=q;const g=localStorage.getItem('wos_vg');if(g)$('vg').value=g;const vs0=localStorage.getItem('wos_vstyle');if(vs0)$('vstyle').value=vs0;const v=localStorage.getItem('wos_voice');if(v)$('voice').checked=v==='1';const gp=localStorage.getItem('wos_grp');if(gp)$('grp').value=gp;const n=localStorage.getItem('wos_snd');if(n)$('snd').checked=n==='1'}catch(e){}
 
 function setTheme(t){document.documentElement.dataset.theme=t;$('theme').textContent=t==='dark'?'Light mode':'Dark mode';try{localStorage.setItem('wos_theme',t)}catch(e){}}
@@ -349,10 +349,149 @@ const mmss=s=>{s=Math.round(s);return Math.floor(s/60)+':'+pad(s%60)};
 const parseMS=v=>{const[m,s]=v.split(':').map(Number);return m*60+s};
 const MS=/^\d{1,3}:[0-5]\d$/;
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* ---------- i18n (English / French / German) ---------- */
+let lang='en';
+const LOC={en:'en-US',fr:'fr-FR',de:'de-DE'};
+const EXACT=new Map(),RULES=[];
+function R(en,fr,de){
+  if(!/\{/.test(en)){EXACT.set(en,[fr,de]);return}
+  const re=new RegExp('^'+en.split(/(\{\*\}|\{#\}|\{\})/).map(p=>p==='{*}'?'(.*?)':p==='{#}'?'(\\d+)':p==='{}'?'(.+?)':p.replace(/[.*+?^$()|[\]\\]/g,'\\$&')).join('')+'$');
+  RULES.push([re,fr,de]);
+}
+const TC=new Map();
+function tr(s){
+  if(lang==='en'||!s)return s;
+  const lead=s.match(/^\s*/)[0],trail=s.match(/\s*$/)[0],core=s.trim();
+  if(!core)return s;
+  const key=lang+'|'+core;let out=TC.get(key);
+  if(out===undefined){
+    out=core;const ix=lang==='fr'?0:1,ex=EXACT.get(core);
+    if(ex)out=ex[ix];
+    else for(const r of RULES){const m=r[0].exec(core);if(m){const t=r[1+ix];out=typeof t==='function'?t(m):t.replace(/\{(\d)\}/g,(_,i)=>tr(m[i]));break}}
+    if(TC.size>4000)TC.clear();TC.set(key,out);
+  }
+  return lead+out+trail;
+}
+const dot=v=>lang==='en'?v:String(v).replace('.',',');
+/* buttons, labels */
+R('Rally timer','Minuteur de ralliement','Rally-Timer');R('Preset name','Nom du préréglage','Name der Voreinstellung');R('Language','Langue','Sprache');
+R('Main','Principal','Standard');R('Advanced','Avancé','Erweitert');R('Mode','Mode','Modus');
+R('Voice','Voix','Stimme');R('Sound','Son','Ton');R('Dark mode','Mode sombre','Dunkelmodus');R('Light mode','Mode clair','Hellmodus');
+R('Run','Lancement','Ablauf');R('Start timer','Démarrer le minuteur','Timer starten');R('Start all groups','Démarrer tous les groupes','Alle Gruppen starten');
+R('Pause','Pause','Pause');R('Resume','Reprendre','Fortsetzen');R('Stop','Arrêter','Stopp');R('Clear all','Tout effacer','Alles löschen');
+R('Prep countdown','Préparation','Vorlauf');R('Off','Désactivé','Aus');R('{} sec','{1} s','{1} Sek.');
+R('Female','Féminine','Weiblich');R('Male','Masculine','Männlich');R('Voice style','Style de voix','Stimmenstil');
+R('{} · Name only','{1} · Nom seul','{1} · Nur Name');R('{} · Name + countdown','{1} · Nom + compte à rebours','{1} · Name + Countdown');
+R('Landing time (optional)','Heure d’impact (facultatif)','Einschlagzeit (optional)');R('Land at clock time','Impact à l’heure','Einschlag um Uhrzeit');
+R('Or lands in (mm:ss)','Ou impact dans (mm:ss)','Oder Einschlag in (mm:ss)');
+R('Leave empty to start now. Use it to match an incoming hit.','Laissez vide pour démarrer maintenant. Utile pour s’aligner sur une attaque entrante.','Leer lassen, um jetzt zu starten. Nützlich, um einen eingehenden Angriff abzupassen.');
+R('Each group has its own Start button and landing time.','Chaque groupe a son propre bouton Démarrer et son heure d’impact.','Jede Gruppe hat eine eigene Start-Taste und Einschlagzeit.');
+R('Add rally leader','Ajouter un meneur de ralliement','Rally-Leiter hinzufügen');R('Name','Nom','Name');R('Player name','Nom du joueur','Spielername');
+R('March (mm:ss)','Marche (mm:ss)','Marsch (mm:ss)');R('Rally length','Durée du ralliement','Rally-Dauer');R('{} min','{1} min','{1} Min.');
+R('Group','Groupe','Gruppe');R('Group {#}','Groupe {1}','Gruppe {1}');R('Pet bonus','Bonus familier','Haustier-Bonus');R('Pet','Familier','Haustier');R('Add','Ajouter','Hinzufügen');
+R('Pet bonus cuts march time by','Le bonus familier réduit le temps de marche de','Der Haustier-Bonus verkürzt die Marschzeit um');
+R('+ Add tab','+ Ajouter un onglet','+ Tab hinzufügen');R('Duplicate','Dupliquer','Duplizieren');R('Delete tab','Supprimer l’onglet','Tab löschen');
+R('Presets','Préréglages','Voreinstellungen');R('Preset {#}','Préréglage {1}','Voreinstellung {1}');
+/* groups panel */
+R('Rally groups','Groupes de ralliement','Rally-Gruppen');R('· {} groups','· {1} groupes','· {1} Gruppen');R('· {} group','· {1} groupe','· {1} Gruppe');
+R('Number of groups','Nombre de groupes','Anzahl der Gruppen');
+R('Each group has its own leaders, landing time, Start button and timer.','Chaque groupe a ses propres meneurs, son heure d’impact, son bouton Démarrer et son minuteur.','Jede Gruppe hat eigene Leiter, Einschlagzeit, Start-Taste und einen eigenen Timer.');
+R('Lands in','Impact dans','Einschlag in');R('or at clock','ou à l’heure','oder um');R('Empty = start right away.','Vide = démarrage immédiat.','Leer = sofort starten.');
+R('Lands in {}','Impact dans {1}','Einschlag in {1}');R('Lands at','Impact à','Einschlag um');R('Lands at {}','Impact à {1}','Einschlag um {1}');R('lands {}','impact {1}','Einschlag {1}');
+R('Lands in mm:ss','Impact dans mm:ss','Einschlag in mm:ss');R('Group name','Nom du groupe','Gruppenname');
+/* schedule */
+R('Schedule','Planning','Zeitplan');
+R('No rally leaders yet. Add a name, march time and rally length above.','Aucun meneur pour le moment. Ajoutez ci-dessus un nom, un temps de marche et une durée de ralliement.','Noch keine Rally-Leiter. Oben Name, Marschzeit und Rally-Dauer hinzufügen.');
+R('Rally open','Ralliement ouvert','Rally offen');R('Marching','En marche','Unterwegs');R('Impact','Impact','Einschlag');R('Now','Maintenant','Jetzt');
+R('Longest total (rally + march) calls first so every march lands together. The orange line shows where the timer is now.','Le total le plus long (ralliement + marche) appelle en premier, pour que toutes les marches arrivent ensemble. La ligne orange indique où en est le minuteur.','Die längste Gesamtzeit (Rally + Marsch) ruft zuerst, damit alle Märsche gleichzeitig ankommen. Die orange Linie zeigt, wo der Timer gerade steht.');
+R('Longest total (rally + march) calls first so every march lands together within each group. The orange line shows where the timer is now.','Le total le plus long (ralliement + marche) appelle en premier, pour que toutes les marches d’un groupe arrivent ensemble. La ligne orange indique où en est le minuteur.','Die längste Gesamtzeit (Rally + Marsch) ruft zuerst, damit alle Märsche innerhalb einer Gruppe gleichzeitig ankommen. Die orange Linie zeigt, wo der Timer gerade steht.');
+R('· {} leaders · total {}','· {1} meneurs · total {2}','· {1} Leiter · gesamt {2}');R('· {} leader · total {}','· {1} meneur · total {2}','· {1} Leiter · gesamt {2}');
+R('· {} leaders','· {1} meneurs','· {1} Leiter');R('· {} leader','· {1} meneur','· {1} Leiter');R('{} leaders','{1} meneurs','{1} Leiter');R('{} leader','{1} meneur','{1} Leiter');
+R('Call at','Appel à','Aufruf bei');R('March','Marche','Marsch');R('Rally','Ralliement','Rally');R('Total {}','Total {1}','Gesamt {1}');
+R('March {} (pet −{}%)','Marche {1} (familier −{2} %)','Marsch {1} (Haustier −{2} %)');R('March {}','Marche {1}','Marsch {1}');
+R('March time mm:ss','Temps de marche mm:ss','Marschzeit mm:ss');R('{} timeline','Chronologie de {1}','Zeitleiste {1}');
+R('Remove {}','Supprimer {1}','{1} entfernen');
+/* timer cards + status */
+R('Not started','Non démarré','Nicht gestartet');R('Waiting','En attente','Wartet');R('Filling rallies','Ralliements en cours','Rallys füllen sich');
+R('Timer idle','Minuteur inactif','Timer inaktiv');R('{} waiting · {} open · {} marching','{1} en attente · {2} ouverts · {3} en marche','{1} wartend · {2} offen · {3} unterwegs');
+R('Starts right away','Démarre immédiatement','Startet sofort');R('Until march','Avant la marche','Bis zum Marsch');R('Until impact','Avant l’impact','Bis zum Einschlag');
+R('{} marches','{1} part en marche','{1} marschiert los');R('All marching','Tous en marche','Alle unterwegs');R('No leaders','Aucun meneur','Keine Leiter');
+R('Next: call rally','Suivant : lancer le ralliement','Als Nächstes: Rally starten');R('Get ready: call rally','Préparez-vous : lancer le ralliement','Bereit machen: Rally starten');
+R('Landing in','Impact dans','Einschlag in');R('All rallies called','Tous les ralliements lancés','Alle Rallys gestartet');R('Impact!','Impact !','Einschlag!');
+R('Paused · {}','En pause · {1}','Pausiert · {1}');R('Start {}','Démarrer {1}','{1} starten');R('This group','Ce groupe','Diese Gruppe');R('Adjust all','Tout ajuster','Alle anpassen');
+R('Calls come {}s earlier','Les appels arrivent {1} s plus tôt','Aufrufe kommen {1} s früher');R('Calls come {}s later','Les appels arrivent {1} s plus tard','Aufrufe kommen {1} s später');
+R('{}s earlier','{1} s plus tôt','{1} s früher');R('{}s later','{1} s plus tard','{1} s später');
+R('Waiting · call in {}','En attente · appel dans {1}','Wartet · Aufruf in {1}');R('Filling · march in {}','En cours · marche dans {1}','Füllt sich · Marsch in {1}');
+R('Landed','Arrivé','Eingeschlagen');R('Arrived','Arrivé','Angekommen');
+R('Send in {} · for {}','Envoyer dans {1} · pour {2}','Senden in {1} · für {2}');R('Sent, arrives in {}','Envoyé, arrive dans {1}','Gesendet, Ankunft in {1}');
+R('Waiting for {} to start','En attente du démarrage de {1}','Warten auf den Start von {1}');R('Waiting for an enemy rally','En attente d’un ralliement ennemi','Warten auf eine Gegner-Rally');
+/* enemy / garrison */
+R('Enemy incoming & send garrison','Ennemi entrant et envoi de garnison','Gegner im Anmarsch & Garnison senden');
+R('Enemy incoming / send garrison','Ennemi entrant / envoi de garnison','Gegner im Anmarsch / Garnison senden');
+R('Enemy incoming rally','Ralliement ennemi entrant','Eingehende Gegner-Rally');
+R('March to impact (mm:ss)','Marche jusqu’à l’impact (mm:ss)','Marsch bis Einschlag (mm:ss)');R('March to impact','Marche jusqu’à l’impact','Marsch bis Einschlag');
+R('Rally time left (mm:ss)','Temps de ralliement restant (mm:ss)','Verbleibende Rally-Zeit (mm:ss)');R('Rally left','Rallye restant','Rally übrig');
+R('Rally time left when added','Temps de ralliement restant à l’ajout','Verbleibende Rally-Zeit beim Hinzufügen');R('Enemy rally name','Nom du ralliement ennemi','Name der Gegner-Rally');
+R('Add & start','Ajouter et démarrer','Hinzufügen & starten');
+R('Type what the game shows and press Add. The countdown starts at once and your senders are called so they arrive just after impact. Editing a time moves the landing by the difference.','Saisissez ce qu’affiche le jeu puis appuyez sur Ajouter. Le compte à rebours démarre aussitôt et vos envoyeurs sont appelés pour arriver juste après l’impact. Modifier un temps décale l’impact de la différence.','Geben Sie ein, was das Spiel anzeigt, und drücken Sie Hinzufügen. Der Countdown startet sofort, und Ihre Sender werden so gerufen, dass sie kurz nach dem Einschlag ankommen. Wer eine Zeit ändert, verschiebt den Einschlag um die Differenz.');
+R('Send garrison / reinforcements','Envoyer garnison / renforts','Garnison / Verstärkung senden');R('March to garrison','Marche vers la garnison','Marsch zur Garnison');
+R('March to garrison mm:ss','Marche vers la garnison mm:ss','Marsch zur Garnison mm:ss');
+R('Counts toward','Cible','Zählt für');R('Toward','Vers','Für');R('Arrive','Arrivée','Ankunft');R('Arrival offset','Décalage d’arrivée','Ankunftsversatz');R('Sender','Expéditeur','Sender');
+R('Next enemy hit','Prochaine attaque ennemie','Nächster Gegnerangriff');R('Own rally','Notre ralliement','Eigene Rally');R('Own: {}','Notre : {1}','Eigene: {1}');R('Enemy: {}','Ennemi : {1}','Gegner: {1}');R('Enemy {#}','Ennemi {1}','Gegner {1}');
+R('With impact','Avec l’impact','Mit Einschlag');R('{}s after','{1} s après','{1} s danach');
+R('Send time = landing + arrive offset − march to garrison. "Next enemy hit" follows whichever enemy rally lands next. Pick a specific rally to reinforce between two hits, or "Own" to time it to one of your groups.','Heure d’envoi = impact + décalage d’arrivée − marche vers la garnison. « Prochaine attaque ennemie » suit le prochain ralliement ennemi à frapper. Choisissez un ralliement précis pour renforcer entre deux attaques, ou « Notre » pour viser l’un de vos groupes.','Sendezeit = Einschlag + Ankunftsversatz − Marsch zur Garnison. „Nächster Gegnerangriff“ folgt der als Nächstes einschlagenden Gegner-Rally. Wählen Sie eine bestimmte Rally, um zwischen zwei Angriffen zu verstärken, oder „Eigene“, um sich nach einer Ihrer Gruppen zu richten.');
+R('No incoming enemy rally. Enter its march time and rally time left, then press Add & start.','Aucun ralliement ennemi entrant. Saisissez son temps de marche et le temps de ralliement restant, puis appuyez sur Ajouter et démarrer.','Keine eingehende Gegner-Rally. Marschzeit und verbleibende Rally-Zeit eingeben, dann Hinzufügen & starten drücken.');
+R('No senders yet. Add a sender and their march time to the garrison.','Aucun expéditeur. Ajoutez un expéditeur et son temps de marche vers la garnison.','Noch keine Sender. Sender und Marschzeit zur Garnison hinzufügen.');
+R('Send','Envoyer','Senden');R('before landing{*}','avant l’impact{1}','vor dem Einschlag{1}');
+R('Arrives with {}','Arrive avec {1}','Kommt an mit {1}');R('Arrives {}s after {}',m=>'Arrive '+dot(m[1])+' s après '+tr(m[2]),m=>'Kommt '+dot(m[1])+' s nach '+tr(m[2])+' an');
+R('the next enemy rally','le prochain ralliement ennemi','die nächste Gegner-Rally');R('own rally','notre ralliement','eigene Rally');R('enemy {}','ennemi {1}','Gegner {1}');
+R('{}/{} sent','{1}/{2} envoyés','{1}/{2} gesendet');R('to arrive with {} · then {} in {}','pour arriver avec {1} · puis {2} dans {3}','um mit {1} anzukommen · dann {2} in {3}');R('to arrive with {}','pour arriver avec {1}','um mit {1} anzukommen');
+R('All sent','Tous envoyés','Alle gesendet');R('No senders added','Aucun expéditeur ajouté','Keine Sender hinzugefügt');R('Waiting for a target','En attente d’une cible','Warten auf ein Ziel');
+R('Send {}','Envoyer {1}','{1} senden');
+R('· {} enemy rallies · {} senders','· {1} ralliements ennemis · {2} expéditeurs','· {1} Gegner-Rallys · {2} Sender');R('· {} enemy rally · {} senders','· {1} ralliement ennemi · {2} expéditeurs','· {1} Gegner-Rally · {2} Sender');
+R('· {} enemy rallies · {} sender','· {1} ralliements ennemis · {2} expéditeur','· {1} Gegner-Rallys · {2} Sender');R('· {} enemy rally · {} sender','· {1} ralliement ennemi · {2} expéditeur','· {1} Gegner-Rally · {2} Sender');
+R('A new version is ready.','Une nouvelle version est disponible.','Eine neue Version ist verfügbar.');R('Reload','Recharger','Neu laden');R('Version','Version','Version');
+R('Pet bonus time left (h:mm:ss). Edit to correct it.','Temps restant du bonus familier (h:mm:ss). Modifiez pour corriger.','Verbleibende Haustier-Bonuszeit (h:mm:ss). Zum Korrigieren bearbeiten.');
+R('Pet bonus time left h:mm:ss','Temps restant du bonus familier h:mm:ss','Verbleibende Haustier-Bonuszeit h:mm:ss');
+/* alerts */
+R('Resume the timer first.','Reprenez d’abord le minuteur.','Setzen Sie den Timer zuerst fort.');
+R('Add a rally leader first.','Ajoutez d’abord un meneur de ralliement.','Fügen Sie zuerst einen Rally-Leiter hinzu.');
+R('Add a rally leader to {} first.','Ajoutez d’abord un meneur de ralliement à {1}.','Fügen Sie zuerst einen Rally-Leiter zu {1} hinzu.');R('the schedule','le planning','dem Zeitplan');
+R('Use mm:ss for "Lands in", for example 02:30.','Utilisez mm:ss pour « Impact dans », par exemple 02:30.','Verwenden Sie mm:ss für „Einschlag in“, zum Beispiel 02:30.');
+R('Stop the running timers before {}.','Arrêtez les minuteurs en cours avant {1}.','Stoppen Sie die laufenden Timer, bevor Sie {1}.');
+R('switching tabs','de changer d’onglet','den Tab wechseln');R('adding a tab','d’ajouter un onglet','einen Tab hinzufügen');R('duplicating','de dupliquer','duplizieren');R('deleting a tab','de supprimer un onglet','einen Tab löschen');
+R('Remove all rally leaders, senders and enemy hits?','Supprimer tous les meneurs, expéditeurs et attaques ennemies ?','Alle Rally-Leiter, Sender und Gegnerangriffe entfernen?');
+R('Delete tab "{}" and everything in it?','Supprimer l’onglet « {1} » et tout son contenu ?','Tab „{1}“ und alles darin löschen?');
+R('{*}that landing time is too soon for the first call. Start anyway with the first calls late?','{1}cette heure d’impact est trop proche du premier appel. Démarrer quand même avec les premiers appels en retard ?','{1}diese Einschlagzeit ist für den ersten Aufruf zu früh. Trotzdem starten, die ersten Aufrufe kommen dann zu spät?');
+/* spoken */
+R('Timer started','Minuteur démarré','Timer gestartet');R('{} started','{1} démarré','{1} gestartet');
+R('Voice test. Call rally now','Test de voix. Lancez le ralliement maintenant','Stimmentest. Rally jetzt starten');
+R('{}, call rally in, 3, 2, 1, now','{1}, lancez le ralliement dans, 3, 2, 1, maintenant','{1}, Rally starten in, 3, 2, 1, jetzt');
+R('{}, call rally in','{1}, lancez le ralliement dans','{1}, Rally starten in');R('now','maintenant','jetzt');R('{}, send in','{1}, envoyez dans','{1}, senden in');R('{}, send','{1}, envoyez','{1}, senden');
+R('impact','impact','Einschlag');R('{}, impact','{1}, impact','{1}, Einschlag');
+/* applying */
+const ORIG=new WeakMap(),AORIG=new WeakMap();
+function applyLang(){
+  const tw=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;
+  while(n=tw.nextNode()){
+    const p=n.parentNode;if(!p||p.nodeName==='SCRIPT'||p.nodeName==='STYLE'||p.id==='lang'||(p.parentNode&&p.parentNode.id==='lang'))continue;
+    let o=ORIG.get(n);if(o===undefined){o=n.nodeValue;ORIG.set(n,o)}
+    const t=tr(o);if(n.nodeValue!==t)n.nodeValue=t;
+  }
+  for(const el of document.querySelectorAll('[placeholder],[title],[aria-label]')){
+    let m=AORIG.get(el);if(!m){m={};AORIG.set(el,m)}
+    for(const a of ['placeholder','title','aria-label']){
+      if(!el.hasAttribute(a))continue;
+      if(m[a]===undefined)m[a]=el.getAttribute(a);
+      const t=tr(m[a]);if(el.getAttribute(a)!==t)el.setAttribute(a,t);
+    }
+  }
+}
+
 const pct=()=>Math.min(90,Math.max(0,+$('petpct').value||0));
 const ADV=()=>document.body.classList.contains('advanced');
 const ngEff=()=>ADV()?groups.length:1;
-const gname=k=>(groups[k]&&groups[k].name)||'Group '+(k+1);
+const gname=k=>{const n=groups[k]&&groups[k].name;return n&&!/^Group \d+$/.test(n)?n:tr('Group '+(k+1))};
 const gIdx=r=>ADV()?Math.min(Math.max(+r.grp||0,0),groups.length-1):0;
 const effMarch=r=>r.pet?Math.round(r.march*(1-pct()/100)):r.march;
 const total=r=>r.len+effMarch(r);
@@ -368,6 +507,7 @@ const refOpts=sel=>'<option value="next"'+(sel==='next'?' selected':'')+'>Next e
 const selRef=x=>refGroup(x)!==null?'g'+refGroup(x):(hitOf(x)?String(x.ref):'next');
 const GC=['#1c78b8','#d8832d','#8a5cd6','#1e9b57','#d6407a','#2a9fa6'];
 const gcol=k=>GC[k%GC.length];
+const tabName=i=>{const n=tabs[i]&&tabs[i].name;return n&&!/^Preset \d+$/.test(n)?n:tr('Preset '+(i+1))};
 const nowT=()=>paused||Date.now();
 const anyRun=()=>runs.some(Boolean);
 function setMode(m){document.body.classList.toggle('advanced',m==='adv');document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));try{localStorage.setItem('wos_mode',m)}catch(e){}}
@@ -527,7 +667,7 @@ $('hform').addEventListener('submit',()=>{
   const mv=$('hmarch').value.trim(),rv=$('hrally').value.trim();
   if(!MS.test(mv)||!MS.test(rv))return;
   const march=parseMS(mv),rally=parseMS(rv);lastAdded=Date.now()+Math.random();
-  hits.push({id:lastAdded,name:$('hname').value.trim()||'Enemy '+(hits.length+1),march,rally,t:nowT()+(march+rally)*1000,done:false});
+  hits.push({id:lastAdded,name:$('hname').value.trim()||tr('Enemy '+(hits.length+1)),march,rally,t:nowT()+(march+rally)*1000,done:false});
   $('hname').value='';$('hmarch').value='';$('hrally').value='';$('hmarch').focus();
   beep(600,.12);render();
 });
@@ -541,8 +681,9 @@ $('hlist').addEventListener('change',e=>{
   lastAdded=h.id;render();
 });
 $('hlist').addEventListener('keydown',enterBlur);
-function setGrp(){const v=$('grp').value.trim();document.title='Rally timer'+(v?' – '+v:'')}
-$('grp').addEventListener('input',()=>{setGrp();save()});
+function setGrp(){document.title='Rally timer'+' – '+tabName(curTab)}
+$('grp').addEventListener('input',()=>{tabs[curTab].name=$('grp').value.trim();save();renderTabs()});
+$('grp').addEventListener('change',()=>{if(!tabs[curTab].name)tabs[curTab].name='Preset '+(curTab+1);save();$('grp').value=tabName(curTab);renderTabs()});
 $('petpct').addEventListener('change',()=>{save();render()});
 $('prep').onchange=save;$('voice').onchange=save;$('snd').onchange=save;
 $('vg').onchange=()=>{save();say('Voice test. Call rally now')};
@@ -555,12 +696,12 @@ let ac=null;
 function beep(f=880,d=.18){if(!$('snd').checked)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=.15;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
 let voices=[];
 if(window.speechSynthesis){const lv=()=>{voices=speechSynthesis.getVoices()};lv();speechSynthesis.onvoiceschanged=lv}
-const FEM=/female|samantha|zira|victoria|karen|moira|tessa|fiona|susan|hazel|jenny|aria|serena|allison|ava|libby|sonia|natasha|linda|heather|catherine/i;
-const MAL=/male|daniel|david|alex|fred|mark|guy|thomas|oliver|george|james|ryan|liam|ralph|rishi|arthur|aaron/i;
-function pickVoice(g){const en=voices.filter(v=>/^en/i.test(v.lang));const pool=en.length?en:voices;return pool.find(v=>g==='female'?FEM.test(v.name):(MAL.test(v.name)&&!/female/i.test(v.name)))}
+const FEM=/amelie|audrey|aurelie|marie|hortense|denise|julie|katja|petra|hedda|marlene|vicki|sabine|birgit|ingrid|elsa|female|samantha|zira|victoria|karen|moira|tessa|fiona|susan|hazel|jenny|aria|serena|allison|ava|libby|sonia|natasha|linda|heather|catherine/i;
+const MAL=/henri|paul|claude|stefan|hans|markus|conrad|killian|jonas|yannick|bernd|fabrice|nicolas|antoine|mathieu|lucas|male|daniel|david|alex|fred|mark|guy|thomas|oliver|george|james|ryan|liam|ralph|rishi|arthur|aaron/i;
+function pickVoice(g){const en=voices.filter(v=>new RegExp('^'+lang,'i').test(v.lang));const pool=en.length?en:voices;return pool.find(v=>g==='female'?FEM.test(v.name):(MAL.test(v.name)&&!/female/i.test(v.name)))}
 function say(t){
   if(!$('voice').checked||!window.speechSynthesis)return;
-  try{const g=$('vg').value,u=new SpeechSynthesisUtterance(t),v=pickVoice(g);
+  try{const g=$('vg').value,u=new SpeechSynthesisUtterance(tr(t)),v=pickVoice(g);u.lang=LOC[lang];
     if(v)u.voice=v;else u.pitch=g==='female'?1.35:0.65;
     speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}
 }
@@ -611,8 +752,9 @@ document.addEventListener('click',e=>{
 
 /* ---------- preset tabs ---------- */
 function renderTabs(){
-  $('tabs').innerHTML=tabs.map((t,i)=>`<button type="button" role="tab" aria-selected="${i===curTab}" class="tab${i===curTab?' on':''}" data-tab="${i}">${esc(t.name||'Preset '+(i+1))}</button>`).join('')+(tabs.length<3?'<button type="button" class="tab add" data-addtab>+ Add tab</button>':'');
-  $('tabname').value=tabs[curTab].name||'';
+  $('tabs').innerHTML=tabs.map((t,i)=>`<button type="button" role="tab" aria-selected="${i===curTab}" class="tab${i===curTab?' on':''}" data-tab="${i}">${esc(tabName(i))}</button>`).join('')+(tabs.length<3?'<button type="button" class="tab add" data-addtab>+ Add tab</button>':'');
+  if(document.activeElement!==$('grp'))$('grp').value=tabName(curTab);
+  setGrp();
   $('tabdel').hidden=tabs.length<2;$('tabdup').hidden=tabs.length>=3;
 }
 function switchTab(i){
@@ -628,16 +770,15 @@ $('tabs').addEventListener('click',e=>{
     tabs.push({name:'Preset '+(tabs.length+1),rallies:[],reinf:[],groups:[{name:'Group 1',lin:'',clock:''}]});switchTab(tabs.length-1);return}
   const b=e.target.closest('[data-tab]');if(b&&+b.dataset.tab!==curTab)switchTab(+b.dataset.tab);
 });
-$('tabname').addEventListener('change',()=>{tabs[curTab].name=$('tabname').value.trim()||'Preset '+(curTab+1);save();renderTabs()});
 $('tabdup').onclick=()=>{
   if(anyRun()){alert('Stop the running timers before duplicating.');return}
   if(tabs.length>=3)return;save();
-  const c=JSON.parse(JSON.stringify(tabs[curTab]));c.name=(tabs[curTab].name||'Preset')+' copy';tabs.push(c);switchTab(tabs.length-1);
+  const c=JSON.parse(JSON.stringify(tabs[curTab]));c.name=tabName(curTab)+' (2)';tabs.push(c);switchTab(tabs.length-1);
 };
 $('tabdel').onclick=()=>{
   if(tabs.length<2)return;
   if(anyRun()){alert('Stop the running timers before deleting a tab.');return}
-  if(!confirm('Delete tab "'+(tabs[curTab].name||'')+'" and everything in it?'))return;
+  if(!confirm('Delete tab "'+tabName(curTab)+'" and everything in it?'))return;
   tabs.splice(curTab,1);const i=Math.min(curTab,tabs.length-1);curTab=-1;
   const c=tabs[i];curTab=i;rallies=c.rallies||[];reinf=c.reinf||[];groups=c.groups&&c.groups.length?c.groups:[{name:'Group 1',lin:'',clock:''}];
   sst={};lastAdded=null;save();render();
@@ -746,12 +887,18 @@ function step(){
     const keep=hits.filter(h=>now<h.t+30000);if(keep.length!==hits.length){hits=keep;changed=true}
     if(changed){if(!anyRun()&&!hits.length)paused=null;setTimeout(()=>{syncButtons();render()},0)}
   }
+  applyLang();
 }
 setInterval(step,200);
 
 let md='easy';try{md=localStorage.getItem('wos_mode')||'easy'}catch(e){}
+const _al=window.alert.bind(window),_co=window.confirm.bind(window);
+window.alert=m=>_al(tr(m));window.confirm=m=>_co(tr(m));
+try{const sl=localStorage.getItem('wos_lang');lang=sl||((navigator.language||'en').slice(0,2));if(!LOC[lang]||!['en','fr','de'].includes(lang))lang='en'}catch(e){}
+$('lang').value=lang;document.documentElement.lang=lang;
+$('lang').onchange=()=>{lang=$('lang').value;try{localStorage.setItem('wos_lang',lang)}catch(e){}document.documentElement.lang=lang;TC.clear();render()};
 setMode(md);setGrp();render();
-const APP_VERSION='v5';$('ver').textContent=APP_VERSION;
+const APP_VERSION='v6';$('ver').textContent=APP_VERSION;
 $('updbtn').onclick=()=>location.reload();
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){
   let had=!!navigator.serviceWorker.controller;

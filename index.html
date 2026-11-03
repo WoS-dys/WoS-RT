@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rally Timer – Whiteout Survival</title>
+<title>Rally Timer Pool – Whiteout Survival</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#1c78b8">
+<meta name="theme-color" content="#13806f">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Rally Timer">
+<meta name="apple-mobile-web-app-title" content="Rally Pool">
 <style>
 :root{--go:#1e9b57;--gotx:#fff;--bg:#e8eff5;--bg2:#d9e6ef;--panel:#fbfdff;--ink:#0f2230;--mute:#587084;--line:#d2dee8;--field:#f1f6fa;--accent:#1c78b8;--accent2:#52b8e6;--hot:#d8432d;--ok:#23915a;--warn:#c58400;--track:#e3ecf3;--sh:0 1px 2px rgba(15,34,48,.06),0 6px 20px -10px rgba(15,34,48,.25)}
 :root[data-theme=dark]{--go:#3cd184;--gotx:#04200f;--bg:#070f17;--bg2:#0c1a26;--panel:#0f1e2b;--ink:#e5eef5;--mute:#8aa3b5;--line:#213546;--field:#0a1722;--accent:#4db9ec;--accent2:#8fe0ff;--hot:#ff6a52;--ok:#4fcf8a;--warn:#f2b632;--track:#172a39;--sh:0 1px 2px rgba(0,0,0,.4),0 10px 24px -12px rgba(0,0,0,.7)}
@@ -164,6 +164,44 @@ details.panel[open]>summary{margin-bottom:12px}
 .pt{width:88px;min-height:28px;padding:3px 6px;font-size:12.5px;text-align:center;font-variant-numeric:tabular-nums}
 .pt:disabled{opacity:.45}
 .pt.low{color:var(--warn);border-color:var(--warn)}
+.poolgrid{display:grid;gap:14px}
+.poolgrid .panel{margin-bottom:14px}
+@media (min-width:900px){.poolgrid{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);align-items:start}.mapcol{position:sticky;top:14px}}
+#map{width:100%;height:auto;aspect-ratio:1/1;max-height:72vh;background:color-mix(in srgb,var(--accent) 7%,var(--field));border:1px solid var(--line);border-radius:12px;touch-action:none;display:block;margin-bottom:10px}
+#map text{fill:var(--ink);font-size:3px;pointer-events:none;font-family:inherit}
+#map .grid{stroke:var(--line);stroke-width:.2}
+#map .pl{fill:var(--accent);stroke:#fff;stroke-width:.5;cursor:grab}
+#map .pl.sel{fill:var(--warn)}
+#map .sp{fill:var(--hot);stroke:#fff;stroke-width:.5;cursor:grab}
+#map .sp.sel{stroke:var(--warn);stroke-width:1}
+#map .ln{stroke:var(--warn);stroke-width:.4;stroke-dasharray:1.2 1}
+#map .lt{fill:var(--warn);font-weight:700;paint-order:stroke;stroke:var(--panel);stroke-width:.8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;max-height:150px;overflow:auto}
+.chip{padding:5px 12px;border-radius:999px;min-height:32px}
+.chip small{color:var(--mute);margin-left:6px;font-variant-numeric:tabular-nums}
+.chip.on{opacity:.45}
+.pmgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:8px}
+.pmgrid input{width:100%}
+.pmgrid .src{font-size:11px;color:var(--mute);min-height:1em}
+#tmap{width:100%;height:auto;aspect-ratio:1/1;max-height:72vh;border:1px solid var(--line);border-radius:12px;display:block;margin-bottom:10px;background:#000}
+#tmap .cell{cursor:pointer}
+#tmap .cell:hover{stroke:#fff;stroke-width:.8}
+#poolView:not(.free) #map,#poolView:not(.free) .onlyfree{display:none}
+#poolView.free #tmap,#poolView.free .onlytiles{display:none}
+.ctrow{display:flex;align-items:center;gap:10px;margin:6px 0;flex-wrap:wrap}
+.ctrow b{min-width:74px}
+.ctrow input{width:64px;text-align:center}
+.sw{width:22px;height:22px;border-radius:6px;border:1px solid var(--line);flex:none}
+#fromPool>summary{font-size:13px;font-weight:600;color:var(--mute)}
+.chip.sel{background:var(--warn);color:#241800;border-color:transparent}
+.chip.done small{color:var(--ok)}
+#ltray{margin-bottom:10px;max-height:120px}
+#leadersBtn.on{background:var(--accent);color:#04202e;border-color:transparent}
+.btnlike{display:inline-flex;flex-direction:row;align-items:center;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--field);cursor:pointer;font-weight:600;color:var(--ink);font-size:15px}
+body.poolopen .layout{display:none!important}
+body.leadersopen #poolView{display:none!important}
+body:not(.poolopen.leadersopen) #leadersView{display:none}
+body:not(.poolopen) #poolView{display:none}
 /* layout */
 .layout{display:flex;flex-direction:column}
 .col-run,.col-main,.col-live{display:contents}
@@ -199,6 +237,7 @@ details.panel[open]>summary{margin-bottom:12px}
     <div class="seg" role="group" aria-label="Mode"><button type="button" data-mode="easy">Main</button><button type="button" data-mode="adv">Advanced</button></div>
     <label class="chk"><input type="checkbox" id="voice" checked> Voice</label>
     <label class="chk"><input type="checkbox" id="snd" checked> Sound</label>
+    <button id="poolBtn" type="button">Vault</button>
     <select id="lang" aria-label="Language"><option value="en">English</option><option value="fr">Français</option><option value="de">Deutsch</option></select>
     <button id="theme" type="button">Dark mode</button>
   </div>
@@ -239,15 +278,19 @@ details.panel[open]>summary{margin-bottom:12px}
 <details class="panel" id="addPanel" open>
   <summary>Add rally leader</summary>
   <form class="row" id="form" onsubmit="return false">
-    <label>Name<input id="name" required placeholder="Player name" maxlength="24"></label>
-    <label>March (mm:ss)<input id="march" required value="01:00" pattern="\d{1,3}:[0-5]\d" size="6"></label>
+    <label>Name<input id="name" list="poolNames" required placeholder="Player name" maxlength="24" autocomplete="off"></label>
+    <label>March (mm:ss)<input id="march" required value="01:00" size="6"></label>
     <label>Rally length<select id="len"><option value="60">1 min</option><option value="180">3 min</option><option value="300" selected>5 min</option><option value="600">10 min</option><option value="900">15 min</option><option value="1800">30 min</option></select></label>
     <label class="adv">Group<select id="agrp"></select></label>
-    <label class="chk pet"><input type="checkbox" id="pet"> Pet bonus</label>
+    <label id="atargetL" hidden>Target spot<select id="atarget"></select></label>
     <button class="pri" type="submit">Add</button>
   </form>
+  <details id="fromPool" style="margin-top:12px" open><summary>From the Vault <span class="muted" id="fpcount"></span></summary>
+    <div class="row" style="align-items:center;margin:8px 0 6px"><button type="button" id="applyPool" hidden>Apply Vault march times</button></div>
+    <div class="chips" id="poolChips"></div></details>
+  <datalist id="poolNames"></datalist>
   <div class="row" style="margin-top:12px">
-    <label class="chk">Pet bonus cuts march time by <input id="petpct" type="number" min="0" max="90" value="10" style="width:68px"> %</label>
+    <label class="chk">Pet bonus cuts march time by <input id="petpct" type="number" min="0" max="90" value="18" style="width:68px"> %</label>
   </div>
 </details>
 
@@ -292,8 +335,8 @@ details.panel[open]>summary{margin-bottom:12px}
   <h3 class="h3first">Enemy incoming rally</h3>
   <form class="row" id="hform" onsubmit="return false">
     <label>Name<input id="hname" maxlength="20" placeholder="Enemy 1" size="10"></label>
-    <label>March to impact (mm:ss)<input id="hmarch" required placeholder="01:00" pattern="\d{1,3}:[0-5]\d" size="7"></label>
-    <label>Rally time left (mm:ss)<input id="hrally" required placeholder="00:30" pattern="\d{1,3}:[0-5]\d" size="7"></label>
+    <label>March to impact (mm:ss)<input id="hmarch" required placeholder="01:00 or 60" size="7"></label>
+    <label>Rally time left (mm:ss)<input id="hrally" required placeholder="00:30 or 30" size="7"></label>
     <button class="start" type="submit">Add &amp; start</button>
   </form>
   <div id="hlist" style="margin-top:12px"></div>
@@ -301,7 +344,7 @@ details.panel[open]>summary{margin-bottom:12px}
   <h3>Send garrison / reinforcements</h3>
   <form class="row" id="rform" onsubmit="return false">
     <label>Name<input id="rname" required maxlength="24" placeholder="Sender"></label>
-    <label>March to garrison<input id="rmarch" required value="01:00" pattern="\d{1,3}:[0-5]\d" size="6"></label>
+    <label>March to garrison<input id="rmarch" required value="01:00" size="6"></label>
     <label>Counts toward<select id="rref"></select></label>
     <label>Arrive<select id="roff"><option value="0">With impact</option><option value="0.5">0.5s after</option><option value="1" selected>1s after</option><option value="2">2s after</option><option value="3">3s after</option><option value="5">5s after</option></select></label>
     <button class="pri" type="submit">Add</button>
@@ -312,20 +355,75 @@ details.panel[open]>summary{margin-bottom:12px}
 </div>
 
 </main>
+<section id="leadersView">
+  <div class="panel"><div class="row" style="align-items:center">
+    <button type="button" id="leadersBack">← Back to Vault</button>
+    <h2 style="margin:0;flex:1">Rally leaders <span class="muted" id="ldcount"></span></h2>
+  </div></div>
+  <div class="panel">
+    <form class="row" id="lform" onsubmit="return false">
+      <label style="flex:1 1 260px">Names<input id="lnames" placeholder="Anna, Bob, Cy" autocomplete="off"></label>
+      <button class="pri" type="submit">Add names</button>
+    </form>
+    <p class="muted">Just names. Type one or several separated by commas. They appear as buttons on the Castle tiles map and under "From the Vault" in the timer.</p>
+    <div id="llist"></div>
+  </div>
+</section>
+<section id="poolView">
+  <div class="panel"><div class="row" style="align-items:center">
+    <button type="button" id="poolBack">← Back to timer</button>
+    <h2 style="margin:0;flex:1">Vault</h2>
+    <button type="button" id="leadersBtn">Rally leaders</button>
+    <button type="button" id="poolExport">Export</button>
+    <label class="btnlike">Import<input type="file" id="poolImport" accept="application/json" hidden></label>
+  </div></div>
+
+  <div class="poolgrid">
+    <div>
+      <details class="panel" id="playerPanel" open><summary>Players <span class="muted" id="plcount"></span></summary>
+        <form class="row" id="pform" onsubmit="return false"><label>Name<input id="pname" list="poolNames" required maxlength="24" placeholder="Player name" autocomplete="off"></label><button class="pri" type="submit">Add player</button></form>
+        <div id="plist" style="margin-top:12px"></div>
+      </details>
+      <details class="panel" id="spotPanel" open><summary>Spots <span class="muted" id="spcount"></span></summary>
+        <form class="row" id="sform" onsubmit="return false"><label>Spot name<input id="sname" required maxlength="24" placeholder="e.g. Bear Trap"></label><button class="pri" type="submit">Add spot</button></form>
+        <div id="slist" style="margin-top:12px"></div>
+        <h3>Map scale</h3>
+        <div class="row"><label>Seconds per map unit<input id="pscale" type="number" min="0.1" step="0.1" value="3" style="width:110px"></label></div>
+        <h3>Calibrate scale</h3>
+        <div class="row"><label>Player<select id="cp"></select></label><label>Spot<select id="cs"></select></label><label>Known march time (mm:ss)<input id="cm" placeholder="01:30" size="7"></label><button type="button" id="cbtn">Set scale</button></div>
+      </details>
+      <details class="panel" id="ctab"><summary>Castle walk times (seconds)</summary>
+        <div id="ctabbody"></div>
+        <div class="row" style="margin-top:10px"><button type="button" id="creset">Reset to sheet values</button></div>
+        <p class="muted" style="margin-bottom:0">Walk time from a tile of that colour to the Castle, in seconds. "With pets" is used when the Pet box is ticked in the schedule.</p>
+      </details>
+    </div>
+    <div class="mapcol"><div class="panel"><h2>Map</h2>
+      <div class="seg" role="group" aria-label="Map view" style="margin-bottom:10px"><button type="button" data-mapmode="tiles" class="on">Castle tiles</button><button type="button" data-mapmode="free">Free map</button></div>
+      <div id="ltrayWrap"><div class="chips" id="ltray"></div><div class="row" style="margin-bottom:10px;align-items:center"><input id="trayAdd" placeholder="+ Add name, press Enter" style="flex:1 1 170px" maxlength="60" autocomplete="off" aria-label="Add name"><button type="button" id="clearMap">Clear map</button></div></div>
+      <svg id="tmap" viewBox="0 0 120 120" role="img" aria-label="Castle tile map"><g id="tmlayer"></g></svg>
+      <svg id="map" viewBox="0 0 100 100" role="img" aria-label="Map of players and spots"><g id="maplayer"></g></svg>
+      <p class="muted onlytiles" id="tileinfo"></p>
+      <p class="muted onlyfree" style="margin-bottom:0">Drag players and spots on the map. March time = distance × scale, unless you type one in by hand.</p>
+    </div></div>
+  </div>
+</section>
 <p class="muted" style="text-align:center;margin-top:18px">Version <span id="ver"></span></p>
 </div>
 <div id="upd" hidden><span>A new version is ready.</span><button id="updbtn" type="button" class="pri">Reload</button></div>
 
 <script>
+// One-time copy of data from the original Rally Timer (same site only), so nothing has to be retyped.
+try{const ks=[];for(let i=0;i<localStorage.length;i++)ks.push(localStorage.key(i));for(const k of ks){if(/^wos_/.test(k)){const nk='wosp_'+k.slice(4);if(localStorage.getItem(nk)===null)localStorage.setItem(nk,localStorage.getItem(k))}}}catch(e){}
 const $=id=>document.getElementById(id);
 let rallies=[],reinf=[],hits=[],lastAdded=null,groups=[{name:'Group 1',lin:'',clock:''}];
 let runs=[],paused=null,sst={},ridc=0;
-try{rallies=JSON.parse(localStorage.getItem('wos_rallies')||'[]')}catch(e){}
-try{reinf=JSON.parse(localStorage.getItem('wos_reinf')||'[]')}catch(e){}
-try{const g=JSON.parse(localStorage.getItem('wos_groups')||'null');if(Array.isArray(g)&&g.length)groups=g}catch(e){}
+try{rallies=JSON.parse(localStorage.getItem('wosp_rallies')||'[]')}catch(e){}
+try{reinf=JSON.parse(localStorage.getItem('wosp_reinf')||'[]')}catch(e){}
+try{const g=JSON.parse(localStorage.getItem('wosp_groups')||'null');if(Array.isArray(g)&&g.length)groups=g}catch(e){}
 let tabs=[],curTab=0;
-try{const t=JSON.parse(localStorage.getItem('wos_tabs')||'null');if(Array.isArray(t)&&t.length){tabs=t.slice(0,3);curTab=Math.min(Math.max(+localStorage.getItem('wos_tab')||0,0),tabs.length-1);const c=tabs[curTab];rallies=c.rallies||[];reinf=c.reinf||[];groups=c.groups&&c.groups.length?c.groups:groups}}catch(e){}
-if(!tabs.length){let lg='';try{lg=localStorage.getItem('wos_grp')||''}catch(e){}tabs=[{name:lg||'Preset 1'}]}
+try{const t=JSON.parse(localStorage.getItem('wosp_tabs')||'null');if(Array.isArray(t)&&t.length){tabs=t.slice(0,3);curTab=Math.min(Math.max(+localStorage.getItem('wosp_tab')||0,0),tabs.length-1);const c=tabs[curTab];rallies=c.rallies||[];reinf=c.reinf||[];groups=c.groups&&c.groups.length?c.groups:groups}}catch(e){}
+if(!tabs.length){let lg='';try{lg=localStorage.getItem('wosp_grp')||''}catch(e){}tabs=[{name:lg||'Preset 1'}]}
 const PET_MS=2*3600*1000;
 const migrate=()=>{
   for(const t of tabs)for(const r of (t.rallies||[])){if(r.pet&&!r.petEnd)r.petEnd=Date.now()+PET_MS;if(r.pet&&r.petEnd<=Date.now()){r.pet=false;r.petEnd=null}}
@@ -334,11 +432,11 @@ const migrate=()=>{
   for(const x of reinf){if(!(x.off>=0))x.off=0;if(!x.ref||x.ref==='imp')x.ref='g0'}
 };
 migrate();
-const save=()=>{tabs[curTab]=Object.assign(tabs[curTab]||{name:'Preset '+(curTab+1)},{rallies,reinf,groups});try{localStorage.setItem('wos_tabs',JSON.stringify(tabs));localStorage.setItem('wos_tab',String(curTab));localStorage.setItem('wos_pct',$('petpct').value);localStorage.setItem('wos_prep',$('prep').value);localStorage.setItem('wos_vg',$('vg').value);localStorage.setItem('wos_vstyle',$('vstyle').value);localStorage.setItem('wos_voice',$('voice').checked?'1':'0');localStorage.setItem('wos_snd',$('snd').checked?'1':'0')}catch(e){}};
-try{const p=localStorage.getItem('wos_pct');if(p!==null)$('petpct').value=p;const q=localStorage.getItem('wos_prep');if(q!==null)$('prep').value=q;const g=localStorage.getItem('wos_vg');if(g)$('vg').value=g;const vs0=localStorage.getItem('wos_vstyle');if(vs0)$('vstyle').value=vs0;const v=localStorage.getItem('wos_voice');if(v)$('voice').checked=v==='1';const gp=localStorage.getItem('wos_grp');if(gp)$('grp').value=gp;const n=localStorage.getItem('wos_snd');if(n)$('snd').checked=n==='1'}catch(e){}
+const save=()=>{tabs[curTab]=Object.assign(tabs[curTab]||{name:'Preset '+(curTab+1)},{rallies,reinf,groups});try{localStorage.setItem('wosp_tabs',JSON.stringify(tabs));localStorage.setItem('wosp_tab',String(curTab));localStorage.setItem('wosp_pct',$('petpct').value);localStorage.setItem('wosp_prep',$('prep').value);localStorage.setItem('wosp_vg',$('vg').value);localStorage.setItem('wosp_vstyle',$('vstyle').value);localStorage.setItem('wosp_voice',$('voice').checked?'1':'0');localStorage.setItem('wosp_snd',$('snd').checked?'1':'0')}catch(e){}};
+try{const p=localStorage.getItem('wosp_pct');if(p!==null)$('petpct').value=p;const q=localStorage.getItem('wosp_prep');if(q!==null)$('prep').value=q;const g=localStorage.getItem('wosp_vg');if(g)$('vg').value=g;const vs0=localStorage.getItem('wosp_vstyle');if(vs0)$('vstyle').value=vs0;const v=localStorage.getItem('wosp_voice');if(v)$('voice').checked=v==='1';const gp=localStorage.getItem('wosp_grp');if(gp)$('grp').value=gp;const n=localStorage.getItem('wosp_snd');if(n)$('snd').checked=n==='1'}catch(e){}
 
-function setTheme(t){document.documentElement.dataset.theme=t;$('theme').textContent=t==='dark'?'Light mode':'Dark mode';try{localStorage.setItem('wos_theme',t)}catch(e){}}
-let th=null;try{th=localStorage.getItem('wos_theme')}catch(e){}
+function setTheme(t){document.documentElement.dataset.theme=t;$('theme').textContent=t==='dark'?'Light mode':'Dark mode';try{localStorage.setItem('wosp_theme',t)}catch(e){}}
+let th=null;try{th=localStorage.getItem('wosp_theme')}catch(e){}
 setTheme(th||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
 $('theme').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
 
@@ -346,8 +444,17 @@ const pad=n=>String(n).padStart(2,'0');
 const fmt=s=>{s=Math.max(0,Math.ceil(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return (h?h+':'+pad(m):m)+':'+pad(s%60)};
 const fmtHMS=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/3600)+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60)};
 const mmss=s=>{s=Math.round(s);return Math.floor(s/60)+':'+pad(s%60)};
-const parseMS=v=>{const[m,s]=v.split(':').map(Number);return m*60+s};
-const MS=/^\d{1,3}:[0-5]\d$/;
+/* Time input: "m:ss", "mm:ss", or just seconds ("45", "130"). */
+function parseT(v){
+  v=String(v==null?'':v).trim();
+  let m=/^(\d{1,3})[:.](\d{1,2})$/.exec(v);
+  if(m){const sec=+m[2];return sec>59?null:+m[1]*60+sec}
+  m=/^\d{1,4}$/.exec(v);
+  return m?+v:null;
+}
+const parseMS=v=>{const t=parseT(v);return t===null?NaN:t};
+const MS={test:v=>parseT(v)!==null};
+const fmtIn=t=>pad(Math.floor(t/60))+':'+pad(t%60);
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 /* ---------- i18n (English / French / German) ---------- */
 let lang='en';
@@ -386,7 +493,7 @@ R('Landing time (optional)','Heure d’impact (facultatif)','Einschlagzeit (opti
 R('Or lands in (mm:ss)','Ou impact dans (mm:ss)','Oder Einschlag in (mm:ss)');
 R('Leave empty to start now. Use it to match an incoming hit.','Laissez vide pour démarrer maintenant. Utile pour s’aligner sur une attaque entrante.','Leer lassen, um jetzt zu starten. Nützlich, um einen eingehenden Angriff abzupassen.');
 R('Each group has its own Start button and landing time.','Chaque groupe a son propre bouton Démarrer et son heure d’impact.','Jede Gruppe hat eine eigene Start-Taste und Einschlagzeit.');
-R('Add rally leader','Ajouter un meneur de ralliement','Rally-Leiter hinzufügen');R('Name','Nom','Name');R('Player name','Nom du joueur','Spielername');
+R('01:00 or 60','01:00 ou 60','01:00 oder 60');R('00:30 or 30','00:30 ou 30','00:30 oder 30');R('Add rally leader','Ajouter un meneur de ralliement','Rally-Leiter hinzufügen');R('Name','Nom','Name');R('Player name','Nom du joueur','Spielername');
 R('March (mm:ss)','Marche (mm:ss)','Marsch (mm:ss)');R('Rally length','Durée du ralliement','Rally-Dauer');R('{} min','{1} min','{1} Min.');
 R('Group','Groupe','Gruppe');R('Group {#}','Groupe {1}','Gruppe {1}');R('Pet bonus','Bonus familier','Haustier-Bonus');R('Pet','Familier','Haustier');R('Add','Ajouter','Hinzufügen');
 R('Pet bonus cuts march time by','Le bonus familier réduit le temps de marche de','Der Haustier-Bonus verkürzt die Marschzeit um');
@@ -469,12 +576,55 @@ R('Voice test. Call rally now','Test de voix. Lancez le ralliement maintenant','
 R('{}, call rally in, 3, 2, 1, now','{1}, lancez le ralliement dans, 3, 2, 1, maintenant','{1}, Rally starten in, 3, 2, 1, jetzt');
 R('{}, call rally in','{1}, lancez le ralliement dans','{1}, Rally starten in');R('now','maintenant','jetzt');R('{}, send in','{1}, envoyez dans','{1}, senden in');R('{}, send','{1}, envoyez','{1}, senden');
 R('impact','impact','Einschlag');R('{}, impact','{1}, impact','{1}, Einschlag');
+R('Vault','Coffre','Tresor');R('Timer','Minuteur','Timer');R('← Back to timer','← Retour au minuteur','← Zurück zum Timer');
+R('Players','Joueurs','Spieler');R('Spots','Lieux','Orte');R('· {#}','· {1}','· {1}');R('Map','Carte','Karte');R('Add player','Ajouter un joueur','Spieler hinzufügen');R('Add spot','Ajouter un lieu','Ort hinzufügen');
+R('Spot name','Nom du lieu','Ortsname');R('e.g. Bear Trap','ex. Piège à ours','z. B. Bärenfalle');R('Note (optional)','Note (facultatif)','Notiz (optional)');
+R('Map scale','Échelle de la carte','Kartenmaßstab');R('Seconds per map unit','Secondes par unité de carte','Sekunden pro Karteneinheit');
+R('Calibrate scale','Calibrer l’échelle','Maßstab kalibrieren');R('Known march time (mm:ss)','Temps de marche connu (mm:ss)','Bekannte Marschzeit (mm:ss)');
+R('Set scale','Définir l’échelle','Maßstab setzen');R('Player','Joueur','Spieler');R('Spot','Lieu','Ort');R('Export','Exporter','Exportieren');R('Import','Importer','Importieren');
+R('Drag players and spots on the map. March time = distance × scale, unless you type one in by hand.','Faites glisser les joueurs et les lieux sur la carte. Temps de marche = distance × échelle, sauf si vous en saisissez un à la main.','Spieler und Orte auf der Karte ziehen. Marschzeit = Entfernung × Maßstab, außer Sie tragen eine von Hand ein.');
+R('manual','manuel','manuell');R('from map','depuis la carte','von der Karte');R('Map of players and spots','Carte des joueurs et des lieux','Karte der Spieler und Orte');
+R('March to {} mm:ss','Marche vers {1} mm:ss','Marsch zu {1} mm:ss');
+R('No players yet. Add the people who call rallies.','Aucun joueur. Ajoutez les personnes qui lancent les ralliements.','Noch keine Spieler. Fügen Sie die Personen hinzu, die Rallys starten.');
+R('No spots yet. Add a spot such as Bear Trap or Fortress.','Aucun lieu. Ajoutez un lieu comme le Piège à ours ou la Forteresse.','Noch keine Orte. Fügen Sie einen Ort wie Bärenfalle oder Festung hinzu.');
+R('Target spot','Lieu cible','Zielort');R('From the Vault','Depuis le coffre','Aus dem Tresor');R('Apply Vault march times','Appliquer les temps de marche du coffre','Marschzeiten aus dem Tresor übernehmen');
+R('The Vault is empty. Add players in the Vault.','Le coffre est vide. Ajoutez des joueurs dans le coffre.','Der Tresor ist leer. Fügen Sie Spieler im Tresor hinzu.');
+R('Delete {} from the Vault?','Supprimer {1} du coffre ?','{1} aus dem Tresor löschen?');
+R('Select a player and a spot first.','Sélectionnez d’abord un joueur et un lieu.','Wählen Sie zuerst einen Spieler und einen Ort.');
+R('Enter the known march time as mm:ss.','Saisissez le temps de marche connu au format mm:ss.','Geben Sie die bekannte Marschzeit als mm:ss ein.');
+R('The player and the spot are too close on the map to calibrate.','Le joueur et le lieu sont trop proches sur la carte pour calibrer.','Spieler und Ort liegen auf der Karte zu nah beieinander zum Kalibrieren.');
+R('Replace the whole Vault with this file?','Remplacer tout le coffre par ce fichier ?','Den ganzen Tresor durch diese Datei ersetzen?');R('Could not read that file.','Impossible de lire ce fichier.','Die Datei konnte nicht gelesen werden.');
+R('Castle tiles','Cases du château','Burgfelder');R('Free map','Carte libre','Freie Karte');R('Map view','Vue de la carte','Kartenansicht');R('Castle tile map','Carte des cases du château','Burg-Feldkarte');
+R('Sunfire Castle','Château Sunfire','Sunfire-Burg');R('Sunfire','Sunfire','Sunfire');R('Castle','Château','Burg');R('Castle tile','Case du château','Burgfeld');
+R('Not placed. Pick a colour or click a tile on the map.','Non placé. Choisissez une couleur ou cliquez sur une case de la carte.','Nicht platziert. Farbe wählen oder ein Feld auf der Karte anklicken.');
+R('Click a name above, then a tile to place them. Times are walking seconds to the Castle.','Cliquez sur un nom ci-dessus, puis sur une case pour le placer. Les temps sont en secondes de marche jusqu’au château.','Klicken Sie oben einen Namen und dann ein Feld an, um ihn zu platzieren. Die Zeiten sind Laufsekunden zur Burg.');
+R('Castle walk times (seconds)','Temps de marche vers le château (secondes)','Laufzeiten zur Burg (Sekunden)');
+R('Reset to sheet values','Rétablir les valeurs du tableau','Auf Tabellenwerte zurücksetzen');R('Without pets','Sans familiers','Ohne Haustiere');R('With pets','Avec familiers','Mit Haustieren');
+R('Walk time from a tile of that colour to the Castle, in seconds. "With pets" is used when the Pet box is ticked in the schedule.','Temps de marche d’une case de cette couleur jusqu’au château, en secondes. « Avec familiers » est utilisé quand la case Familier est cochée dans le planning.','Laufzeit von einem Feld dieser Farbe zur Burg in Sekunden. „Mit Haustieren“ wird verwendet, wenn das Haustier-Kästchen im Zeitplan angehakt ist.');
+R('1. Row','1re rangée','1. Reihe');R('2. Row','2e rangée','2. Reihe');R('3. Row','3e rangée','3. Reihe');
+R('{} s · {} s with pets','{1} s · {2} s avec familiers','{1} s · {2} s mit Haustieren');
+for(const [en,fr,de] of [['Blue','Bleu','Blau'],['Lime','Vert clair','Hellgrün'],['Yellow','Jaune','Gelb'],['Teal','Sarcelle','Petrol'],['Orange','Orange','Orange'],['Magenta','Magenta','Magenta'],['Red','Rouge','Rot'],['Green','Vert','Grün'],['Wine','Bordeaux','Weinrot'],['Maroon','Marron','Kastanienbraun'],['Mauve','Mauve','Mauve'],['Navy','Marine','Marineblau'],['Cyan','Cyan','Cyan'],['Gold','Or','Gold'],['Purple','Violet','Lila']]){
+  R(en,fr,de);R(en+' · {} s',fr+' · {1} s',de+' · {1} s');R(en+' · {} s ({} s with pets)',fr+' · {1} s ({2} s avec familiers)',de+' · {1} s ({2} s mit Haustieren)');R(en+' without pets',fr+' sans familiers',de+' ohne Haustiere');R(en+' with pets',fr+' avec familiers',de+' mit Haustieren');
+}
+R('Rally leaders','Meneurs de ralliement','Rally-Leiter');R('Names','Noms','Namen');R('Add leaders','Ajouter les meneurs','Leiter hinzufügen');
+R('Type one or more names separated by commas. Tick who is joining this time. Only joining leaders show on the map and in the timer chips.','Saisissez un ou plusieurs noms séparés par des virgules. Cochez qui participe cette fois. Seuls les meneurs qui participent apparaissent sur la carte et dans les pastilles du minuteur.','Geben Sie einen oder mehrere Namen durch Kommas getrennt ein. Haken Sie an, wer diesmal dabei ist. Nur teilnehmende Leiter erscheinen auf der Karte und in den Timer-Chips.');
+R('All joining','Tous participent','Alle dabei');R('None joining','Aucun ne participe','Keiner dabei');R('Joining','Participe','Dabei');R('Leader','Meneur','Leiter');
+R('No rally leaders yet. Add names above.','Aucun meneur pour le moment. Ajoutez des noms ci-dessus.','Noch keine Rally-Leiter. Oben Namen hinzufügen.');
+R('No leaders are joining. Tick who is joining under Rally leaders.','Aucun meneur ne participe. Cochez qui participe sous Meneurs de ralliement.','Kein Leiter ist dabei. Unter Rally-Leiter anhaken, wer dabei ist.');
+R('No leaders are joining. Tick who is joining under Rally leaders in the Vault.','Aucun meneur ne participe. Cochez qui participe sous Meneurs de ralliement dans le coffre.','Kein Leiter ist dabei. Im Tresor unter Rally-Leiter anhaken, wer dabei ist.');
+R('· {} leaders · {} joining','· {1} meneurs · {2} participent','· {1} Leiter · {2} dabei');R('· {} leader · {} joining','· {1} meneur · {2} participe','· {1} Leiter · {2} dabei');
+R('Add names','Ajouter les noms','Namen hinzufügen');R('← Back to Vault','← Retour au coffre','← Zurück zum Tresor');R('Clear map','Vider la carte','Karte leeren');
+R('Just names. Type one or several separated by commas. They appear as buttons on the Castle tiles map and under "From the Vault" in the timer.','Uniquement des noms. Saisissez-en un ou plusieurs séparés par des virgules. Ils apparaissent comme boutons sur la carte du château et sous « Depuis le coffre » dans le minuteur.','Nur Namen. Einen oder mehrere durch Kommas getrennt eingeben. Sie erscheinen als Schaltflächen auf der Burgkarte und unter „Aus dem Tresor“ im Timer.');
+R('No names yet. Add some above.','Aucun nom pour le moment. Ajoutez-en ci-dessus.','Noch keine Namen. Oben welche hinzufügen.');
+R('Remove everyone from the map?','Retirer tout le monde de la carte ?','Alle von der Karte entfernen?');
+R('+ Add name, press Enter','+ Ajouter un nom, puis Entrée','+ Name hinzufügen, dann Enter');R('Add name','Ajouter un nom','Name hinzufügen');
+R('No names yet. Type a name below, or add several under Rally leaders.','Aucun nom pour le moment. Saisissez un nom ci-dessous, ou ajoutez-en plusieurs sous Meneurs de ralliement.','Noch keine Namen. Unten einen Namen eingeben oder mehrere unter Rally-Leiter hinzufügen.');
 /* applying */
 const ORIG=new WeakMap(),AORIG=new WeakMap();
 function applyLang(){
   const tw=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;
   while(n=tw.nextNode()){
-    const p=n.parentNode;if(!p||p.nodeName==='SCRIPT'||p.nodeName==='STYLE'||p.id==='lang'||(p.parentNode&&p.parentNode.id==='lang'))continue;
+    const p=n.parentNode;if(!p||p.closest&&p.closest('#map'))continue;if(p.nodeName==='SCRIPT'||p.nodeName==='STYLE'||p.id==='lang'||(p.parentNode&&p.parentNode.id==='lang'))continue;
     let o=ORIG.get(n);if(o===undefined){o=n.nodeValue;ORIG.set(n,o)}
     const t=tr(o);if(n.nodeValue!==t)n.nodeValue=t;
   }
@@ -493,7 +643,7 @@ const ADV=()=>document.body.classList.contains('advanced');
 const ngEff=()=>ADV()?groups.length:1;
 const gname=k=>{const n=groups[k]&&groups[k].name;return n&&!/^Group \d+$/.test(n)?n:tr('Group '+(k+1))};
 const gIdx=r=>ADV()?Math.min(Math.max(+r.grp||0,0),groups.length-1):0;
-const effMarch=r=>r.pet?Math.round(r.march*(1-pct()/100)):r.march;
+const effMarch=r=>r.pet?(r.marchPet>0?r.marchPet:Math.round(r.march*(1-pct()/100))):r.march;
 const total=r=>r.len+effMarch(r);
 const inGroup=k=>rallies.filter(r=>gIdx(r)===k);
 const sorted=k=>[...inGroup(k)].sort((a,b)=>total(b)-total(a)||a.name.localeCompare(b.name));
@@ -510,7 +660,7 @@ const gcol=k=>GC[k%GC.length];
 const tabName=i=>{const n=tabs[i]&&tabs[i].name;return n&&!/^Preset \d+$/.test(n)?n:tr('Preset '+(i+1))};
 const nowT=()=>paused||Date.now();
 const anyRun=()=>runs.some(Boolean);
-function setMode(m){document.body.classList.toggle('advanced',m==='adv');document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));try{localStorage.setItem('wos_mode',m)}catch(e){}}
+function setMode(m){document.body.classList.toggle('advanced',m==='adv');document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));try{localStorage.setItem('wosp_mode',m)}catch(e){}}
 function targetOf(x){
   const g=refGroup(x);
   if(g!==null){const R=runs[g];return R?{key:'g'+g+'#'+R.rid,ref:R.impact,label:groups.length>1?gname(g):'own rally'}:null}
@@ -527,16 +677,16 @@ function rowHtml(r,i,k,max,n){
   const gsel=n>1?`<label class="f">Group<select data-f="grp" aria-label="Group" ${lock}>${groups.map((g,j)=>`<option value="${j}" ${j===k?'selected':''}>${esc(gname(j))}</option>`).join('')}</select></label>`:'';
   return `<div class="rw${r.id===lastAdded?' new':''}" data-id="${r.id}">
 <div class="top"><span class="ord">${i+1}</span>
-<input class="nm" data-f="name" value="${esc(r.name)}" maxlength="24" aria-label="Name" ${lock}>
+<input class="nm" data-f="name" list="poolNames" value="${esc(r.name)}" maxlength="24" aria-label="Name" ${lock}>
 <label class="f">March<input class="mt" data-f="march" value="${mmss(r.march)}" aria-label="March time mm:ss" ${lock}></label>
 <label class="f">Rally<select data-f="len" aria-label="Rally length" ${lock}>${opts}</select></label>${gsel}
 <div class="petbox"><input class="pt" data-f="pett" value="${r.pet&&r.petEnd?fmtHMS(r.petEnd-Date.now()):'2:00:00'}" ${r.pet?'':'disabled'} aria-label="Pet bonus time left h:mm:ss" title="Pet bonus time left (h:mm:ss). Edit to correct it."><label class="chk pet"><input type="checkbox" data-f="pet" ${r.pet?'checked':''} ${lock}> Pet</label></div>
 <button class="x" data-del="${r.id}" aria-label="Remove ${esc(r.name)}" ${lock}>✕</button></div>
 <div class="trk" role="img" aria-label="${esc(r.name)} timeline"><i style="width:${(max-total(r))/max*100}%"></i><i class="rl" style="width:${r.len/max*100}%"></i><i class="mr" style="width:${em/max*100}%"></i></div>
-<div class="meta"><span>Call at <b>T+${mmss(max-total(r))}</b>${it?' · <b>'+new Date(it.call).toLocaleTimeString()+'</b>':''}</span><span>March ${mmss(em)}${r.pet?' (pet −'+pct()+'%)':''}</span><span>Total ${mmss(total(r))}</span><span class="st"></span></div></div>`;
+<div class="meta"><span>Call at <b>T+${mmss(max-total(r))}</b>${it?' · <b>'+new Date(it.call).toLocaleTimeString()+'</b>':''}</span><span>March ${mmss(em)}${r.pet?' (pet −'+Math.max(0,Math.round((1-em/r.march)*100))+'%)':''}</span><span>Total ${mmss(total(r))}</span><span class="st"></span></div></div>`;
 }
 function render(){
-  renderTabs();renderR();renderGroups();
+  renderTabs();renderPoolMini();renderR();renderGroups();
   const n=ngEff();
   $('leg').hidden=!rallies.length;
   if(!rallies.length){$('list').innerHTML='<div class="empty">No rally leaders yet. Add a name, march time and rally length above.</div>';$('hint').textContent=''}
@@ -618,7 +768,8 @@ const enterBlur=e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT')e.target.blur
 $('form').addEventListener('submit',()=>{
   const name=$('name').value.trim();if(!name||!MS.test($('march').value))return;
   lastAdded=Date.now()+Math.random();
-  rallies.push({id:lastAdded,name,march:parseMS($('march').value),len:+$('len').value,pet:$('pet').checked,petEnd:$('pet').checked?Date.now()+PET_MS:null,grp:ADV()?+$('agrp').value||0:0});
+  rallies.push({id:lastAdded,name,march:parseMS($('march').value),len:+$('len').value,pet:false,petEnd:null,grp:ADV()?+$('agrp').value||0:0});
+  {const rr=rallies[rallies.length-1],pm=poolMarch(rr.name),pp=poolMarchPet(rr.name);if(pm&&pp&&pm===rr.march)rr.marchPet=pp}
   $('name').value='';$('name').focus();save();render();
 });
 $('list').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(!b)return;const r=rallies.find(r=>String(r.id)===b.dataset.del);if(r&&!runs[gIdx(r)]){rallies=rallies.filter(x=>x!==r);save();render()}});
@@ -626,8 +777,8 @@ $('list').addEventListener('change',e=>{
   const f=e.target.dataset.f;if(!f)return;
   const r=rallies.find(r=>String(r.id)===e.target.closest('.rw').dataset.id);if(!r||(runs[gIdx(r)]&&f!=='pett'))return;
   if(f==='pett'){const v=e.target.value.trim();if(r.pet&&/^\d{1,2}:[0-5]\d:[0-5]\d$/.test(v)){const[h,m,sc]=v.split(':').map(Number);r.petEnd=Date.now()+((h*60+m)*60+sc)*1000}save();render();return}
-  if(f==='name'){const v=e.target.value.trim();if(v)r.name=v}
-  else if(f==='march'){if(MS.test(e.target.value.trim()))r.march=parseMS(e.target.value.trim())}
+  if(f==='name'){const v=e.target.value.trim();if(v){r.name=v;const pm=poolMarch(v);if(pm){r.march=pm;const pp=poolMarchPet(v);if(pp)r.marchPet=pp;else delete r.marchPet}}}
+  else if(f==='march'){if(MS.test(e.target.value.trim())){r.march=parseMS(e.target.value.trim());delete r.marchPet}}
   else if(f==='len')r.len=+e.target.value;
   else if(f==='grp')r.grp=+e.target.value;
   else if(f==='pet'){r.pet=e.target.checked;r.petEnd=r.pet?Date.now()+PET_MS:null}
@@ -681,7 +832,7 @@ $('hlist').addEventListener('change',e=>{
   lastAdded=h.id;render();
 });
 $('hlist').addEventListener('keydown',enterBlur);
-function setGrp(){document.title='Rally timer'+' – '+tabName(curTab)}
+function setGrp(){document.title='Rally Pool'+' – '+tabName(curTab)}
 $('grp').addEventListener('input',()=>{tabs[curTab].name=$('grp').value.trim();save();renderTabs()});
 $('grp').addEventListener('change',()=>{if(!tabs[curTab].name)tabs[curTab].name='Preset '+(curTab+1);save();$('grp').value=tabName(curTab);renderTabs()});
 $('petpct').addEventListener('change',()=>{save();render()});
@@ -783,6 +934,293 @@ $('tabdel').onclick=()=>{
   const c=tabs[i];curTab=i;rallies=c.rallies||[];reinf=c.reinf||[];groups=c.groups&&c.groups.length?c.groups:[{name:'Group 1',lin:'',clock:''}];
   sst={};lastAdded=null;save();render();
 };
+
+/* ---------- Sunfire Castle tile map (from the alliance sheet) ---------- */
+const CK={blue:['Blue','#4a86e8',36,30,0],lime:['Lime','#00ff00',39,32,0],yellow:['Yellow','#ffff00',43,36,0],teal:['Teal','#46bdc6',48,40,0],
+ orange:['Orange','#ff6d01',45,37,1],magenta:['Magenta','#ff00ff',47,39,1],red:['Red','#ff0000',50,41,1],green:['Green','#34a853',55,45,1],wine:['Wine','#741b47',61,50,1],
+ maroon:['Maroon','#660000',53,44,2],mauve:['Mauve','#c27ba0',55,45,2],navy:['Navy','#073763',58,48,2],cyan:['Cyan','#00ffff',62,51,2],gold:['Gold','#bf9000',67,55,2],purple:['Purple','#351c75',73,60,2]};
+const RINGN=['1. Row','2. Row','3. Row'];
+const castleGrid=(()=>{
+  const g=Array.from({length:12},()=>Array(12).fill('black'));
+  const ring=(k,seq)=>{const n=12-2*k;for(let i=0;i<n;i++){g[k][k+i]=seq[i];g[11-k][k+i]=seq[i];g[k+i][k]=seq[i];g[k+i][11-k]=seq[i]}};
+  ring(0,['purple','gold','cyan','navy','mauve','maroon','maroon','mauve','navy','cyan','gold','purple']);
+  ring(1,['wine','green','red','magenta','orange','orange','magenta','red','green','wine']);
+  ring(2,['teal','yellow','lime','blue','blue','lime','yellow','teal']);
+  [[3,3],[3,8],[8,3],[8,8]].forEach(([r,c])=>g[r][c]='gray');
+  return g;
+})();
+function ctime(k){const o=pool.ctimes&&pool.ctimes[k];return o&&o[0]>0?o:[CK[k][2],CK[k][3]]}
+/* ---------- info pool (players, spots, map) ---------- */
+let pool={players:[],spots:[],scale:3,ctimes:{},leaders:[]},poolSel=null,poolDrag=null,poolMapMode='tiles';
+try{const p=JSON.parse(localStorage.getItem('wosp_pool')||'null');if(p&&Array.isArray(p.players))pool=Object.assign({players:[],spots:[],scale:3},p)}catch(e){}
+function normPool(){
+  pool.leaders=Array.isArray(pool.leaders)?pool.leaders:[];
+  for(const p of pool.players){
+    if(p.leader&&!pool.leaders.some(l=>l.name.trim().toLowerCase()===p.name.trim().toLowerCase()))pool.leaders.push({id:Date.now()+Math.random(),name:p.name});
+    delete p.leader;delete p.joining;
+  }
+}
+normPool();
+const savePool=()=>{try{localStorage.setItem('wosp_pool',JSON.stringify(pool))}catch(e){}};
+const pdist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const pid=()=>Date.now()+Math.random();
+function autoMarch(p,s){return p&&s&&p.x!=null&&s.x!=null?Math.max(1,Math.round(pdist(p,s)*pool.scale)):null}
+function marchFor(pidv,sid){
+  const p=pool.players.find(x=>String(x.id)===String(pidv));if(!p)return null;
+  if(sid==='castle')return p.ckey&&CK[p.ckey]?ctime(p.ckey)[0]:null;
+  const s=pool.spots.find(x=>String(x.id)===String(sid));if(!s)return null;
+  if(p.m&&p.m[s.id]>0)return p.m[s.id];
+  return autoMarch(p,s);
+}
+function marchPetFor(pidv,sid){const p=pool.players.find(x=>String(x.id)===String(pidv));return sid==='castle'&&p&&p.ckey&&CK[p.ckey]?ctime(p.ckey)[1]:null}
+const poolByName=n=>pool.players.find(p=>p.name.trim().toLowerCase()===String(n).trim().toLowerCase());
+const curTarget=()=>{const t=tabs[curTab]&&tabs[curTab].target;return t==='castle'||(t&&pool.spots.some(s=>String(s.id)===String(t)))?String(t):''};
+function pickTarget(p){
+  const t=curTarget();if(t)return t;
+  if(!p)return '';
+  if(p.ckey&&CK[p.ckey])return 'castle';
+  for(const s of pool.spots)if(marchFor(p.id,s.id))return String(s.id);
+  return '';
+}
+function poolMarch(name){const p=poolByName(name),t=pickTarget(p);return p&&t?marchFor(p.id,t):null}
+function poolMarchPet(name){const p=poolByName(name),t=pickTarget(p);return p&&t?marchPetFor(p.id,t):null}
+
+const shownP=()=>true;
+const lc=n=>String(n).trim().toLowerCase();
+const timerPlayers=()=>[...pool.players].sort((a,b)=>(b.tile?1:0)-(a.tile?1:0));
+const nameOnlyLeaders=()=>(pool.leaders||[]).filter(l=>!pool.players.some(p=>lc(p.name)===lc(l.name)));
+function renderPoolMini(){
+  $('poolNames').innerHTML=[...new Set([...pool.players.map(p=>p.name),...(pool.leaders||[]).map(l=>l.name)])].map(n=>`<option value="${esc(n)}"></option>`).join('');
+  const ts=$('atarget'),cur=curTarget();
+  ts.innerHTML='<option value="">—</option><option value="castle"'+(cur==='castle'?' selected':'')+'>Sunfire Castle</option>'+pool.spots.map(s=>`<option value="${s.id}"${String(s.id)===String(cur)?' selected':''}>${esc(s.name)}</option>`).join('');
+  $('atargetL').hidden=false;
+  $('applyPool').hidden=!pool.players.length;
+  const tp=timerPlayers(),no=nameOnlyLeaders();$('fpcount').textContent='· '+(tp.length+no.length);
+  const inSched=n=>rallies.some(r=>lc(r.name)===lc(n));
+  const c1=tp.map(p=>{
+    const pt=pickTarget(p),m=pt?marchFor(p.id,pt):null,mp=pt?marchPetFor(p.id,pt):null,on=inSched(p.name);
+    return `<button type="button" class="chip${on?' on':''}" data-pick="${p.id}"${on?' disabled':''}>${esc(p.name)}${m?`<small>${mmss(m)}${mp?' / '+mmss(mp):''}</small>`:''}</button>`}).join('');
+  const c2=no.map(l=>{const on=inSched(l.name);return `<button type="button" class="chip${on?' on':''}" data-pickname="${esc(l.name)}"${on?' disabled':''}>${esc(l.name)}</button>`}).join('');
+  $('poolChips').innerHTML=(c1+c2)||'<span class="muted">The Vault is empty. Add players in the Vault.</span>';
+}
+function addFromPool(id){
+  const p=pool.players.find(x=>String(x.id)===String(id));if(!p)return;
+  if(rallies.some(r=>r.name.trim().toLowerCase()===p.name.trim().toLowerCase()))return;
+  const t=pickTarget(p),m=t?marchFor(p.id,t):null,mp=t?marchPetFor(p.id,t):null,fm=MS.test($('march').value)?parseMS($('march').value):60;
+  lastAdded=Date.now()+Math.random();
+  const r={id:lastAdded,name:p.name,march:m||fm,len:+$('len').value,pet:false,petEnd:null,grp:ADV()?+$('agrp').value||0:0};
+  if(m&&mp)r.marchPet=mp;
+  rallies.push(r);save();render();
+}
+try{if(localStorage.getItem('wosp_fp')==='0')$('fromPool').open=false}catch(e){}
+$('fromPool').addEventListener('toggle',()=>{try{localStorage.setItem('wosp_fp',$('fromPool').open?'1':'0')}catch(e){}});
+$('poolChips').addEventListener('click',e=>{
+  const nb=e.target.closest('[data-pickname]');
+  if(nb){const n=nb.dataset.pickname;if(rallies.some(r=>lc(r.name)===lc(n)))return;const fm=MS.test($('march').value)?parseMS($('march').value):60;lastAdded=Date.now()+Math.random();rallies.push({id:lastAdded,name:n,march:fm,len:+$('len').value,pet:false,petEnd:null,grp:ADV()?+$('agrp').value||0:0});save();render();return}
+  const b=e.target.closest('[data-pick]');if(b){addFromPool(b.dataset.pick);const p=pool.players.find(x=>String(x.id)===b.dataset.pick),m=p&&poolMarch(p.name);if(m)$('march').value=String(Math.floor(m/60)).padStart(2,'0')+':'+pad(m%60)}});
+$('atarget').addEventListener('change',()=>{tabs[curTab].target=$('atarget').value;save();render()});
+$('applyPool').onclick=()=>{
+  for(const r of rallies){if(runs[gIdx(r)])continue;const m=poolMarch(r.name);if(m){r.march=m;const mp=poolMarchPet(r.name);if(mp)r.marchPet=mp;else delete r.marchPet}}
+  save();render();
+};
+for(const id of ['march','hmarch','hrally','rmarch','lin','cm'])$(id).addEventListener('change',()=>{const t=parseT($(id).value);if(t!==null&&$(id).value.trim()!=='')$(id).value=fmtIn(t)});
+$('name').addEventListener('input',()=>{const m=poolMarch($('name').value);if(m)$('march').value=String(Math.floor(m/60)).padStart(2,'0')+':'+pad(m%60)});
+$('name').addEventListener('change',()=>{const m=poolMarch($('name').value);if(m)$('march').value=String(Math.floor(m/60)).padStart(2,'0')+':'+pad(m%60)});
+function setPool(open){
+  document.body.classList.toggle('poolopen',open);if(!open)document.body.classList.remove('leadersopen');
+  $('poolBtn').textContent=open?'Timer':'Vault';
+  if(open)renderPoolView();
+}
+let poolOpen=false;
+$('poolBtn').onclick=()=>{poolOpen=!poolOpen;setPool(poolOpen);applyLang()};
+$('poolBack').onclick=()=>{poolOpen=false;setPool(false);render()};
+
+function castleRow(p){
+  const opts=[0,1,2].map(ri=>`<optgroup label="${tr(RINGN[ri])}">`+Object.entries(CK).filter(([k,v])=>v[4]===ri).map(([k,v])=>{const t=ctime(k);return `<option value="${k}"${p.ckey===k?' selected':''}>${v[0]} · ${t[0]} s</option>`}).join('')+'</optgroup>').join('');
+  const t=p.ckey&&CK[p.ckey]?ctime(p.ckey):null;
+  return `<div class="row" style="margin-top:8px;align-items:center"><label>Spot<select data-pc aria-label="Spot"><option value="">—</option>${opts}</select></label><span class="muted">${t?t[0]+' s · '+t[1]+' s with pets':'Not placed. Pick a colour or click a tile on the map.'}</span></div>`;
+}
+function renderCastleTab(){
+  const sw=k=>{const v=CK[k],t=ctime(k);return `<div class="ctrow"><span class="sw" style="background:${v[1]}"></span><b>${v[0]}</b><label>Without pets<input data-ct="${k}:0" value="${t[0]}" inputmode="numeric" aria-label="${v[0]} without pets"></label><label>With pets<input data-ct="${k}:1" value="${t[1]}" inputmode="numeric" aria-label="${v[0]} with pets"></label></div>`};
+  $('ctabbody').innerHTML=[0,1,2].map(ri=>`<h3>${RINGN[ri]}</h3>`+Object.keys(CK).filter(k=>CK[k][4]===ri).map(sw).join('')).join('');
+}
+function renderTiles(){
+  const L=[];
+  for(let r=0;r<12;r++)for(let c=0;c<12;c++){const k=castleGrid[r][c],v=CK[k];L.push(`<rect class="${v?'cell':''}" ${v?`data-cell="${r},${c}"`:''} x="${c*10}" y="${r*10}" width="10" height="10" fill="${v?v[1]:k==='gray'?'#666':'#000'}" stroke="#000" stroke-width=".25"/>`)}
+  L.push('<rect x="45" y="45" width="30" height="30" rx="1.5" fill="#ffbf00"/><text x="60" y="58.5" text-anchor="middle" style="fill:#1b1b1b;font-size:4px;font-weight:700">Sunfire</text><text x="60" y="64" text-anchor="middle" style="fill:#1b1b1b;font-size:4px;font-weight:700">Castle</text>');
+  const by={};for(const p of pool.players){if(p.tile&&shownP(p)){const k=p.tile.r+','+p.tile.c;(by[k]=by[k]||[]).push(p)}}
+  for(const [k,list] of Object.entries(by)){const [r,c]=k.split(',').map(Number);const n=list.length,h=n<=1?5.2:n===2?4.4:n===3?3.3:2.6,fs=n<=1?2.7:n===2?2.4:n===3?2.1:1.8,gap=.4,tot=n*h+(n-1)*gap;list.forEach((p,i)=>{
+    const cx=c*10+5,cy=r*10+5-tot/2+h/2+i*(h+gap),on=poolSel&&poolSel.t==='p'&&String(poolSel.id)===String(p.id),w=8.8;
+    L.push(`<g data-tp="${p.id}" style="cursor:pointer"><title>${esc(p.name)}</title><rect x="${cx-w/2}" y="${cy-h/2}" width="${w}" height="${h}" rx="${h/2}" fill="#fff" stroke="${on?'#f2a900':'#111'}" stroke-width="${on?.9:.4}"/><text x="${cx}" y="${cy+fs*.36}" text-anchor="middle" style="fill:#111;font-size:${fs}px;font-weight:700">${esc(Array.from((p.name||'?').trim()).slice(0,3).join(''))}</text></g>`)})}
+  $('tmlayer').innerHTML=L.join('');
+  const sp=poolSel&&poolSel.t==='p'?pool.players.find(x=>String(x.id)===String(poolSel.id)):null;
+  const key=sp&&sp.ckey||$('tileinfo').dataset.k;
+  if(key&&CK[key]){const t=ctime(key);$('tileinfo').textContent=CK[key][0]+' · '+t[0]+' s ('+t[1]+' s with pets)'}else $('tileinfo').textContent='Click a name above, then a tile to place them. Times are walking seconds to the Castle.';
+}
+function renderPoolView(){
+  renderPoolMini();
+  $('pscale').value=pool.scale;
+  $('plist').innerHTML=pool.players.length?pool.players.map(p=>{
+    const grid=pool.spots.map(s=>{const man=p.m&&p.m[s.id]>0?p.m[s.id]:null,au=autoMarch(p,s);
+      return `<label>${esc(s.name)}<input data-pm="${s.id}" value="${man?mmss(man):''}" placeholder="${au!=null?'≈ '+mmss(au):'mm:ss'}" aria-label="March to ${esc(s.name)} mm:ss"><span class="src">${man?'manual':au!=null?'from map':''}</span></label>`}).join('');
+    return `<div class="rw${poolSel&&poolSel.t==='p'&&String(poolSel.id)===String(p.id)?' next':''}" data-pid="${p.id}"><div class="top"><span class="ord" data-psel="${p.id}" style="cursor:pointer">${esc((p.name||'?').trim().slice(0,1).toUpperCase())}</span>
+<input class="nm" data-pf="name" value="${esc(p.name)}" maxlength="24" aria-label="Name">
+<input class="nm" data-pf="note" value="${esc(p.note||'')}" maxlength="40" placeholder="Note (optional)" aria-label="Note (optional)">
+<button class="x" data-pdel="${p.id}" aria-label="Remove ${esc(p.name)}">✕</button></div>${castleRow(p)}${pool.spots.length?`<div class="pmgrid">${grid}</div>`:''}</div>`}).join(''):'<div class="empty">No players yet. Add the people who call rallies.</div>';
+  $('slist').innerHTML=pool.spots.length?pool.spots.map(s=>`<div class="rw g${poolSel&&poolSel.t==='s'&&String(poolSel.id)===String(s.id)?' next':''}" data-sid="${s.id}"><div class="top"><span class="ord" data-ssel="${s.id}" style="cursor:pointer">◆</span>
+<input class="nm" data-sf="name" value="${esc(s.name)}" maxlength="24" aria-label="Spot name"><button class="x" data-sdel="${s.id}" aria-label="Remove ${esc(s.name)}">✕</button></div></div>`).join(''):'<div class="empty">No spots yet. Add a spot such as Bear Trap or Fortress.</div>';
+  const po=pool.players.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join(''),so=pool.spots.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  const cp=$('cp'),cs=$('cs'),a=cp.value,b=cs.value;cp.innerHTML=po;cs.innerHTML=so;if(a)cp.value=a;if(b)cs.value=b;
+  $('spcount').textContent='· '+pool.spots.length;$('plcount').textContent='· '+pool.players.length;renderLeaders();renderLeaderTray();
+  renderMap();renderTiles();renderCastleTab();
+  $('poolView').classList.toggle('free',poolMapMode==='free');
+  document.querySelectorAll('[data-mapmode]').forEach(b=>b.classList.toggle('on',b.dataset.mapmode===poolMapMode));
+}
+function renderMap(){
+  const L=[];
+  for(let i=0;i<=100;i+=10){L.push(`<line class="grid" x1="${i}" y1="0" x2="${i}" y2="100"/><line class="grid" x1="0" y1="${i}" x2="100" y2="${i}"/>`)}
+  const sel=poolSel;
+  if(sel&&sel.t==='p'){const p=pool.players.find(x=>String(x.id)===String(sel.id));if(p&&p.x!=null)for(const s of pool.spots){if(s.x==null)continue;const m=marchFor(p.id,s.id);L.push(`<line class="ln" x1="${p.x}" y1="${p.y}" x2="${s.x}" y2="${s.y}"/>`);if(m)L.push(`<text class="lt" x="${(p.x+s.x)/2}" y="${(p.y+s.y)/2}" text-anchor="middle">${mmss(m)}</text>`)}}
+  if(sel&&sel.t==='s'){const s=pool.spots.find(x=>String(x.id)===String(sel.id));if(s&&s.x!=null)for(const p of pool.players){if(p.x==null)continue;const m=marchFor(p.id,s.id);L.push(`<line class="ln" x1="${p.x}" y1="${p.y}" x2="${s.x}" y2="${s.y}"/>`);if(m)L.push(`<text class="lt" x="${(p.x+s.x)/2}" y="${(p.y+s.y)/2}" text-anchor="middle">${mmss(m)}</text>`)}}
+  for(const s of pool.spots){if(s.x==null)continue;const on=sel&&sel.t==='s'&&String(sel.id)===String(s.id);L.push(`<g data-k="s:${s.id}"><rect class="sp${on?' sel':''}" x="${s.x-2.4}" y="${s.y-2.4}" width="4.8" height="4.8" rx=".8"/><text x="${s.x}" y="${s.y-3.6}" text-anchor="middle">${esc(s.name)}</text></g>`)}
+  for(const p of pool.players){if(p.x==null||!shownP(p))continue;const on=sel&&sel.t==='p'&&String(sel.id)===String(p.id);L.push(`<g data-k="p:${p.id}"><circle class="pl${on?' sel':''}" cx="${p.x}" cy="${p.y}" r="2.3"/><text x="${p.x}" y="${p.y+5.2}" text-anchor="middle">${esc(p.name)}</text></g>`)}
+  $('maplayer').innerHTML=L.join('');
+}
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const mapPt=e=>{const r=$('map').getBoundingClientRect();return{x:Math.round(clamp((e.clientX-r.left)/r.width*100,1,99)*10)/10,y:Math.round(clamp((e.clientY-r.top)/r.height*100,1,99)*10)/10}};
+$('map').addEventListener('pointerdown',e=>{
+  const g=e.target.closest('[data-k]');
+  if(!g){poolSel=null;renderPoolView();return}
+  const [t,id]=g.dataset.k.split(':');poolSel={t,id};poolDrag={t,id};
+  try{$('map').setPointerCapture(e.pointerId)}catch(_){}
+  renderMap();
+});
+$('map').addEventListener('pointermove',e=>{
+  if(!poolDrag)return;
+  const it=(poolDrag.t==='p'?pool.players:pool.spots).find(x=>String(x.id)===String(poolDrag.id));if(!it)return;
+  const q=mapPt(e);it.x=q.x;it.y=q.y;renderMap();
+});
+const endDrag=()=>{if(poolDrag){poolDrag=null;savePool();renderPoolView()}};
+$('map').addEventListener('pointerup',endDrag);$('map').addEventListener('pointercancel',endDrag);
+
+$('tmap').addEventListener('pointerdown',e=>{
+  const dot=e.target.closest('[data-tp]');
+  if(dot){poolSel={t:'p',id:dot.dataset.tp};renderPoolView();return}
+  const cell=e.target.closest('[data-cell]');if(!cell)return;
+  const [r,c]=cell.dataset.cell.split(',').map(Number),k=castleGrid[r][c];
+  const p=poolSel&&poolSel.t==='p'?pool.players.find(x=>String(x.id)===String(poolSel.id)):(poolSel&&poolSel.t==='n'?ensurePlayer(poolSel.name):null);
+  if(p){p.tile={r,c};p.ckey=k;{const cur=pool.leaders.findIndex(l=>lc(l.name)===lc(p.name));if(cur>=0){const nl=[...pool.leaders.slice(cur+1),...pool.leaders.slice(0,cur)].find(l=>{const q=poolByName(l.name);return !(q&&q.tile)});if(nl){const q=poolByName(nl.name);poolSel=q?{t:'p',id:q.id}:{t:'n',name:nl.name}}}}savePool();renderPoolView();render()}
+  else{$('tileinfo').dataset.k=k;renderTiles()}
+});
+document.querySelectorAll('[data-mapmode]').forEach(b=>b.onclick=()=>{poolMapMode=b.dataset.mapmode;renderPoolView()});
+$('ctabbody').addEventListener('change',e=>{
+  const a=e.target.dataset.ct;if(!a)return;const [k,i]=a.split(':'),v=parseInt(e.target.value,10);
+  if(v>0){pool.ctimes=pool.ctimes||{};const cur=ctime(k).slice();cur[+i]=v;pool.ctimes[k]=cur;savePool()}
+  renderPoolView();render();
+});
+$('creset').onclick=()=>{pool.ctimes={};savePool();renderPoolView();render()};
+$('pform').addEventListener('submit',()=>{
+  const n=$('pname').value.trim();if(!n)return;
+  const id=pid();pool.players.push({id,name:n,note:'',x:Math.round((30+Math.random()*40)*10)/10,y:Math.round((30+Math.random()*40)*10)/10,m:{}});
+  if(!pool.leaders.some(l=>lc(l.name)===lc(n)))pool.leaders.push({id:pid(),name:n});
+  poolSel={t:'p',id};$('pname').value='';$('pname').focus();savePool();renderLeaders();renderPoolView();render();
+});
+$('sform').addEventListener('submit',()=>{
+  const n=$('sname').value.trim();if(!n)return;
+  const id=pid();pool.spots.push({id,name:n,x:Math.round((35+Math.random()*30)*10)/10,y:Math.round((35+Math.random()*30)*10)/10});
+  poolSel={t:'s',id};$('sname').value='';$('sname').focus();savePool();renderPoolView();render();
+});
+$('plist').addEventListener('change',e=>{
+  const row=e.target.closest('[data-pid]');if(!row)return;
+  const p=pool.players.find(x=>String(x.id)===row.dataset.pid);if(!p)return;
+  if(e.target.dataset.pc!==undefined){const k=e.target.value;if(k&&CK[k]){p.ckey=k;if(!p.tile||castleGrid[p.tile.r][p.tile.c]!==k){outer:for(let r=0;r<12;r++)for(let c=0;c<12;c++)if(castleGrid[r][c]===k){p.tile={r,c};break outer}}}else{delete p.ckey;p.tile=null}}
+  else if(e.target.dataset.pf==='name'){const v=e.target.value.trim();if(v)p.name=v}
+  else if(e.target.dataset.pf==='note')p.note=e.target.value.trim();
+  else if(e.target.dataset.pm){const v=e.target.value.trim();p.m=p.m||{};if(!v)delete p.m[e.target.dataset.pm];else if(MS.test(v))p.m[e.target.dataset.pm]=parseMS(v)}
+  savePool();renderPoolView();render();
+});
+$('plist').addEventListener('click',e=>{
+  const d=e.target.closest('[data-pdel]');
+  if(d){const p=pool.players.find(x=>String(x.id)===d.dataset.pdel);if(p&&confirm('Delete {} from the Vault?'.replace('{}',p.name))){pool.players=pool.players.filter(x=>x!==p);if(poolSel&&String(poolSel.id)===d.dataset.pdel)poolSel=null;savePool();renderPoolView();render()}return}
+  const s=e.target.closest('[data-psel]');if(s){poolSel={t:'p',id:s.dataset.psel};renderPoolView()}
+});
+$('slist').addEventListener('change',e=>{
+  const row=e.target.closest('[data-sid]');if(!row)return;
+  const s=pool.spots.find(x=>String(x.id)===row.dataset.sid);if(!s)return;
+  const v=e.target.value.trim();if(e.target.dataset.sf==='name'&&v)s.name=v;
+  savePool();renderPoolView();render();
+});
+$('slist').addEventListener('click',e=>{
+  const d=e.target.closest('[data-sdel]');
+  if(d){const s=pool.spots.find(x=>String(x.id)===d.dataset.sdel);if(s&&confirm('Delete {} from the Vault?'.replace('{}',s.name))){pool.spots=pool.spots.filter(x=>x!==s);pool.players.forEach(p=>{if(p.m)delete p.m[s.id]});if(poolSel&&String(poolSel.id)===d.dataset.sdel)poolSel=null;savePool();renderPoolView();render()}return}
+  const s=e.target.closest('[data-ssel]');if(s){poolSel={t:'s',id:s.dataset.ssel};renderPoolView()}
+});
+$('pscale').addEventListener('change',()=>{const v=parseFloat($('pscale').value);if(v>0){pool.scale=v;savePool();renderPoolView();render()}else $('pscale').value=pool.scale});
+$('cbtn').onclick=()=>{
+  const p=pool.players.find(x=>String(x.id)===$('cp').value),s=pool.spots.find(x=>String(x.id)===$('cs').value),v=$('cm').value.trim();
+  if(!p||!s){alert('Select a player and a spot first.');return}
+  if(!MS.test(v)){alert('Enter the known march time as mm:ss.');return}
+  const d=pdist(p,s);if(!(d>1)){alert('The player and the spot are too close on the map to calibrate.');return}
+  pool.scale=Math.round(parseMS(v)/d*100)/100;$('cm').value='';savePool();renderPoolView();render();
+};
+$('poolExport').onclick=()=>{
+  const blob=new Blob([JSON.stringify(pool,null,1)],{type:'application/json'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='rally-pool.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+$('poolImport').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{const p=JSON.parse(rd.result);if(!p||!Array.isArray(p.players)||!Array.isArray(p.spots))throw 0;if(!confirm('Replace the whole Vault with this file?'))return;pool=Object.assign({scale:3,ctimes:{},leaders:[]},p);normPool();poolSel=null;savePool();renderPoolView();render()}catch(_){alert('Could not read that file.')}};
+  rd.readAsText(f);e.target.value='';
+});
+
+/* ---------- rally leader names (names only) ---------- */
+function ensurePlayer(name){
+  let p=poolByName(name);
+  if(!p){p={id:pid(),name:name,note:'',x:Math.round((30+Math.random()*40)*10)/10,y:Math.round((30+Math.random()*40)*10)/10,m:{}};pool.players.push(p)}
+  return p;
+}
+function renderLeaders(){
+  const L=pool.leaders;
+  $('ldcount').textContent=L.length?'· '+L.length:'';
+  $('llist').innerHTML=L.length?L.map(l=>`<div class="rw" data-lid="${l.id}"><div class="top"><span class="ord">${esc((l.name||'?').trim().slice(0,1).toUpperCase())}</span>
+<input class="nm" data-lf="name" value="${esc(l.name)}" maxlength="24" aria-label="Name">
+<button class="x" data-ldel="${l.id}" aria-label="Remove ${esc(l.name)}">✕</button></div></div>`).join(''):'<div class="empty">No names yet. Add some above.</div>';
+}
+function renderLeaderTray(){
+  const L=pool.leaders,free=poolMapMode==='free';
+  $('ltray').innerHTML=L.length?L.map(l=>{const p=poolByName(l.name),k=p&&p.tile&&p.ckey&&CK[p.ckey]?CK[p.ckey]:null,placed=free?!!p:!!k,on=poolSel&&((poolSel.t==='n'&&lc(poolSel.name)===lc(l.name))||(poolSel.t==='p'&&p&&String(poolSel.id)===String(p.id)));
+    return `<button type="button" class="chip${on?' sel':''}${placed?' done':''}" data-tray="${esc(l.name)}">${esc(l.name)}${!free&&k?`<small>${k[0]}</small>`:''}</button>`}).join(''):'<span class="muted">No names yet. Type a name below, or add several under Rally leaders.</span>';
+}
+$('ltray').addEventListener('click',e=>{const b=e.target.closest('[data-tray]');if(!b)return;
+  let p=poolByName(b.dataset.tray);
+  if(!p&&poolMapMode==='free'){p=ensurePlayer(b.dataset.tray);savePool();render()}
+  poolSel=p?{t:'p',id:p.id}:{t:'n',name:b.dataset.tray};renderPoolView();
+});
+$('trayAdd').addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;e.preventDefault();
+  const names=$('trayAdd').value.split(/[,;]+/).map(x=>x.trim().slice(0,24)).filter(Boolean);if(!names.length)return;
+  for(const n of names)if(!pool.leaders.some(l=>lc(l.name)===lc(n)))pool.leaders.push({id:pid(),name:n});
+  const first=names[0];let p=poolByName(first);
+  if(!p&&poolMapMode==='free')p=ensurePlayer(first);
+  poolSel=p?{t:'p',id:p.id}:{t:'n',name:first};
+  $('trayAdd').value='';savePool();renderLeaders();renderPoolView();render();$('trayAdd').focus();
+});
+$('clearMap').onclick=()=>{if(!pool.players.some(p=>p.tile))return;if(!confirm('Remove everyone from the map?'))return;pool.players.forEach(p=>{p.tile=null;delete p.ckey});poolSel=null;savePool();renderPoolView();render()};
+$('leadersBtn').onclick=()=>{document.body.classList.add('leadersopen');renderLeaders();$('lnames').focus()};
+$('leadersBack').onclick=()=>{document.body.classList.remove('leadersopen');renderPoolView()};
+$('lform').addEventListener('submit',()=>{
+  const names=$('lnames').value.split(/[,;]+/).map(x=>x.trim().slice(0,24)).filter(Boolean);if(!names.length)return;
+  for(const n of names)if(!pool.leaders.some(l=>lc(l.name)===lc(n)))pool.leaders.push({id:pid(),name:n});
+  $('lnames').value='';$('lnames').focus();savePool();renderLeaders();renderPoolView();render();
+});
+$('llist').addEventListener('change',e=>{
+  const row=e.target.closest('[data-lid]');if(!row||e.target.dataset.lf!=='name')return;
+  const l=pool.leaders.find(x=>String(x.id)===row.dataset.lid),v=e.target.value.trim();if(!l||!v)return;
+  const pl=poolByName(l.name);if(pl&&!poolByName(v))pl.name=v;
+  l.name=v;savePool();renderLeaders();renderPoolView();render();
+});
+$('llist').addEventListener('click',e=>{const d=e.target.closest('[data-ldel]');if(!d)return;pool.leaders=pool.leaders.filter(x=>String(x.id)!==d.dataset.ldel);savePool();renderLeaders();renderPoolView();render()});
+$('llist').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT')e.target.blur()});
 
 /* ---------- tick ---------- */
 function vcd(o,dt,intro){
@@ -891,14 +1329,14 @@ function step(){
 }
 setInterval(step,200);
 
-let md='easy';try{md=localStorage.getItem('wos_mode')||'easy'}catch(e){}
+let md='easy';try{md=localStorage.getItem('wosp_mode')||'easy'}catch(e){}
 const _al=window.alert.bind(window),_co=window.confirm.bind(window);
 window.alert=m=>_al(tr(m));window.confirm=m=>_co(tr(m));
-try{const sl=localStorage.getItem('wos_lang');lang=sl||((navigator.language||'en').slice(0,2));if(!LOC[lang]||!['en','fr','de'].includes(lang))lang='en'}catch(e){}
+try{const sl=localStorage.getItem('wosp_lang');lang=sl||((navigator.language||'en').slice(0,2));if(!LOC[lang]||!['en','fr','de'].includes(lang))lang='en'}catch(e){}
 $('lang').value=lang;document.documentElement.lang=lang;
-$('lang').onchange=()=>{lang=$('lang').value;try{localStorage.setItem('wos_lang',lang)}catch(e){}document.documentElement.lang=lang;TC.clear();render()};
+$('lang').onchange=()=>{lang=$('lang').value;try{localStorage.setItem('wosp_lang',lang)}catch(e){}document.documentElement.lang=lang;TC.clear();render();if(poolOpen)renderPoolView()};
 setMode(md);setGrp();render();
-const APP_VERSION='v6';$('ver').textContent=APP_VERSION;
+const APP_VERSION='p12';$('ver').textContent=APP_VERSION;
 $('updbtn').onclick=()=>location.reload();
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){
   let had=!!navigator.serviceWorker.controller;

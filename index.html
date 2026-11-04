@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rally Timer – Whiteout Survival</title>
+<title>WoS RT</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#13806f">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -173,6 +173,8 @@ details.panel[open]>summary{margin-bottom:12px}
 tr.dragging td{opacity:.45}
 tr.dropbefore td{box-shadow:inset 0 3px 0 var(--accent,#1aa6a0)}
 tr.dropafter td{box-shadow:inset 0 -3px 0 var(--accent,#1aa6a0)}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;z-index:60;max-width:90vw;box-shadow:var(--sh)}
+#toast[hidden]{display:none}
 table.petgrid{border-collapse:separate;border-spacing:0;font-size:13px;width:max-content;min-width:100%}
 .petgrid th,.petgrid td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:0;text-align:center;min-width:58px;background:var(--panel)}
 .petgrid th{padding:6px 4px;font-weight:600;color:var(--mute);font-variant-numeric:tabular-nums}
@@ -269,7 +271,7 @@ body:not(.poolopen) #poolView{display:none}
 <body>
 <div class="wrap">
 <header>
-  <h1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5"/></svg>Rally timer<input id="grp" class="gname" maxlength="24" placeholder="Preset name" aria-label="Preset name"></h1>
+  <h1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5"/></svg>WoS RT<input id="grp" class="gname" maxlength="24" placeholder="Preset name" aria-label="Preset name"></h1>
   <div class="row">
     <div class="seg" role="group" aria-label="Mode"><button type="button" data-mode="easy">Main</button><button type="button" data-mode="adv">Advanced</button></div>
     <label class="chk"><input type="checkbox" id="voice" checked> Voice</label>
@@ -468,6 +470,7 @@ body:not(.poolopen) #poolView{display:none}
 </section>
 <p class="muted" style="text-align:center;margin-top:18px">Version <span id="ver"></span></p>
 </div>
+<div id="toast" hidden role="status"></div>
 <div id="petnote" hidden role="status"><div class="pn-t"></div><div class="pn-c"></div><div class="pn-n"></div><div class="pn-h">Click to dismiss</div></div>
 <div id="upd" hidden><span>A new version is ready.</span><button id="updbtn" type="button" class="pri">Reload</button></div>
 
@@ -552,7 +555,7 @@ function tr(s){
 }
 const dot=v=>lang==='en'?v:String(v).replace('.',',');
 /* buttons, labels */
-R('Rally timer','Minuteur de ralliement','Rally-Timer');R('Preset name','Nom du préréglage','Name der Voreinstellung');R('Language','Langue','Sprache');
+R('Already in the list: {*}','Déjà dans la liste : {1}','Schon in der Liste: {1}');R('{} is already in the Vault','{1} est déjà dans le coffre','{1} ist bereits im Tresor');R('{} is already in this schedule. Add again?','{1} est déjà dans ce planning. Ajouter à nouveau ?','{1} ist bereits in diesem Plan. Erneut hinzufügen?');R('Rally timer','Minuteur de ralliement','Rally-Timer');R('Preset name','Nom du préréglage','Name der Voreinstellung');R('Language','Langue','Sprache');
 R('Main','Principal','Standard');R('Advanced','Avancé','Erweitert');R('Mode','Mode','Modus');
 R('Voice','Voix','Stimme');R('Sound','Son','Ton');R('Dark mode','Mode sombre','Dunkelmodus');R('Light mode','Mode clair','Hellmodus');
 R('Run','Lancement','Ablauf');R('Start timer','Démarrer le minuteur','Timer starten');R('Start all groups','Démarrer tous les groupes','Alle Gruppen starten');
@@ -850,6 +853,7 @@ function syncButtons(){
 const enterBlur=e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT')e.target.blur()};
 $('form').addEventListener('submit',()=>{
   const name=$('name').value.trim();if(!name||!MS.test($('march').value))return;
+  {const g=ADV()?+$('agrp').value||0:0;if(rallies.some(r=>lc(r.name)===lc(name)&&(r.grp||0)===g)&&!confirm(name+' is already in this schedule. Add again?'))return}
   lastAdded=Date.now()+Math.random();
   rallies.push({id:lastAdded,name,march:parseMS($('march').value),len:+$('len').value,pet:false,petEnd:null,grp:ADV()?+$('agrp').value||0:0});
   {const rr=rallies[rallies.length-1],pm=poolMarch(rr.name),pp=poolMarchPet(rr.name);if(pm&&pp&&pm===rr.march)rr.marchPet=pp}
@@ -919,7 +923,7 @@ $('hlist').addEventListener('change',e=>{
   lastAdded=h.id;render();
 });
 $('hlist').addEventListener('keydown',enterBlur);
-function setGrp(){document.title='Rally Pool'+' – '+tabName(curTab)}
+function setGrp(){document.title='WoS RT'+' – '+tabName(curTab)}
 $('grp').addEventListener('input',()=>{tabs[curTab].name=$('grp').value.trim();save();renderTabs()});
 $('grp').addEventListener('change',()=>{if(!tabs[curTab].name)tabs[curTab].name='Preset '+(curTab+1);save();$('grp').value=tabName(curTab);renderTabs()});
 $('petpct').addEventListener('change',()=>{save();render()});
@@ -1081,6 +1085,15 @@ function poolMarchPet(name){const p=poolByName(name),t=pickTarget(p);return p&&t
 
 const shownP=()=>true;
 const lc=n=>String(n).trim().toLowerCase();
+let _tt;function toast(m){const t=$('toast');t.textContent=tr(m);t.hidden=false;clearTimeout(_tt);_tt=setTimeout(()=>t.hidden=true,3500)}
+function addLeaderNames(names){
+  const dup=[],seen=new Set();
+  for(const n of names){const k=lc(n);
+    if(seen.has(k)||pool.leaders.some(l=>lc(l.name)===k)){if(!dup.some(d=>lc(d)===k))dup.push(n);seen.add(k);continue}
+    seen.add(k);pool.leaders.push({id:pid(),name:n})}
+  if(dup.length)toast('Already in the list: '+dup.join(', '));
+  return dup;
+}
 const timerPlayers=()=>[...pool.players].sort((a,b)=>(b.tile?1:0)-(a.tile?1:0));
 const nameOnlyLeaders=()=>(pool.leaders||[]).filter(l=>!pool.players.some(p=>lc(p.name)===lc(l.name)));
 function renderPoolMini(){
@@ -1247,6 +1260,7 @@ $('ctabbody').addEventListener('change',e=>{
 $('creset').onclick=()=>{pool.ctimes={};savePool();renderPoolView();render()};
 $('pform').addEventListener('submit',()=>{
   const n=$('pname').value.trim();if(!n)return;
+  {const ex=poolByName(n);if(ex){toast(ex.name+' is already in the Vault');poolSel={t:'p',id:ex.id};$('pname').value='';renderPoolView();return}}
   const id=pid();pool.players.push({id,name:n,note:'',x:Math.round((30+Math.random()*40)*10)/10,y:Math.round((30+Math.random()*40)*10)/10,m:{}});
   if(!pool.leaders.some(l=>lc(l.name)===lc(n)))pool.leaders.push({id:pid(),name:n});
   poolSel={t:'p',id};$('pname').value='';$('pname').focus();savePool();renderLeaders();renderPoolView();render();
@@ -1325,7 +1339,7 @@ $('ltray').addEventListener('click',e=>{const b=e.target.closest('[data-tray]');
 $('trayAdd').addEventListener('keydown',e=>{
   if(e.key!=='Enter')return;e.preventDefault();
   const names=$('trayAdd').value.split(/[,;]+/).map(x=>x.trim().slice(0,24)).filter(Boolean);if(!names.length)return;
-  for(const n of names)if(!pool.leaders.some(l=>lc(l.name)===lc(n)))pool.leaders.push({id:pid(),name:n});
+  addLeaderNames(names);
   const first=names[0];let p=poolByName(first);
   if(!p&&poolMapMode==='free')p=ensurePlayer(first);
   poolSel=p?{t:'p',id:p.id}:{t:'n',name:first};
@@ -1336,7 +1350,7 @@ $('leadersBtn').onclick=()=>{document.body.classList.remove('petopen');document.
 $('leadersBack').onclick=()=>{document.body.classList.remove('leadersopen');renderPoolView()};
 $('lform').addEventListener('submit',()=>{
   const names=$('lnames').value.split(/[,;]+/).map(x=>x.trim().slice(0,24)).filter(Boolean);if(!names.length)return;
-  for(const n of names)if(!pool.leaders.some(l=>lc(l.name)===lc(n)))pool.leaders.push({id:pid(),name:n});
+  addLeaderNames(names);
   $('lnames').value='';$('lnames').focus();savePool();renderLeaders();renderPoolView();render();
 });
 $('llist').addEventListener('change',e=>{
@@ -1630,7 +1644,7 @@ try{const sl=localStorage.getItem('wosp_lang');lang=sl||((navigator.language||'e
 $('lang').value=lang;document.documentElement.lang=lang;
 $('lang').onchange=()=>{lang=$('lang').value;try{localStorage.setItem('wosp_lang',lang)}catch(e){}document.documentElement.lang=lang;TC.clear();render();if(poolOpen)renderPoolView()};
 setMode(md);setGrp();render();
-const APP_VERSION='p2.1';$('ver').textContent=APP_VERSION;
+const APP_VERSION='p22';$('ver').textContent=APP_VERSION;
 $('updbtn').onclick=()=>location.reload();
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){
   let had=!!navigator.serviceWorker.controller;

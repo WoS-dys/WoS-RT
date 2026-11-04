@@ -1,6 +1,6 @@
 {
-  "name": "Whiteout Rally Timer Pool",
-  "short_name": "Rally Pool",
+  "name": "Whiteout Rally Timer",
+  "short_name": "Rally",
   "description": "Rally timer with an info pool: players, spots and a march-time map.",
   "start_url": "./index.html",
   "scope": "./",

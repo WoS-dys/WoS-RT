@@ -1,7 +1,5 @@
 [README.md](https://github.com/user-attachments/files/34345041/README.md)
-# Whiteout Rally Timer – Pool edition
-
-A copy of the Rally Timer with an **Vault** (players, spots, map) added. Static files, no build step.
+# Whiteout Rally Timer –
 
 ## What is new
 - **Vault** button (top right): a separate space with Players, Spots and two maps.

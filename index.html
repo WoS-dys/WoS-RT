@@ -12,8 +12,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Rally Pool">
 <style>
-:root{--go:#1e9b57;--gotx:#fff;--bg:#e8eff5;--bg2:#d9e6ef;--panel:#fbfdff;--ink:#0f2230;--mute:#587084;--line:#d2dee8;--field:#f1f6fa;--accent:#1c78b8;--accent2:#52b8e6;--hot:#d8432d;--ok:#23915a;--warn:#c58400;--track:#e3ecf3;--sh:0 1px 2px rgba(15,34,48,.06),0 6px 20px -10px rgba(15,34,48,.25)}
-:root[data-theme=dark]{--go:#3cd184;--gotx:#04200f;--bg:#070f17;--bg2:#0c1a26;--panel:#0f1e2b;--ink:#e5eef5;--mute:#8aa3b5;--line:#213546;--field:#0a1722;--accent:#4db9ec;--accent2:#8fe0ff;--hot:#ff6a52;--ok:#4fcf8a;--warn:#f2b632;--track:#172a39;--sh:0 1px 2px rgba(0,0,0,.4),0 10px 24px -12px rgba(0,0,0,.7)}
+:root{--mapbg:#a9c7de;--go:#1e9b57;--gotx:#fff;--bg:#e8eff5;--bg2:#d9e6ef;--panel:#fbfdff;--ink:#0f2230;--mute:#587084;--line:#d2dee8;--field:#f1f6fa;--accent:#1c78b8;--accent2:#52b8e6;--hot:#d8432d;--ok:#23915a;--warn:#c58400;--track:#e3ecf3;--sh:0 1px 2px rgba(15,34,48,.06),0 6px 20px -10px rgba(15,34,48,.25)}
+:root[data-theme=dark]{--mapbg:#0a2034;--go:#3cd184;--gotx:#04200f;--bg:#070f17;--bg2:#0c1a26;--panel:#0f1e2b;--ink:#e5eef5;--mute:#8aa3b5;--line:#213546;--field:#0a1722;--accent:#4db9ec;--accent2:#8fe0ff;--hot:#ff6a52;--ok:#4fcf8a;--warn:#f2b632;--track:#172a39;--sh:0 1px 2px rgba(0,0,0,.4),0 10px 24px -12px rgba(0,0,0,.7)}
 *{box-sizing:border-box}
 body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--bg2),var(--bg) 320px) fixed;font:15px/1.45 "Segoe UI Variable Text","Avenir Next","Segoe UI",system-ui,sans-serif}
 .wrap{max-width:880px;margin:0 auto;padding:18px 16px 40px}
@@ -61,6 +61,9 @@ body.advanced .mainonly{display:none!important}
 .pet{align-self:end;height:38px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--field)}
 .x{padding:0 11px;color:var(--mute)}
 .x:hover{color:var(--hot);border-color:var(--hot)}
+.rw.haspet{background-color:color-mix(in srgb,var(--warn) 10%,var(--panel));background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='78' height='78' viewBox='0 0 78 78'%3E%3Cg fill='%23c58400' fill-opacity='.22'%3E%3Cg transform='translate(15 17) rotate(-22)'%3E%3Cellipse cx='0' cy='5' rx='7' ry='5.5'/%3E%3Ccircle cx='-8' cy='-3' r='3'/%3E%3Ccircle cx='-3' cy='-8' r='3'/%3E%3Ccircle cx='3' cy='-8' r='3'/%3E%3Ccircle cx='8' cy='-3' r='3'/%3E%3C/g%3E%3Cg transform='translate(54 56) rotate(24)'%3E%3Cellipse cx='0' cy='5' rx='7' ry='5.5'/%3E%3Ccircle cx='-8' cy='-3' r='3'/%3E%3Ccircle cx='-3' cy='-8' r='3'/%3E%3Ccircle cx='3' cy='-8' r='3'/%3E%3Ccircle cx='8' cy='-3' r='3'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");background-size:78px 78px;border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
+.rw.haspet.next{background-color:color-mix(in srgb,var(--accent) 9%,color-mix(in srgb,var(--warn) 10%,var(--panel)))}
+.mt.petm{color:var(--accent);font-weight:700}
 .trk{display:flex;height:14px;margin:10px 0 6px;border-radius:7px;background:var(--track);overflow:hidden;position:relative}
 .trk i{display:block;height:100%}
 .trk .rl{background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:7px 0 0 7px}
@@ -152,6 +155,32 @@ details.panel[open]>summary{margin-bottom:12px}
 .hl b{font-variant-numeric:tabular-nums;font-size:24px;color:var(--hot)}
 .hl.done b{color:var(--mute);font-size:16px}
 #glive{margin-bottom:6px}
+#petnote{position:fixed;left:50%;top:12px;transform:translateX(-50%);width:min(92vw,680px);text-align:center;border-radius:20px;padding:16px 22px 12px;z-index:80;box-shadow:0 14px 44px -8px rgba(0,0,0,.55);cursor:pointer;border:4px solid #fff}
+#petnote.pre{background:var(--warn);color:#241800}
+#petnote.go{background:var(--hot);color:#fff}
+.pn-t{font-size:22px;font-weight:700}
+.pn-c{font-size:60px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.05}
+.pn-c:empty{display:none}
+.pn-n{font-size:34px;font-weight:800;line-height:1.15;word-break:break-word}
+.pn-h{font-size:12px;opacity:.8;margin-top:6px}
+@media(max-width:520px){.pn-t{font-size:18px}.pn-c{font-size:46px}.pn-n{font-size:26px}}
+@media(prefers-reduced-motion:no-preference){#petnote.go{animation:pnp 1s infinite}@keyframes pnp{50%{transform:translateX(-50%) scale(1.035)}}}
+.petscroll{overflow:auto;max-width:100%;border:1px solid var(--line);border-radius:10px;margin:10px 0}
+table.petgrid{border-collapse:separate;border-spacing:0;font-size:13px;width:max-content;min-width:100%}
+.petgrid th,.petgrid td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:0;text-align:center;min-width:58px;background:var(--panel)}
+.petgrid th{padding:6px 4px;font-weight:600;color:var(--mute);font-variant-numeric:tabular-nums}
+.petgrid .sticky{position:sticky;left:0;z-index:2;min-width:170px;text-align:left;padding:6px 10px;white-space:nowrap}
+.petgrid th.now{box-shadow:inset 0 -3px 0 var(--warn);color:var(--ink)}
+.pc{display:block;width:100%;height:38px;border:0;border-radius:0;background:transparent;min-height:0;padding:0;cursor:pointer;font-weight:700}
+.pc:hover{background:color-mix(in srgb,var(--accent) 14%,transparent)}
+.pc.s{background:var(--accent);color:#04202e}
+.pc.s.w{background:repeating-linear-gradient(45deg,var(--hot) 0 5px,color-mix(in srgb,var(--hot) 60%,transparent) 5px 10px);color:#fff}
+.pc.c{background:color-mix(in srgb,var(--accent) 30%,transparent);color:var(--accent)}
+.petgrid tr.off .sticky{opacity:.55}
+.petgrid tr.off .pc{cursor:not-allowed;opacity:.4}
+.petgrid tr.cnt td,.petgrid tr.cnt th{font-variant-numeric:tabular-nums;font-weight:700;padding:6px 4px}
+.petgrid td.over{background:color-mix(in srgb,var(--hot) 25%,var(--panel));color:var(--hot)}
+.pt.planned{color:var(--accent);font-weight:600}
 #upd{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--accent);border-radius:12px;padding:10px 14px;box-shadow:var(--sh);z-index:50}
 .tabbar{display:flex;flex-direction:column;gap:8px}
 .tabs{display:flex;flex-wrap:wrap;gap:6px}
@@ -166,7 +195,7 @@ details.panel[open]>summary{margin-bottom:12px}
 .pt.low{color:var(--warn);border-color:var(--warn)}
 .poolgrid{display:grid;gap:14px}
 .poolgrid .panel{margin-bottom:14px}
-@media (min-width:900px){.poolgrid{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);align-items:start}.mapcol{position:sticky;top:14px}}
+@media (min-width:900px){.poolgrid{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);align-items:start}.mapcol{position:sticky;top:14px}}
 #map{width:100%;height:auto;aspect-ratio:1/1;max-height:72vh;background:color-mix(in srgb,var(--accent) 7%,var(--field));border:1px solid var(--line);border-radius:12px;touch-action:none;display:block;margin-bottom:10px}
 #map text{fill:var(--ink);font-size:3px;pointer-events:none;font-family:inherit}
 #map .grid{stroke:var(--line);stroke-width:.2}
@@ -183,7 +212,7 @@ details.panel[open]>summary{margin-bottom:12px}
 .pmgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:8px}
 .pmgrid input{width:100%}
 .pmgrid .src{font-size:11px;color:var(--mute);min-height:1em}
-#tmap{width:100%;height:auto;aspect-ratio:1/1;max-height:72vh;border:1px solid var(--line);border-radius:12px;display:block;margin-bottom:10px;background:#000}
+#tmap{width:min(100%,82vh);height:auto;aspect-ratio:1/1;border:1px solid var(--line);border-radius:14px;display:block;margin:0 auto 10px;background:var(--mapbg)}
 #tmap .cell{cursor:pointer}
 #tmap .cell:hover{stroke:#fff;stroke-width:.8}
 #poolView:not(.free) #map,#poolView:not(.free) .onlyfree{display:none}
@@ -199,7 +228,8 @@ details.panel[open]>summary{margin-bottom:12px}
 #leadersBtn.on{background:var(--accent);color:#04202e;border-color:transparent}
 .btnlike{display:inline-flex;flex-direction:row;align-items:center;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--field);cursor:pointer;font-weight:600;color:var(--ink);font-size:15px}
 body.poolopen .layout{display:none!important}
-body.leadersopen #poolView{display:none!important}
+body.leadersopen #poolView,body.petopen #poolView{display:none!important}
+body:not(.poolopen.petopen) #petView{display:none}
 body:not(.poolopen.leadersopen) #leadersView{display:none}
 body:not(.poolopen) #poolView{display:none}
 /* layout */
@@ -369,11 +399,33 @@ body:not(.poolopen) #poolView{display:none}
     <div id="llist"></div>
   </div>
 </section>
+<section id="petView">
+  <div class="panel"><div class="row" style="align-items:center">
+    <button type="button" id="petBack">← Back to Vault</button>
+    <h2 style="margin:0;flex:1">Pet schedule</h2>
+  </div></div>
+  <div class="panel">
+    <div class="row">
+      <label>Start<input type="datetime-local" id="petStart"></label>
+      <label>Battle hours<input type="number" id="petHours" min="1" max="24" style="width:80px"></label>
+      <label>Max pets on at once<input type="number" id="petMax" min="1" max="12" style="width:100px"></label>
+      <button class="pri" type="button" id="petAuto">Auto-plan</button>
+      <button type="button" id="petClear">Clear</button>
+      <label class="chk"><input type="checkbox" id="petApply"> Apply to preset tabs</label>
+      <label class="chk"><input type="checkbox" id="petAnn30"> Announce 30 s before</label>
+      <label class="chk"><input type="checkbox" id="petAnnCnt"> Countdown from 5 at start</label>
+    </div>
+    <p class="muted">A pet lasts 2 hours and can be used once, then it needs about 20 hours to recharge, so each leader gets one slot. Click a cell to start a pet at that hour (clicking another hour moves it). Auto-plan gives every leader a full 2 hours inside the battle window: no overlap when the pets fit (6 leaders over 6 hours = 2 per 2-hour block), and overlap when they do not, so the whole window is used. It stays within the maximum at once whenever possible.</p>
+    <div class="petscroll"><div id="petGrid"></div></div>
+    <p class="muted" style="margin-bottom:0" id="petNote2"></p>
+  </div>
+</section>
 <section id="poolView">
   <div class="panel"><div class="row" style="align-items:center">
     <button type="button" id="poolBack">← Back to timer</button>
     <h2 style="margin:0;flex:1">Vault</h2>
     <button type="button" id="leadersBtn">Rally leaders</button>
+    <button type="button" id="petBtn">Pet schedule</button>
     <button type="button" id="poolExport">Export</button>
     <label class="btnlike">Import<input type="file" id="poolImport" accept="application/json" hidden></label>
   </div></div>
@@ -399,9 +451,9 @@ body:not(.poolopen) #poolView{display:none}
       </details>
     </div>
     <div class="mapcol"><div class="panel"><h2>Map</h2>
-      <div class="seg" role="group" aria-label="Map view" style="margin-bottom:10px"><button type="button" data-mapmode="tiles" class="on">Castle tiles</button><button type="button" data-mapmode="free">Free map</button></div>
+      <div class="row" style="align-items:center;margin-bottom:10px"><div class="seg" role="group" aria-label="Map view"><button type="button" data-mapmode="tiles" class="on">Castle tiles</button><button type="button" data-mapmode="free">Free map</button></div></div>
       <div id="ltrayWrap"><div class="chips" id="ltray"></div><div class="row" style="margin-bottom:10px;align-items:center"><input id="trayAdd" placeholder="+ Add name, press Enter" style="flex:1 1 170px" maxlength="60" autocomplete="off" aria-label="Add name"><button type="button" id="clearMap">Clear map</button></div></div>
-      <svg id="tmap" viewBox="0 0 120 120" role="img" aria-label="Castle tile map"><g id="tmlayer"></g></svg>
+      <svg id="tmap" viewBox="-26 -26 172 172" role="img" aria-label="Castle tile map"><g id="tmlayer"></g></svg>
       <svg id="map" viewBox="0 0 100 100" role="img" aria-label="Map of players and spots"><g id="maplayer"></g></svg>
       <p class="muted onlytiles" id="tileinfo"></p>
       <p class="muted onlyfree" style="margin-bottom:0">Drag players and spots on the map. March time = distance × scale, unless you type one in by hand.</p>
@@ -410,6 +462,7 @@ body:not(.poolopen) #poolView{display:none}
 </section>
 <p class="muted" style="text-align:center;margin-top:18px">Version <span id="ver"></span></p>
 </div>
+<div id="petnote" hidden role="status"><div class="pn-t"></div><div class="pn-c"></div><div class="pn-n"></div><div class="pn-h">Click to dismiss</div></div>
 <div id="upd" hidden><span>A new version is ready.</span><button id="updbtn" type="button" class="pri">Reload</button></div>
 
 <script>
@@ -422,7 +475,7 @@ try{rallies=JSON.parse(localStorage.getItem('wosp_rallies')||'[]')}catch(e){}
 try{reinf=JSON.parse(localStorage.getItem('wosp_reinf')||'[]')}catch(e){}
 try{const g=JSON.parse(localStorage.getItem('wosp_groups')||'null');if(Array.isArray(g)&&g.length)groups=g}catch(e){}
 let tabs=[],curTab=0;
-try{const t=JSON.parse(localStorage.getItem('wosp_tabs')||'null');if(Array.isArray(t)&&t.length){tabs=t.slice(0,3);curTab=Math.min(Math.max(+localStorage.getItem('wosp_tab')||0,0),tabs.length-1);const c=tabs[curTab];rallies=c.rallies||[];reinf=c.reinf||[];groups=c.groups&&c.groups.length?c.groups:groups}}catch(e){}
+try{const t=JSON.parse(localStorage.getItem('wosp_tabs')||'null');if(Array.isArray(t)&&t.length){tabs=t.slice(0,6);curTab=Math.min(Math.max(+localStorage.getItem('wosp_tab')||0,0),tabs.length-1);const c=tabs[curTab];rallies=c.rallies||[];reinf=c.reinf||[];groups=c.groups&&c.groups.length?c.groups:groups}}catch(e){}
 if(!tabs.length){let lg='';try{lg=localStorage.getItem('wosp_grp')||''}catch(e){}tabs=[{name:lg||'Preset 1'}]}
 const PET_MS=2*3600*1000;
 const migrate=()=>{
@@ -442,6 +495,18 @@ $('theme').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?
 
 const pad=n=>String(n).padStart(2,'0');
 const fmt=s=>{s=Math.max(0,Math.ceil(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return (h?h+':'+pad(m):m)+':'+pad(s%60)};
+/* Duration input: 50 | 1:30 (m:ss) | 1:30:00 (h:mm:ss) | 45m | 1h30m | 90 sec */
+function parseDur(v){
+  v=String(v==null?'':v).trim().toLowerCase();if(!v)return null;
+  let m=/^(\d{1,3}):(\d{1,2}):(\d{1,2})$/.exec(v);
+  if(m)return +m[2]>59||+m[3]>59?null:+m[1]*3600+ +m[2]*60+ +m[3];
+  m=/^(\d{1,4}):(\d{1,2})$/.exec(v);
+  if(m)return +m[2]>59?null:+m[1]*60+ +m[2];
+  if(/^\d{1,6}$/.test(v))return +v;
+  m=/^(?:(\d+)\s*(?:h|hr|hrs|hour|hours))?\s*(?:(\d+)\s*(?:m|min|mins|minute|minutes))?\s*(?:(\d+)\s*(?:s|sec|secs|second|seconds))?$/.exec(v);
+  if(m&&(m[1]||m[2]||m[3]))return (+m[1]||0)*3600+(+m[2]||0)*60+(+m[3]||0);
+  return null;
+}
 const fmtHMS=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/3600)+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60)};
 const mmss=s=>{s=Math.round(s);return Math.floor(s/60)+':'+pad(s%60)};
 /* Time input: "m:ss", "mm:ss", or just seconds ("45", "130"). */
@@ -515,7 +580,7 @@ R('Longest total (rally + march) calls first so every march lands together withi
 R('· {} leaders · total {}','· {1} meneurs · total {2}','· {1} Leiter · gesamt {2}');R('· {} leader · total {}','· {1} meneur · total {2}','· {1} Leiter · gesamt {2}');
 R('· {} leaders','· {1} meneurs','· {1} Leiter');R('· {} leader','· {1} meneur','· {1} Leiter');R('{} leaders','{1} meneurs','{1} Leiter');R('{} leader','{1} meneur','{1} Leiter');
 R('Call at','Appel à','Aufruf bei');R('March','Marche','Marsch');R('Rally','Ralliement','Rally');R('Total {}','Total {1}','Gesamt {1}');
-R('March {} (pet −{}%)','Marche {1} (familier −{2} %)','Marsch {1} (Haustier −{2} %)');R('March {}','Marche {1}','Marsch {1}');
+R('March {} with pet (normal {})','Marche {1} avec familier (normale {2})','Marsch {1} mit Haustier (normal {2})');R('March time with pet','Temps de marche avec familier','Marschzeit mit Haustier');R('March {} (pet −{}%)','Marche {1} (familier −{2} %)','Marsch {1} (Haustier −{2} %)');R('March {}','Marche {1}','Marsch {1}');
 R('March time mm:ss','Temps de marche mm:ss','Marschzeit mm:ss');R('{} timeline','Chronologie de {1}','Zeitleiste {1}');
 R('Remove {}','Supprimer {1}','{1} entfernen');
 /* timer cards + status */
@@ -558,7 +623,7 @@ R('Send {}','Envoyer {1}','{1} senden');
 R('· {} enemy rallies · {} senders','· {1} ralliements ennemis · {2} expéditeurs','· {1} Gegner-Rallys · {2} Sender');R('· {} enemy rally · {} senders','· {1} ralliement ennemi · {2} expéditeurs','· {1} Gegner-Rally · {2} Sender');
 R('· {} enemy rallies · {} sender','· {1} ralliements ennemis · {2} expéditeur','· {1} Gegner-Rallys · {2} Sender');R('· {} enemy rally · {} sender','· {1} ralliement ennemi · {2} expéditeur','· {1} Gegner-Rally · {2} Sender');
 R('A new version is ready.','Une nouvelle version est disponible.','Eine neue Version ist verfügbar.');R('Reload','Recharger','Neu laden');R('Version','Version','Version');
-R('Pet bonus time left (h:mm:ss). Edit to correct it.','Temps restant du bonus familier (h:mm:ss). Modifiez pour corriger.','Verbleibende Haustier-Bonuszeit (h:mm:ss). Zum Korrigieren bearbeiten.');
+R('Pet bonus time left. Type seconds (50), m:ss, h:mm:ss, or +50 / -50 to adjust.','Temps restant du bonus familier. Saisissez des secondes (50), m:ss, h:mm:ss, ou +50 / -50 pour ajuster.','Verbleibende Haustier-Bonuszeit. Sekunden (50), m:ss, h:mm:ss oder +50 / -50 zum Anpassen eingeben.');R('Pet bonus time left (h:mm:ss). Edit to correct it.','Temps restant du bonus familier (h:mm:ss). Modifiez pour corriger.','Verbleibende Haustier-Bonuszeit (h:mm:ss). Zum Korrigieren bearbeiten.');
 R('Pet bonus time left h:mm:ss','Temps restant du bonus familier h:mm:ss','Verbleibende Haustier-Bonuszeit h:mm:ss');
 /* alerts */
 R('Resume the timer first.','Reprenez d’abord le minuteur.','Setzen Sie den Timer zuerst fort.');
@@ -619,6 +684,19 @@ R('No names yet. Add some above.','Aucun nom pour le moment. Ajoutez-en ci-dessu
 R('Remove everyone from the map?','Retirer tout le monde de la carte ?','Alle von der Karte entfernen?');
 R('+ Add name, press Enter','+ Ajouter un nom, puis Entrée','+ Name hinzufügen, dann Enter');R('Add name','Ajouter un nom','Name hinzufügen');
 R('No names yet. Type a name below, or add several under Rally leaders.','Aucun nom pour le moment. Saisissez un nom ci-dessous, ou ajoutez-en plusieurs sous Meneurs de ralliement.','Noch keine Namen. Unten einen Namen eingeben oder mehrere unter Rally-Leiter hinzufügen.');
+R('Pet schedule','Planning des familiers','Haustier-Plan');R('Start','Début','Start');R('Hours','Heures','Stunden');
+R('Max pets on at once','Familiers actifs en même temps (max)','Max. Haustiere gleichzeitig');R('Auto-plan','Planifier auto','Auto-Plan');R('Clear','Effacer','Leeren');
+R('Apply to preset tabs','Appliquer aux préréglages','Auf Voreinstellungen anwenden');R('Leader','Meneur','Leiter');R('Starting','Démarrent','Starten');R('On at once','Actifs en même temps','Gleichzeitig aktiv');
+R('A pet lasts 2 hours and can be used once, then it needs about 20 hours to recharge, so each leader gets one slot. Click a cell to start a pet at that hour (clicking another hour moves it). Auto-plan gives every leader a full 2 hours inside the battle window: no overlap when the pets fit (6 leaders over 6 hours = 2 per 2-hour block), and overlap when they do not, so the whole window is used. It stays within the maximum at once whenever possible.','Un familier dure 2 heures et ne s’utilise qu’une fois, puis il lui faut environ 20 heures pour se recharger : chaque meneur a donc un seul créneau. Cliquez sur une case pour lancer un familier à cette heure (cliquer sur une autre heure le déplace). La planification auto donne à chaque meneur 2 heures complètes dans la fenêtre de bataille : sans chevauchement quand les familiers tiennent (6 meneurs sur 6 heures = 2 par bloc de 2 heures), avec chevauchement sinon, pour utiliser toute la fenêtre. Elle reste sous le maximum en même temps dès que possible.','Ein Haustier hält 2 Stunden und kann nur einmal benutzt werden, danach braucht es etwa 20 Stunden zum Aufladen, daher bekommt jeder Leiter einen Slot. Klicken Sie ein Feld an, um zu dieser Stunde ein Haustier zu starten (ein anderes Feld verschiebt es). Der Auto-Plan gibt jedem Leiter volle 2 Stunden innerhalb des Kampffensters: ohne Überlappung, wenn die Haustiere passen (6 Leiter in 6 Stunden = 2 pro 2-Stunden-Block), und mit Überlappung, wenn nicht, sodass das ganze Fenster genutzt wird. Es bleibt unter dem Maximum gleichzeitig, wann immer möglich.');
+R('Add names under Rally leaders first.','Ajoutez d’abord des noms sous Meneurs de ralliement.','Fügen Sie zuerst unter Rally-Leiter Namen hinzu.');
+R('Over the limit in the red hours. ','Au-dessus de la limite pendant les heures en rouge. ','In den roten Stunden über dem Limit. ');R('Battle hours','Heures de bataille','Kampfstunden');R('Runs past the end of the battle window: {}. ','Dépasse la fin de la fenêtre de bataille : {1}. ','Läuft über das Ende des Kampffensters hinaus: {1}. ');R('No slot yet: {}','Pas encore de créneau : {1}','Noch kein Slot: {1}');R('Over the limit in the red hours.','Au-dessus de la limite pendant les heures en rouge.','In den roten Stunden über dem Limit.');
+R('Clear the whole pet schedule?','Effacer tout le planning des familiers ?','Den ganzen Haustier-Plan leeren?');
+R('Has pet','A un familier','Hat Haustier');R('Activate pets: {}','Activez les familiers : {1}','Haustiere aktivieren: {1}');
+R('Announce 30 s before','Annoncer 30 s avant','30 Sek. vorher ansagen');R('Countdown from 5 at start','Compte à rebours de 5 au départ','Countdown ab 5 zum Start');
+R('Pets start in','Les familiers démarrent dans','Haustiere starten in');R('Activate pets now','Activez les familiers maintenant','Haustiere jetzt aktivieren');R('Click to dismiss','Cliquer pour fermer','Zum Schließen klicken');
+R('Pets in 30 seconds: {}','Familiers dans 30 secondes : {1}','Haustiere in 30 Sekunden: {1}');R('Activate pets now: {}','Activez les familiers maintenant : {1}','Haustiere jetzt aktivieren: {1}');
+
+R('Spot taken by {}. Pick an empty tile.','Case prise par {1}. Choisissez une case libre.','Feld belegt von {1}. Wählen Sie ein freies Feld.');R('All spots of that colour are taken.','Toutes les cases de cette couleur sont prises.','Alle Felder dieser Farbe sind belegt.');
 /* applying */
 const ORIG=new WeakMap(),AORIG=new WeakMap();
 function applyLang(){
@@ -675,15 +753,15 @@ function rowHtml(r,i,k,max,n){
   const R=runs[k],lock=R?'disabled':'',it=R&&R.items.find(x=>x.id===r.id),em=effMarch(r);
   const opts=[[60,'1 min'],[180,'3 min'],[300,'5 min'],[600,'10 min'],[900,'15 min'],[1800,'30 min']].map(([v,l])=>`<option value="${v}" ${v===r.len?'selected':''}>${l}</option>`).join('');
   const gsel=n>1?`<label class="f">Group<select data-f="grp" aria-label="Group" ${lock}>${groups.map((g,j)=>`<option value="${j}" ${j===k?'selected':''}>${esc(gname(j))}</option>`).join('')}</select></label>`:'';
-  return `<div class="rw${r.id===lastAdded?' new':''}" data-id="${r.id}">
+  return `<div class="rw${r.id===lastAdded?' new':''}${r.pet?' haspet':''}" data-id="${r.id}">
 <div class="top"><span class="ord">${i+1}</span>
 <input class="nm" data-f="name" list="poolNames" value="${esc(r.name)}" maxlength="24" aria-label="Name" ${lock}>
-<label class="f">March<input class="mt" data-f="march" value="${mmss(r.march)}" aria-label="March time mm:ss" ${lock}></label>
+<label class="f">March<input class="mt${r.pet?' petm':''}" data-f="march" value="${mmss(r.pet?em:r.march)}" title="${r.pet?'March time with pet':''}" aria-label="March time mm:ss" ${lock}></label>
 <label class="f">Rally<select data-f="len" aria-label="Rally length" ${lock}>${opts}</select></label>${gsel}
-<div class="petbox"><input class="pt" data-f="pett" value="${r.pet&&r.petEnd?fmtHMS(r.petEnd-Date.now()):'2:00:00'}" ${r.pet?'':'disabled'} aria-label="Pet bonus time left h:mm:ss" title="Pet bonus time left (h:mm:ss). Edit to correct it."><label class="chk pet"><input type="checkbox" data-f="pet" ${r.pet?'checked':''} ${lock}> Pet</label></div>
+<div class="petbox"><input class="pt${!r.pet&&plannedLabel(r)?' planned':''}" data-f="pett" value="${r.pet&&r.petEnd?fmtHMS(r.petEnd-Date.now()):(plannedLabel(r)||'2:00:00')}" ${r.pet?'':'disabled'} aria-label="Pet bonus time left h:mm:ss" title="Pet bonus time left. Type seconds (50), m:ss, h:mm:ss, or +50 / -50 to adjust."><label class="chk pet"><input type="checkbox" data-f="pet" ${r.pet?'checked':''} ${lock}> Pet</label></div>
 <button class="x" data-del="${r.id}" aria-label="Remove ${esc(r.name)}" ${lock}>✕</button></div>
 <div class="trk" role="img" aria-label="${esc(r.name)} timeline"><i style="width:${(max-total(r))/max*100}%"></i><i class="rl" style="width:${r.len/max*100}%"></i><i class="mr" style="width:${em/max*100}%"></i></div>
-<div class="meta"><span>Call at <b>T+${mmss(max-total(r))}</b>${it?' · <b>'+new Date(it.call).toLocaleTimeString()+'</b>':''}</span><span>March ${mmss(em)}${r.pet?' (pet −'+Math.max(0,Math.round((1-em/r.march)*100))+'%)':''}</span><span>Total ${mmss(total(r))}</span><span class="st"></span></div></div>`;
+<div class="meta"><span>Call at <b>T+${mmss(max-total(r))}</b>${it?' · <b>'+new Date(it.call).toLocaleTimeString()+'</b>':''}</span><span>${r.pet?'March '+mmss(em)+' with pet (normal '+mmss(r.march)+')':'March '+mmss(em)}</span><span>Total ${mmss(total(r))}</span><span class="st"></span></div></div>`;
 }
 function render(){
   renderTabs();renderPoolMini();renderR();renderGroups();
@@ -776,9 +854,13 @@ $('list').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if
 $('list').addEventListener('change',e=>{
   const f=e.target.dataset.f;if(!f)return;
   const r=rallies.find(r=>String(r.id)===e.target.closest('.rw').dataset.id);if(!r||(runs[gIdx(r)]&&f!=='pett'))return;
-  if(f==='pett'){const v=e.target.value.trim();if(r.pet&&/^\d{1,2}:[0-5]\d:[0-5]\d$/.test(v)){const[h,m,sc]=v.split(':').map(Number);r.petEnd=Date.now()+((h*60+m)*60+sc)*1000}save();render();return}
+  if(f==='pett'){
+    const raw=e.target.value.trim(),rel=/^[+\-−–]/.test(raw),sec=parseDur(rel?raw.slice(1):raw);
+    if(r.pet&&sec!==null){const now=Date.now(),sign=/^[\-−–]/.test(raw)?-1:1;
+      r.petEnd=Math.min(now+24*3600e3,rel?(r.petEnd||now)+sign*sec*1000:now+sec*1000)}
+    save();render();return}
   if(f==='name'){const v=e.target.value.trim();if(v){r.name=v;const pm=poolMarch(v);if(pm){r.march=pm;const pp=poolMarchPet(v);if(pp)r.marchPet=pp;else delete r.marchPet}}}
-  else if(f==='march'){if(MS.test(e.target.value.trim())){r.march=parseMS(e.target.value.trim());delete r.marchPet}}
+  else if(f==='march'){if(MS.test(e.target.value.trim())){const v=parseMS(e.target.value.trim());if(r.pet)r.marchPet=v;else{r.march=v;delete r.marchPet}}}
   else if(f==='len')r.len=+e.target.value;
   else if(f==='grp')r.grp=+e.target.value;
   else if(f==='pet'){r.pet=e.target.checked;r.petEnd=r.pet?Date.now()+PET_MS:null}
@@ -903,10 +985,10 @@ document.addEventListener('click',e=>{
 
 /* ---------- preset tabs ---------- */
 function renderTabs(){
-  $('tabs').innerHTML=tabs.map((t,i)=>`<button type="button" role="tab" aria-selected="${i===curTab}" class="tab${i===curTab?' on':''}" data-tab="${i}">${esc(tabName(i))}</button>`).join('')+(tabs.length<3?'<button type="button" class="tab add" data-addtab>+ Add tab</button>':'');
+  $('tabs').innerHTML=tabs.map((t,i)=>`<button type="button" role="tab" aria-selected="${i===curTab}" class="tab${i===curTab?' on':''}" data-tab="${i}">${esc(tabName(i))}</button>`).join('')+(tabs.length<6?'<button type="button" class="tab add" data-addtab>+ Add tab</button>':'');
   if(document.activeElement!==$('grp'))$('grp').value=tabName(curTab);
   setGrp();
-  $('tabdel').hidden=tabs.length<2;$('tabdup').hidden=tabs.length>=3;
+  $('tabdel').hidden=tabs.length<2;$('tabdup').hidden=tabs.length>=6;
 }
 function switchTab(i){
   if(anyRun()){alert('Stop the running timers before switching tabs.');return}
@@ -917,13 +999,13 @@ function switchTab(i){
 $('tabs').addEventListener('click',e=>{
   if(e.target.closest('[data-addtab]')){
     if(anyRun()){alert('Stop the running timers before adding a tab.');return}
-    if(tabs.length>=3)return;save();
+    if(tabs.length>=6)return;save();
     tabs.push({name:'Preset '+(tabs.length+1),rallies:[],reinf:[],groups:[{name:'Group 1',lin:'',clock:''}]});switchTab(tabs.length-1);return}
   const b=e.target.closest('[data-tab]');if(b&&+b.dataset.tab!==curTab)switchTab(+b.dataset.tab);
 });
 $('tabdup').onclick=()=>{
   if(anyRun()){alert('Stop the running timers before duplicating.');return}
-  if(tabs.length>=3)return;save();
+  if(tabs.length>=6)return;save();
   const c=JSON.parse(JSON.stringify(tabs[curTab]));c.name=tabName(curTab)+' (2)';tabs.push(c);switchTab(tabs.length-1);
 };
 $('tabdel').onclick=()=>{
@@ -959,6 +1041,13 @@ function normPool(){
     if(p.leader&&!pool.leaders.some(l=>l.name.trim().toLowerCase()===p.name.trim().toLowerCase()))pool.leaders.push({id:Date.now()+Math.random(),name:p.name});
     delete p.leader;delete p.joining;
   }
+  const P=pool.pet&&typeof pool.pet==='object'?pool.pet:(pool.pet={});
+  if(!(P.start>0))P.start=Math.ceil(Date.now()/3600e3)*3600e3;
+  P.hours=Math.min(24,Math.max(1,Math.round(+P.hours)||8));
+  P.max=Math.min(12,Math.max(1,Math.round(+P.max)||4));
+  P.apply=P.apply!==false;P.ann30=P.ann30!==false;P.annCnt=P.annCnt!==false;
+  pool.mapRot=0;
+  if(!P.cells||typeof P.cells!=='object')P.cells={};
 }
 normPool();
 const savePool=()=>{try{localStorage.setItem('wosp_pool',JSON.stringify(pool))}catch(e){}};
@@ -1027,7 +1116,7 @@ for(const id of ['march','hmarch','hrally','rmarch','lin','cm'])$(id).addEventLi
 $('name').addEventListener('input',()=>{const m=poolMarch($('name').value);if(m)$('march').value=String(Math.floor(m/60)).padStart(2,'0')+':'+pad(m%60)});
 $('name').addEventListener('change',()=>{const m=poolMarch($('name').value);if(m)$('march').value=String(Math.floor(m/60)).padStart(2,'0')+':'+pad(m%60)});
 function setPool(open){
-  document.body.classList.toggle('poolopen',open);if(!open)document.body.classList.remove('leadersopen');
+  document.body.classList.toggle('poolopen',open);if(!open){document.body.classList.remove('leadersopen');document.body.classList.remove('petopen')}
   $('poolBtn').textContent=open?'Timer':'Vault';
   if(open)renderPoolView();
 }
@@ -1035,6 +1124,11 @@ let poolOpen=false;
 $('poolBtn').onclick=()=>{poolOpen=!poolOpen;setPool(poolOpen);applyLang()};
 $('poolBack').onclick=()=>{poolOpen=false;setPool(false);render()};
 
+const tileOcc=(r,c,except)=>pool.players.find(x=>x!==except&&x.tile&&x.tile.r===r&&x.tile.c===c)||null;
+function firstFreeTile(k,p){
+  for(let r=0;r<12;r++)for(let c=0;c<12;c++)if(castleGrid[r][c]===k&&!tileOcc(r,c,p))return{r,c};
+  return null;
+}
 function castleRow(p){
   const opts=[0,1,2].map(ri=>`<optgroup label="${tr(RINGN[ri])}">`+Object.entries(CK).filter(([k,v])=>v[4]===ri).map(([k,v])=>{const t=ctime(k);return `<option value="${k}"${p.ckey===k?' selected':''}>${v[0]} · ${t[0]} s</option>`}).join('')+'</optgroup>').join('');
   const t=p.ckey&&CK[p.ckey]?ctime(p.ckey):null;
@@ -1044,14 +1138,32 @@ function renderCastleTab(){
   const sw=k=>{const v=CK[k],t=ctime(k);return `<div class="ctrow"><span class="sw" style="background:${v[1]}"></span><b>${v[0]}</b><label>Without pets<input data-ct="${k}:0" value="${t[0]}" inputmode="numeric" aria-label="${v[0]} without pets"></label><label>With pets<input data-ct="${k}:1" value="${t[1]}" inputmode="numeric" aria-label="${v[0]} with pets"></label></div>`};
   $('ctabbody').innerHTML=[0,1,2].map(ri=>`<h3>${RINGN[ri]}</h3>`+Object.keys(CK).filter(k=>CK[k][4]===ri).map(sw).join('')).join('');
 }
+let _mctx;
+function textRatio(lab){
+  try{if(_mctx===undefined){const c=document.createElement('canvas');_mctx=c.getContext&&c.getContext('2d')||null;if(_mctx)_mctx.font='700 100px "Segoe UI Variable Text","Segoe UI","Avenir Next",system-ui,sans-serif'}
+    if(_mctx){const w=_mctx.measureText(lab).width;if(w>0)return w/100}}catch(e){_mctx=null}
+  return Array.from(lab).length*.62;
+}
+function fitPill(lab,n){
+  const maxW=n<=1?13.8:n===2?13.2:n===3?12.6:12.2,h=n<=1?6.6:n===2?5.3:n===3?4.3:3.5,pad=n<=1?3.2:2.6;
+  const r=textRatio(lab),fs=Math.max(1.5,Math.min(h*.62,(maxW-pad)/r)),w=Math.max(h*1.4,r*fs+pad);
+  return{h,fs,w};
+}
 function renderTiles(){
-  const L=[];
-  for(let r=0;r<12;r++)for(let c=0;c<12;c++){const k=castleGrid[r][c],v=CK[k];L.push(`<rect class="${v?'cell':''}" ${v?`data-cell="${r},${c}"`:''} x="${c*10}" y="${r*10}" width="10" height="10" fill="${v?v[1]:k==='gray'?'#666':'#000'}" stroke="#000" stroke-width=".25"/>`)}
-  L.push('<rect x="45" y="45" width="30" height="30" rx="1.5" fill="#ffbf00"/><text x="60" y="58.5" text-anchor="middle" style="fill:#1b1b1b;font-size:4px;font-weight:700">Sunfire</text><text x="60" y="64" text-anchor="middle" style="fill:#1b1b1b;font-size:4px;font-weight:700">Castle</text>');
+  const ang=45,rad=ang*Math.PI/180,cs=Math.cos(rad),sn=Math.sin(rad);
+  const rot=(x,y)=>[60+(x-60)*cs-(y-60)*sn,60+(x-60)*sn+(y-60)*cs];
+  const G=[];
+  for(let r=0;r<12;r++)for(let c=0;c<12;c++){const k=castleGrid[r][c],v=CK[k];G.push(`<rect class="${v?'cell':''}" ${v?`data-cell="${r},${c}"`:''} x="${c*10}" y="${r*10}" width="10" height="10" fill="${v?v[1]:k==='gray'?'#666':'#000'}" stroke="#000" stroke-width=".25"/>`)}
+  G.push('<rect x="45" y="45" width="30" height="30" rx="1.5" fill="#ffbf00"/>');
+  const L=['<defs><pattern id="mapHatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" stroke="#fff" stroke-opacity=".12" stroke-width=".8"/></pattern></defs><rect x="-26" y="-26" width="172" height="172" fill="var(--mapbg)"/><rect x="-26" y="-26" width="172" height="172" fill="url(#mapHatch)" pointer-events="none"/>',
+    `<g transform="rotate(${ang} 60 60)">${G.join('')}</g>`];
+  L.push('<text x="60" y="59.2" text-anchor="middle" style="fill:#1b1b1b;font-size:4.6px;font-weight:700;pointer-events:none">Sunfire</text><text x="60" y="64.8" text-anchor="middle" style="fill:#1b1b1b;font-size:4.6px;font-weight:700;pointer-events:none">Castle</text>');
   const by={};for(const p of pool.players){if(p.tile&&shownP(p)){const k=p.tile.r+','+p.tile.c;(by[k]=by[k]||[]).push(p)}}
-  for(const [k,list] of Object.entries(by)){const [r,c]=k.split(',').map(Number);const n=list.length,h=n<=1?5.2:n===2?4.4:n===3?3.3:2.6,fs=n<=1?2.7:n===2?2.4:n===3?2.1:1.8,gap=.4,tot=n*h+(n-1)*gap;list.forEach((p,i)=>{
-    const cx=c*10+5,cy=r*10+5-tot/2+h/2+i*(h+gap),on=poolSel&&poolSel.t==='p'&&String(poolSel.id)===String(p.id),w=8.8;
-    L.push(`<g data-tp="${p.id}" style="cursor:pointer"><title>${esc(p.name)}</title><rect x="${cx-w/2}" y="${cy-h/2}" width="${w}" height="${h}" rx="${h/2}" fill="#fff" stroke="${on?'#f2a900':'#111'}" stroke-width="${on?.9:.4}"/><text x="${cx}" y="${cy+fs*.36}" text-anchor="middle" style="fill:#111;font-size:${fs}px;font-weight:700">${esc(Array.from((p.name||'?').trim()).slice(0,3).join(''))}</text></g>`)})}
+  for(const [k,list] of Object.entries(by)){const [r,c]=k.split(',').map(Number);const [x0,y0]=rot(c*10+5,r*10+5);const n=list.length,gap=.35;
+    const fits=list.map(p=>{const lab=Array.from((p.name||'?').trim()).slice(0,5).join('');return{p,lab,...fitPill(lab,n)}});
+    const tot=fits.reduce((a,f)=>a+f.h,0)+(n-1)*gap;let y=y0-tot/2;
+    for(const f of fits){const cy=y+f.h/2;y+=f.h+gap;const on=poolSel&&poolSel.t==='p'&&String(poolSel.id)===String(f.p.id);
+      L.push(`<g data-tp="${f.p.id}" style="cursor:pointer"><title>${esc(f.p.name)}</title><rect x="${x0-f.w/2}" y="${cy-f.h/2}" width="${f.w}" height="${f.h}" rx="${f.h/2}" fill="#fff" stroke="${on?'#f2a900':'#111'}" stroke-width="${on?.9:.4}"/><text x="${x0}" y="${cy+f.fs*.36}" text-anchor="middle" style="fill:#111;font-size:${f.fs.toFixed(2)}px;font-weight:700">${esc(f.lab)}</text></g>`)}}
   $('tmlayer').innerHTML=L.join('');
   const sp=poolSel&&poolSel.t==='p'?pool.players.find(x=>String(x.id)===String(poolSel.id)):null;
   const key=sp&&sp.ckey||$('tileinfo').dataset.k;
@@ -1108,9 +1220,18 @@ $('tmap').addEventListener('pointerdown',e=>{
   if(dot){poolSel={t:'p',id:dot.dataset.tp};renderPoolView();return}
   const cell=e.target.closest('[data-cell]');if(!cell)return;
   const [r,c]=cell.dataset.cell.split(',').map(Number),k=castleGrid[r][c];
-  const p=poolSel&&poolSel.t==='p'?pool.players.find(x=>String(x.id)===String(poolSel.id)):(poolSel&&poolSel.t==='n'?ensurePlayer(poolSel.name):null);
-  if(p){p.tile={r,c};p.ckey=k;{const cur=pool.leaders.findIndex(l=>lc(l.name)===lc(p.name));if(cur>=0){const nl=[...pool.leaders.slice(cur+1),...pool.leaders.slice(0,cur)].find(l=>{const q=poolByName(l.name);return !(q&&q.tile)});if(nl){const q=poolByName(nl.name);poolSel=q?{t:'p',id:q.id}:{t:'n',name:nl.name}}}}savePool();renderPoolView();render()}
-  else{$('tileinfo').dataset.k=k;renderTiles()}
+  let p=poolSel&&poolSel.t==='p'?pool.players.find(x=>String(x.id)===String(poolSel.id)):null;
+  const nameOnly=poolSel&&poolSel.t==='n'?poolSel.name:null;
+  if(!p&&!nameOnly){$('tileinfo').dataset.k=k;renderTiles();return}
+  const occ=tileOcc(r,c,p);
+  if(occ){
+    if(p&&p.tile){const old=p.tile,oldK=p.ckey;p.tile={r,c};p.ckey=k;occ.tile=old;occ.ckey=castleGrid[old.r][old.c];savePool();renderPoolView();render();return}
+    $('tileinfo').textContent='Spot taken by '+occ.name+'. Pick an empty tile.';return;
+  }
+  if(!p)p=ensurePlayer(nameOnly);
+  p.tile={r,c};p.ckey=k;
+  {const cur=pool.leaders.findIndex(l=>lc(l.name)===lc(p.name));if(cur>=0){const nl=[...pool.leaders.slice(cur+1),...pool.leaders.slice(0,cur)].find(l=>{const q=poolByName(l.name);return !(q&&q.tile)});if(nl){const q=poolByName(nl.name);poolSel=q?{t:'p',id:q.id}:{t:'n',name:nl.name}}}}
+  savePool();renderPoolView();render();
 });
 document.querySelectorAll('[data-mapmode]').forEach(b=>b.onclick=()=>{poolMapMode=b.dataset.mapmode;renderPoolView()});
 $('ctabbody').addEventListener('change',e=>{
@@ -1133,7 +1254,7 @@ $('sform').addEventListener('submit',()=>{
 $('plist').addEventListener('change',e=>{
   const row=e.target.closest('[data-pid]');if(!row)return;
   const p=pool.players.find(x=>String(x.id)===row.dataset.pid);if(!p)return;
-  if(e.target.dataset.pc!==undefined){const k=e.target.value;if(k&&CK[k]){p.ckey=k;if(!p.tile||castleGrid[p.tile.r][p.tile.c]!==k){outer:for(let r=0;r<12;r++)for(let c=0;c<12;c++)if(castleGrid[r][c]===k){p.tile={r,c};break outer}}}else{delete p.ckey;p.tile=null}}
+  if(e.target.dataset.pc!==undefined){const k=e.target.value;if(k&&CK[k]){p.ckey=k;if(!p.tile||castleGrid[p.tile.r][p.tile.c]!==k){const ft=firstFreeTile(k,p);if(ft)p.tile=ft;else{p.tile=null;alert('All spots of that colour are taken.')}}}else{delete p.ckey;p.tile=null}}
   else if(e.target.dataset.pf==='name'){const v=e.target.value.trim();if(v)p.name=v}
   else if(e.target.dataset.pf==='note')p.note=e.target.value.trim();
   else if(e.target.dataset.pm){const v=e.target.value.trim();p.m=p.m||{};if(!v)delete p.m[e.target.dataset.pm];else if(MS.test(v))p.m[e.target.dataset.pm]=parseMS(v)}
@@ -1206,7 +1327,7 @@ $('trayAdd').addEventListener('keydown',e=>{
   $('trayAdd').value='';savePool();renderLeaders();renderPoolView();render();$('trayAdd').focus();
 });
 $('clearMap').onclick=()=>{if(!pool.players.some(p=>p.tile))return;if(!confirm('Remove everyone from the map?'))return;pool.players.forEach(p=>{p.tile=null;delete p.ckey});poolSel=null;savePool();renderPoolView();render()};
-$('leadersBtn').onclick=()=>{document.body.classList.add('leadersopen');renderLeaders();$('lnames').focus()};
+$('leadersBtn').onclick=()=>{document.body.classList.remove('petopen');document.body.classList.add('leadersopen');renderLeaders();$('lnames').focus()};
 $('leadersBack').onclick=()=>{document.body.classList.remove('leadersopen');renderPoolView()};
 $('lform').addEventListener('submit',()=>{
   const names=$('lnames').value.split(/[,;]+/).map(x=>x.trim().slice(0,24)).filter(Boolean);if(!names.length)return;
@@ -1219,8 +1340,146 @@ $('llist').addEventListener('change',e=>{
   const pl=poolByName(l.name);if(pl&&!poolByName(v))pl.name=v;
   l.name=v;savePool();renderLeaders();renderPoolView();render();
 });
-$('llist').addEventListener('click',e=>{const d=e.target.closest('[data-ldel]');if(!d)return;pool.leaders=pool.leaders.filter(x=>String(x.id)!==d.dataset.ldel);savePool();renderLeaders();renderPoolView();render()});
+$('llist').addEventListener('click',e=>{const d=e.target.closest('[data-ldel]');if(!d)return;pool.leaders=pool.leaders.filter(x=>String(x.id)!==d.dataset.ldel);delete pool.pet.cells[d.dataset.ldel];savePool();renderLeaders();renderPoolView();render()});
 $('llist').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT')e.target.blur()});
+
+/* ---------- pet schedule ---------- */
+const HR=3600e3;
+const hhmm=ms=>new Date(ms).toLocaleTimeString(LOC[lang]||undefined,{hour:'2-digit',minute:'2-digit'});
+const toLocalInput=ms=>{const d=new Date(ms),z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'T'+z(d.getHours())+':'+z(d.getMinutes())};
+const petStartsOf=l=>(pool.pet.cells[l.id]||[]).slice().sort((a,b)=>a-b);
+function plannedStartFor(name){
+  const P=pool.pet;if(!P||!P.apply)return null;
+  const l=pool.leaders.find(x=>lc(x.name)===lc(name));if(!l||l.pet===false)return null;
+  const now=Date.now();let best=null;
+  for(const h of petStartsOf(l)){const st=P.start+h*HR;if(st>now&&(best===null||st<best))best=st}
+  return best;
+}
+function plannedLabel(r){const st=plannedStartFor(r.name);return st?'▶ '+hhmm(st):''}
+function petTick(now){
+  const P=pool.pet;if(!P||!P.apply)return null;
+  const out=[],all=new Set([...tabs.flatMap(t=>t.rallies||[]),...rallies]);
+  for(const l of pool.leaders){
+    if(l.pet===false)continue;
+    for(const h of (P.cells[l.id]||[])){
+      const st=P.start+h*HR,en=st+PET_MS;if(now<st||now>=en)continue;
+      const key=l.id+':'+P.start+':'+h;
+      for(const r of all){if(lc(r.name)!==lc(l.name)||r.petPlanKey===key)continue;r.pet=true;r.petEnd=en;r.petPlanKey=key;if(!out.includes(l.name))out.push(l.name)}
+    }
+  }
+  return out.length?out:null;
+}
+const petAnn={},petDis={};let petCur=null;
+function petAnnounce(now){
+  const P=pool.pet;if(!P)return;
+  const slots=new Map();
+  for(const l of pool.leaders){if(l.pet===false)continue;for(const h of (P.cells[l.id]||[])){const st=P.start+h*HR;if(st>now-90000&&st<=now+31000){if(!slots.has(st))slots.set(st,[]);slots.get(st).push(l.name)}}}
+  let pre=null,go=null;
+  for(const [st,names] of [...slots].sort((a,b)=>a[0]-b[0])){
+    const dt=(st-now)/1000,o=petAnn[st]||(petAnn[st]={});
+    if(dt>0){
+      if(P.ann30&&dt<=30.4&&dt>24&&!o.a30){o.a30=true;beep(700,.15);say('Pets in 30 seconds: '+names.join(', '))}
+      if(P.annCnt&&dt<=5.2){const n=Math.ceil(dt-0.2);if(n>=1&&!o['c'+n]){for(let i=n;i<=5;i++)o['c'+i]=true;beep(700,.08);say(String(n))}}
+      if(dt<=30.4&&!pre)pre={mode:'pre',st,names,dt};
+    }else{
+      if(!o.go){o.go=true;beep(1000,.5);if(P.annCnt)say('Activate pets now: '+names.join(', '))}
+      go={mode:'go',st,names,dt};
+    }
+  }
+  const sh=pre||go,el=$('petnote');
+  if(sh&&!petDis[sh.st+'|'+sh.mode]){
+    petCur=sh;el.hidden=false;el.className=sh.mode;
+    const sig=sh.mode+'|'+sh.names.join(',')+'|'+(sh.mode==='pre'?Math.ceil(sh.dt):'');
+    if(el.dataset.sig!==sig){el.dataset.sig=sig;
+      el.querySelector('.pn-t').textContent=sh.mode==='pre'?'Pets start in':'Activate pets now';
+      el.querySelector('.pn-c').textContent=sh.mode==='pre'?fmt(sh.dt):'';
+      el.querySelector('.pn-n').textContent=sh.names.join(', ');}
+  }else{el.hidden=true;petCur=null}
+}
+$('petnote').onclick=()=>{if(petCur)petDis[petCur.st+'|'+petCur.mode]=true;$('petnote').hidden=true};
+function petCounts(){
+  const P=pool.pet,H=P.hours,L=pool.leaders.filter(l=>l.pet!==false),starts=Array(H).fill(0),on=Array(H).fill(0);
+  for(const l of L)for(const h of petStartsOf(l)){if(h>=0&&h<H){starts[h]++;on[h]++}if(h+1<H&&h+1>=0)on[h+1]++}
+  return{starts,on};
+}
+function renderPet(){
+  const P=pool.pet,L=pool.leaders,H=P.hours,now=Date.now();
+  $('petStart').value=toLocalInput(P.start);$('petHours').value=H;$('petMax').value=P.max;$('petApply').checked=P.apply;$('petAnn30').checked=P.ann30;$('petAnnCnt').checked=P.annCnt;
+  if(!L.length){$('petGrid').innerHTML='<div class="empty">Add names under Rally leaders first.</div>';$('petNote2').textContent='';return}
+  const cur=now>=P.start&&now<P.start+H*HR?Math.floor((now-P.start)/HR):-1,d0=new Date(P.start).toDateString();
+  const hh=Array.from({length:H},(_,h)=>{const dt=new Date(P.start+h*HR),day=dt.toDateString()!==d0?'<br><small>'+dt.toLocaleDateString(LOC[lang]||undefined,{weekday:'short'})+'</small>':'';return `<th class="${h===cur?'now':''}">${hhmm(P.start+h*HR)}${day}</th>`}).join('');
+  const rows=L.map(l=>{
+    const st=new Set(petStartsOf(l)),off=l.pet===false;
+    const cells=Array.from({length:H},(_,h)=>{const s=st.has(h),c=st.has(h-1),wst=s&&h+2>H;return `<td><button type="button" class="pc${s?' s':c?' c':''}${wst?' w':''}" data-pl="${l.id}" data-ph="${h}" ${off?'disabled':''} aria-label="${esc(l.name)} ${hhmm(P.start+h*HR)}">${s?'●':c?'○':''}</button></td>`}).join('');
+    return `<tr class="${off?'off':''}"><td class="sticky"><label class="chk" style="display:inline-flex"><input type="checkbox" data-pt="${l.id}" ${off?'':'checked'} aria-label="Has pet"> ${esc(l.name)}</label></td>${cells}</tr>`;
+  }).join('');
+  const {starts,on}=petCounts();
+  const sRow='<tr class="cnt"><th class="sticky">Starting</th>'+starts.map(n=>`<td>${n||''}</td>`).join('')+'</tr>';
+  const oRow='<tr class="cnt"><th class="sticky">On at once</th>'+on.map(n=>`<td class="${n>P.max?'over':''}">${n||''}</td>`).join('')+'</tr>';
+  $('petGrid').innerHTML=`<table class="petgrid"><thead><tr><th class="sticky">Leader</th>${hh}</tr></thead><tbody>${rows}${sRow}${oRow}</tbody></table>`;
+  const peak=Math.max(0,...on);
+  const ns=L.filter(l=>l.pet!==false&&!(P.cells[l.id]||[]).length).map(l=>l.name),any=Object.values(P.cells).some(a=>a.length);
+  const wasted=L.filter(l=>l.pet!==false&&(P.cells[l.id]||[]).some(h=>h+2>H)).map(l=>l.name);
+  $('petNote2').textContent=(peak>P.max?'Over the limit in the red hours. ':'')+(wasted.length?'Runs past the end of the battle window: '+wasted.join(', ')+'. ':'')+(any&&ns.length?'No slot yet: '+ns.join(', '):'');
+}
+/* Auto-plan: every leader gets one full 2-hour pet inside the battle window.
+   Dynamic programming over the start hours picks, in this order of importance:
+   1) stay within the max pets at once, 2) cover as many window hours as possible,
+   3) keep the number of pets on as even as possible (no overlap when the pets fit, overlap when they do not),
+   4) spread the start times evenly from the start to the end of the window. */
+function petPlanDP(N,H,M){
+  const P=H>=2?H-1:1,INF=1e30,W_OVER=1e11,W_UNC=1e9,W_VAR=1e5,K=N+1;
+  const size=(H+1)*K*K,cost=new Float64Array(size).fill(INF),back=new Int32Array(size).fill(-2);
+  const idx=(h,u,s)=>(h*K+u)*K+s,pj=j=>N>1?j*(P-1)/(N-1):0;
+  const hourCost=(on)=>(on>M?(on-M)*W_OVER:0)+(on===0?W_UNC:0)+W_VAR*on*on;
+  const posCost=(h,u,s)=>{let c=0;for(let j=u;j<u+s;j++){const d=h-pj(j);c+=d*d}return c};
+  for(let s=0;s<=N;s++){cost[idx(0,s,s)]=hourCost(s)+posCost(0,0,s);back[idx(0,s,s)]=-1}
+  for(let h=1;h<H;h++){
+    const maxP=h<P;
+    for(let u=0;u<=N;u++)for(let sp=0;sp<=N;sp++){
+      const cur=cost[idx(h-1,u,sp)];if(cur>=INF)continue;
+      const mx=maxP?N-u:0;
+      for(let s=0;s<=mx;s++){
+        const c=cur+hourCost(s+sp)+posCost(h,u,s),k=idx(h,u+s,s);
+        if(c<cost[k]){cost[k]=c;back[k]=idx(h-1,u,sp)}
+      }
+    }
+  }
+  let best=-1,bc=INF;
+  for(let s=0;s<=N;s++){const k=idx(H-1,N,s);if(cost[k]<bc){bc=cost[k];best=k}}
+  const starts=[];let k=best;
+  while(k>=0){const s=k%K,h=Math.floor(k/(K*K));for(let i=0;i<s;i++)starts.push(h);k=back[k]}
+  return starts.sort((a,b)=>a-b);
+}
+function petAutoPlan(){
+  const P=pool.pet,L=pool.leaders.filter(l=>l.pet!==false);
+  P.cells={};if(!L.length)return;
+  const starts=petPlanDP(L.length,P.hours,P.max);
+  L.forEach((l,i)=>{P.cells[l.id]=[starts[i]]});
+}
+const petSave=()=>{savePool();renderPet();render()};
+$('petBtn').onclick=()=>{document.body.classList.remove('leadersopen');document.body.classList.add('petopen');renderPet()};
+$('petBack').onclick=()=>{document.body.classList.remove('petopen');renderPoolView()};
+$('petGrid').addEventListener('click',e=>{
+  const b=e.target.closest('.pc');if(!b||b.disabled)return;
+  const P=pool.pet,id=b.dataset.pl,h=+b.dataset.ph,arr=P.cells[id]||[];
+  if(arr.includes(h))P.cells[id]=arr.filter(x=>x!==h);
+  else P.cells[id]=[...arr.filter(x=>Math.abs(x-h)>=22),h];
+  petSave();
+});
+$('petGrid').addEventListener('change',e=>{
+  const id=e.target.dataset.pt;if(id===undefined)return;
+  const l=pool.leaders.find(x=>String(x.id)===id);if(!l)return;
+  l.pet=e.target.checked;if(!l.pet)delete pool.pet.cells[l.id];petSave();
+});
+$('petStart').addEventListener('change',()=>{const t=new Date($('petStart').value).getTime();if(t>0){pool.pet.start=t;petSave()}else renderPet()});
+$('petHours').addEventListener('change',()=>{const n=Math.min(24,Math.max(1,Math.round(+$('petHours').value)||pool.pet.hours));pool.pet.hours=n;for(const k of Object.keys(pool.pet.cells))pool.pet.cells[k]=pool.pet.cells[k].filter(h=>h<n);petSave()});
+$('petMax').addEventListener('change',()=>{pool.pet.max=Math.min(12,Math.max(1,Math.round(+$('petMax').value)||pool.pet.max));petSave()});
+$('petApply').addEventListener('change',()=>{pool.pet.apply=$('petApply').checked;petSave()});
+$('petAnn30').addEventListener('change',()=>{pool.pet.ann30=$('petAnn30').checked;savePool()});
+$('petAnnCnt').addEventListener('change',()=>{pool.pet.annCnt=$('petAnnCnt').checked;savePool()});
+$('petAuto').onclick=()=>{petAutoPlan();petSave()};
+$('petClear').onclick=()=>{if(Object.keys(pool.pet.cells).length&&!confirm('Clear the whole pet schedule?'))return;pool.pet.cells={};petSave()};
 
 /* ---------- tick ---------- */
 function vcd(o,dt,intro){
@@ -1245,6 +1504,9 @@ function step(){
   });
   const nowReal=Date.now();let petExp=false;
   for(const r of [...tabs.filter((t,i)=>i!==curTab).flatMap(t=>t.rallies||[]),...rallies])if(r.pet&&r.petEnd&&nowReal>=r.petEnd){r.pet=false;r.petEnd=null;petExp=true}
+  const petOn=petTick(nowReal);
+  if(petOn){save();setTimeout(render,0)}
+  petAnnounce(nowReal);
   if(petExp){beep(500,.3);save();setTimeout(render,0)}
   const adv=ADV(),sen=[];
   if(adv){
@@ -1265,9 +1527,9 @@ function step(){
     const k=gIdx(r),R=runs[k],row=document.querySelector(`.rw[data-id="${r.id}"]`);if(!row)continue;
     const pt=q(row,'.pt');if(pt&&r.pet&&r.petEnd){if(document.activeElement!==pt)pt.value=fmtHMS(r.petEnd-nowReal);pt.classList.toggle('low',r.petEnd-nowReal<600000)}
     const it=R&&R.items.find(i=>i.id===r.id);
-    if(!it){row.className='rw';q(row,'.st').textContent='';continue}
+    if(!it){row.className='rw'+(r.pet?' haspet':'');q(row,'.st').textContent='';continue}
     const dt=(it.call-now)/1000;
-    row.className='rw'+(it.called?' done':it===nextR[k]?' next':'');
+    row.className='rw'+(r.pet?' haspet':'')+(it.called?' done':it===nextR[k]?' next':'');
     q(row,'.st').textContent=!it.called?'Waiting · call in '+fmt(dt):now>=R.impact?'Landed':now>=it.ms?'Marching':'Filling · march in '+fmt((it.ms-now)/1000);
   }
   for(const x of reinf){
@@ -1336,7 +1598,7 @@ try{const sl=localStorage.getItem('wosp_lang');lang=sl||((navigator.language||'e
 $('lang').value=lang;document.documentElement.lang=lang;
 $('lang').onchange=()=>{lang=$('lang').value;try{localStorage.setItem('wosp_lang',lang)}catch(e){}document.documentElement.lang=lang;TC.clear();render();if(poolOpen)renderPoolView()};
 setMode(md);setGrp();render();
-const APP_VERSION='p12';$('ver').textContent=APP_VERSION;
+const APP_VERSION='p20';$('ver').textContent=APP_VERSION;
 $('updbtn').onclick=()=>location.reload();
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){
   let had=!!navigator.serviceWorker.controller;

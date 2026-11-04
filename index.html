@@ -166,6 +166,13 @@ details.panel[open]>summary{margin-bottom:12px}
 @media(max-width:520px){.pn-t{font-size:18px}.pn-c{font-size:46px}.pn-n{font-size:26px}}
 @media(prefers-reduced-motion:no-preference){#petnote.go{animation:pnp 1s infinite}@keyframes pnp{50%{transform:translateX(-50%) scale(1.035)}}}
 .petscroll{overflow:auto;max-width:100%;border:1px solid var(--line);border-radius:10px;margin:10px 0}
+.backup{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:10px;opacity:.75}
+.backup button,.backup .btnlike{padding:4px 10px;font-size:13px;font-weight:500}
+.dh{cursor:grab;touch-action:none;user-select:none;color:var(--mute);font-size:18px;line-height:1;padding:2px 8px 2px 0;display:inline-block;vertical-align:middle}
+.dh:active{cursor:grabbing}
+tr.dragging td{opacity:.45}
+tr.dropbefore td{box-shadow:inset 0 3px 0 var(--accent,#1aa6a0)}
+tr.dropafter td{box-shadow:inset 0 -3px 0 var(--accent,#1aa6a0)}
 table.petgrid{border-collapse:separate;border-spacing:0;font-size:13px;width:max-content;min-width:100%}
 .petgrid th,.petgrid td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:0;text-align:center;min-width:58px;background:var(--panel)}
 .petgrid th{padding:6px 4px;font-weight:600;color:var(--mute);font-variant-numeric:tabular-nums}
@@ -415,7 +422,6 @@ body:not(.poolopen) #poolView{display:none}
       <label class="chk"><input type="checkbox" id="petAnn30"> Announce 30 s before</label>
       <label class="chk"><input type="checkbox" id="petAnnCnt"> Countdown from 5 at start</label>
     </div>
-    <p class="muted">A pet lasts 2 hours and can be used once, then it needs about 20 hours to recharge, so each leader gets one slot. Click a cell to start a pet at that hour (clicking another hour moves it). Auto-plan gives every leader a full 2 hours inside the battle window: no overlap when the pets fit (6 leaders over 6 hours = 2 per 2-hour block), and overlap when they do not, so the whole window is used. It stays within the maximum at once whenever possible.</p>
     <div class="petscroll"><div id="petGrid"></div></div>
     <p class="muted" style="margin-bottom:0" id="petNote2"></p>
   </div>
@@ -426,8 +432,6 @@ body:not(.poolopen) #poolView{display:none}
     <h2 style="margin:0;flex:1">Vault</h2>
     <button type="button" id="leadersBtn">Rally leaders</button>
     <button type="button" id="petBtn">Pet schedule</button>
-    <button type="button" id="poolExport">Export</button>
-    <label class="btnlike">Import<input type="file" id="poolImport" accept="application/json" hidden></label>
   </div></div>
 
   <div class="poolgrid">
@@ -457,7 +461,9 @@ body:not(.poolopen) #poolView{display:none}
       <svg id="map" viewBox="0 0 100 100" role="img" aria-label="Map of players and spots"><g id="maplayer"></g></svg>
       <p class="muted onlytiles" id="tileinfo"></p>
       <p class="muted onlyfree" style="margin-bottom:0">Drag players and spots on the map. March time = distance × scale, unless you type one in by hand.</p>
-    </div></div>
+    </div>
+    <div class="backup"><span class="muted">Backup</span><button type="button" id="poolExport">Export</button><label class="btnlike">Import<input type="file" id="poolImport" accept="application/json" hidden></label></div>
+    </div>
   </div>
 </section>
 <p class="muted" style="text-align:center;margin-top:18px">Version <span id="ver"></span></p>
@@ -687,7 +693,6 @@ R('No names yet. Type a name below, or add several under Rally leaders.','Aucun 
 R('Pet schedule','Planning des familiers','Haustier-Plan');R('Start','Début','Start');R('Hours','Heures','Stunden');
 R('Max pets on at once','Familiers actifs en même temps (max)','Max. Haustiere gleichzeitig');R('Auto-plan','Planifier auto','Auto-Plan');R('Clear','Effacer','Leeren');
 R('Apply to preset tabs','Appliquer aux préréglages','Auf Voreinstellungen anwenden');R('Leader','Meneur','Leiter');R('Starting','Démarrent','Starten');R('On at once','Actifs en même temps','Gleichzeitig aktiv');
-R('A pet lasts 2 hours and can be used once, then it needs about 20 hours to recharge, so each leader gets one slot. Click a cell to start a pet at that hour (clicking another hour moves it). Auto-plan gives every leader a full 2 hours inside the battle window: no overlap when the pets fit (6 leaders over 6 hours = 2 per 2-hour block), and overlap when they do not, so the whole window is used. It stays within the maximum at once whenever possible.','Un familier dure 2 heures et ne s’utilise qu’une fois, puis il lui faut environ 20 heures pour se recharger : chaque meneur a donc un seul créneau. Cliquez sur une case pour lancer un familier à cette heure (cliquer sur une autre heure le déplace). La planification auto donne à chaque meneur 2 heures complètes dans la fenêtre de bataille : sans chevauchement quand les familiers tiennent (6 meneurs sur 6 heures = 2 par bloc de 2 heures), avec chevauchement sinon, pour utiliser toute la fenêtre. Elle reste sous le maximum en même temps dès que possible.','Ein Haustier hält 2 Stunden und kann nur einmal benutzt werden, danach braucht es etwa 20 Stunden zum Aufladen, daher bekommt jeder Leiter einen Slot. Klicken Sie ein Feld an, um zu dieser Stunde ein Haustier zu starten (ein anderes Feld verschiebt es). Der Auto-Plan gibt jedem Leiter volle 2 Stunden innerhalb des Kampffensters: ohne Überlappung, wenn die Haustiere passen (6 Leiter in 6 Stunden = 2 pro 2-Stunden-Block), und mit Überlappung, wenn nicht, sodass das ganze Fenster genutzt wird. Es bleibt unter dem Maximum gleichzeitig, wann immer möglich.');
 R('Add names under Rally leaders first.','Ajoutez d’abord des noms sous Meneurs de ralliement.','Fügen Sie zuerst unter Rally-Leiter Namen hinzu.');
 R('Over the limit in the red hours. ','Au-dessus de la limite pendant les heures en rouge. ','In den roten Stunden über dem Limit. ');R('Battle hours','Heures de bataille','Kampfstunden');R('Runs past the end of the battle window: {}. ','Dépasse la fin de la fenêtre de bataille : {1}. ','Läuft über das Ende des Kampffensters hinaus: {1}. ');R('No slot yet: {}','Pas encore de créneau : {1}','Noch kein Slot: {1}');R('Over the limit in the red hours.','Au-dessus de la limite pendant les heures en rouge.','In den roten Stunden über dem Limit.');
 R('Clear the whole pet schedule?','Effacer tout le planning des familiers ?','Den ganzen Haustier-Plan leeren?');
@@ -1411,7 +1416,7 @@ function renderPet(){
   const rows=L.map(l=>{
     const st=new Set(petStartsOf(l)),off=l.pet===false;
     const cells=Array.from({length:H},(_,h)=>{const s=st.has(h),c=st.has(h-1),wst=s&&h+2>H;return `<td><button type="button" class="pc${s?' s':c?' c':''}${wst?' w':''}" data-pl="${l.id}" data-ph="${h}" ${off?'disabled':''} aria-label="${esc(l.name)} ${hhmm(P.start+h*HR)}">${s?'●':c?'○':''}</button></td>`}).join('');
-    return `<tr class="${off?'off':''}"><td class="sticky"><label class="chk" style="display:inline-flex"><input type="checkbox" data-pt="${l.id}" ${off?'':'checked'} aria-label="Has pet"> ${esc(l.name)}</label></td>${cells}</tr>`;
+    return `<tr class="${off?'off':''}" data-row="${l.id}"><td class="sticky"><span class="dh" data-drag="${l.id}" title="Drag to reorder" aria-label="Drag to reorder">⠿</span><label class="chk" style="display:inline-flex"><input type="checkbox" data-pt="${l.id}" ${off?'':'checked'} aria-label="Has pet"> ${esc(l.name)}</label></td>${cells}</tr>`;
   }).join('');
   const {starts,on}=petCounts();
   const sRow='<tr class="cnt"><th class="sticky">Starting</th>'+starts.map(n=>`<td>${n||''}</td>`).join('')+'</tr>';
@@ -1472,6 +1477,33 @@ $('petGrid').addEventListener('change',e=>{
   const l=pool.leaders.find(x=>String(x.id)===id);if(!l)return;
   l.pet=e.target.checked;if(!l.pet)delete pool.pet.cells[l.id];petSave();
 });
+(function(){
+  let d=null;
+  const rows=()=>[...$('petGrid').querySelectorAll('tr[data-row]')];
+  const clr=()=>rows().forEach(r=>r.classList.remove('dropbefore','dropafter','dragging'));
+  $('petGrid').addEventListener('pointerdown',e=>{
+    const h=e.target.closest('.dh');if(!h)return;e.preventDefault();
+    d={id:h.dataset.drag,to:null,after:false,pid:e.pointerId};
+    try{h.setPointerCapture(e.pointerId)}catch(_){}
+    h.closest('tr').classList.add('dragging');
+  });
+  $('petGrid').addEventListener('pointermove',e=>{
+    if(!d)return;clr();const rs=rows();
+    const src=rs.find(r=>r.dataset.row===d.id);if(src)src.classList.add('dragging');
+    let t=null,after=false;
+    for(const r of rs){const b=r.getBoundingClientRect();if(e.clientY<b.top+b.height/2){t=r;break}}
+    if(!t){t=rs[rs.length-1];after=true}
+    d.to=t.dataset.row;d.after=after;t.classList.add(after?'dropafter':'dropbefore');
+  });
+  const end=e=>{
+    if(!d)return;const m=d;d=null;clr();
+    if(e.type==='pointercancel'||m.to===null)return;
+    const L=pool.leaders,i=L.findIndex(x=>String(x.id)===m.id);if(i<0)return;
+    const [it]=L.splice(i,1);let j=L.findIndex(x=>String(x.id)===m.to);if(j<0)j=L.length;
+    if(m.after)j++;L.splice(j,0,it);petSave();
+  };
+  $('petGrid').addEventListener('pointerup',end);$('petGrid').addEventListener('pointercancel',end);
+})();
 $('petStart').addEventListener('change',()=>{const t=new Date($('petStart').value).getTime();if(t>0){pool.pet.start=t;petSave()}else renderPet()});
 $('petHours').addEventListener('change',()=>{const n=Math.min(24,Math.max(1,Math.round(+$('petHours').value)||pool.pet.hours));pool.pet.hours=n;for(const k of Object.keys(pool.pet.cells))pool.pet.cells[k]=pool.pet.cells[k].filter(h=>h<n);petSave()});
 $('petMax').addEventListener('change',()=>{pool.pet.max=Math.min(12,Math.max(1,Math.round(+$('petMax').value)||pool.pet.max));petSave()});
@@ -1598,7 +1630,7 @@ try{const sl=localStorage.getItem('wosp_lang');lang=sl||((navigator.language||'e
 $('lang').value=lang;document.documentElement.lang=lang;
 $('lang').onchange=()=>{lang=$('lang').value;try{localStorage.setItem('wosp_lang',lang)}catch(e){}document.documentElement.lang=lang;TC.clear();render();if(poolOpen)renderPoolView()};
 setMode(md);setGrp();render();
-const APP_VERSION='p20';$('ver').textContent=APP_VERSION;
+const APP_VERSION='p2.1';$('ver').textContent=APP_VERSION;
 $('updbtn').onclick=()=>location.reload();
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){
   let had=!!navigator.serviceWorker.controller;

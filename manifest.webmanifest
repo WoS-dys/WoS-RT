@@ -1,6 +1,6 @@
 {
-  "name": "WoS RT",
-  "short_name": "WoS RT",
+  "name": "WoS RT dev",
+  "short_name": "RT dev",
   "description": "Rally timer with an info pool: players, spots and a march-time map.",
   "start_url": "./index.html",
   "scope": "./",

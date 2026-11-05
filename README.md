@@ -1,26 +1,54 @@
-[README.md](https://github.com/user-attachments/files/34345041/README.md)
-# Whiteout Rally Timer –
+[README.md](https://github.com/user-attachments/files/34453208/README.md)
+# WoS RT – DEV copy (availability from a Google Form)
 
-## What is new
-- **Vault** button (top right): a separate space with Players, Spots and two maps.
-  - **Spots**: the Sunfire Castle map from the alliance sheet (12 x 12 coloured tiles). Click a tile to place the selected player, or pick the tile colour from the dropdown. Walk times to the Castle come from the colour, with and without pets. All 15 colours are editable under *Castle walk times* and can be reset to the sheet values.
-  - **Free map**: the drag-and-drop map for other spots (distance x scale, or typed times).
-  - Add players and spots (for example Bear Trap, Fortress). Drag them on the map.
-  - March time = distance on the map x scale. Type a time in by hand to override it.
-  - Calibrate the scale once: choose a player, a spot and the real march time.
-  - Export / Import the pool as a file (backup, or share with another leader).
-- **Rally leaders** (button next to Export/Import): opens its own space for a simple list of names. Add one or several names (comma separated), nothing else. The names show as buttons above the map (both Castle tiles and Free map; there is also a quick-add box right on the map that saves new names to the same list) (click a name, then a tile; the next name is selected automatically) and under *From the Vault* in the timer. *Clear map* resets the map for the next round.
-- **Pet schedule** (button next to Rally leaders): an hourly grid of the rally leader names. Click a cell to start a pet at that hour (2 hours long); neighbouring hours overlap. *Auto-plan* rotates the leaders and keeps the number of pets on at once within the maximum. With *Apply to preset tabs* on, every leader with that name gets Pet switched on automatically at the scheduled hour (with the 2-hour timer already running), in all preset tabs, and a notice tells you to activate the pets. Rows show the next planned start.
-- The pet timer in each row accepts `50` (seconds), `1:30` (m:ss), `1:30:00`, `45m`, `1h30m`, or `+50` / `-50` to add or remove seconds. Leaders with an active pet get a faint paw-print background in the schedule, and their March field shows the actual march time with the pet (editing it while the pet is on sets the pet time). *Auto-plan* gives every leader a full 2-hour pet inside the battle window: no overlap when the pets fit, overlap when they do not so the whole window is used, within the maximum at once whenever possible. Optional announcements: *Announce 30 s before* and *Countdown from 5 at start* (spoken, respecting the Voice and Sound switches), plus a large banner that stays visible for 90 seconds after the start.
-- Only one player per spot (tile): a taken tile shows who sits there, and moving a placed player onto an occupied tile swaps the two. The Castle tiles map is shown as a diamond like in the game, with upright names (first 5 letters).
-- Up to **6 preset tabs**.
-- **Add rally leader**: pick a *Target spot*, then click names in "From the pool" or start typing a name. The march time is filled in from the pool. "Apply pool march times" refreshes the whole schedule.
-- Names can still be typed and changed in the schedule. Renaming to a pool name fills in the pool march time.
-- The Pet checkbox is gone from the add form. It lives in the schedule rows; the percentage setting is kept.
+Own storage keys (`wosd_`), seeded once from the live app's data. Host it in its own folder.
 
-## Publish (GitHub Pages)
-Put these files in their own repository, or in a subfolder (for example `pool/`) of the existing one, then follow the same Pages steps as the original app. Open the site, then install it from the browser.
-If it is on the same site as the original app, it copies the original data once on first start. After that the two apps are independent.
+## Idea
+- **Rally leaders** = master list of names. The form only collects names; nothing is added to Rally leaders automatically (unknown names show under "Answered but not a Rally leader" with an optional "+ add").
+- **Availability** (Vault → Availability) = the answers, one row per Rally leader, editable by hand.
+- **Pet schedule** reads Availability (hatched cells = not available, "Use availability" switch) and stays fully manual: place pets anywhere, Auto-plan only fills in around the answers.
 
-## Updating
-Upload the new `index.html` and `sw.js`. Bump the version in both: `rally-timer-pool-vN (now v20)` in `sw.js` and `APP_VERSION` in `index.html`.
+## Google Form (3 questions, all hours UTC)
+1. Name (short answer)
+2. Participate? Yes / No
+3. Which hours can you play? (UTC): checkboxes `12-13, 13-14, …`
+
+Vault → Availability → **Copy Google Apps Script** creates this form in one run (script.google.com), or **Copy question list** to build it by hand. The hour boxes follow the Pet schedule start and battle hours.
+
+## Getting the answers in
+Form → Responses → Link to Sheets → Sheet: File → Share → Publish to web → CSV. Paste the link, press **Refresh from link**. Fallback: upload or paste the CSV. A newer answer from the same name replaces the older one, except rows you edited by hand.
+
+## dev3: one reusable form
+- The form link is stored in Vault → Availability (prefilled). Copy link / Open form / Copy invitation text.
+- **Start new round** clears the answers and remembers where the linked sheet ends. Google keeps old rows in the sheet when you delete responses in the form, so rows up to that point are ignored from then on. Send the same link again.
+- **Refresh** mirrors the sheet: removed answers disappear, hand-edited rows are kept. Norwegian, English column names work (Navn/Name, Deltar/Participate, timer/hours).
+
+## dev6: one-click refresh through Google Apps Script
+Vault → Availability → step 2 → "One-click refresh". In the response sheet: Extensions → Apps Script, paste the copied script, Deploy → New deployment → Web app (Execute as: Me, Access: Anyone), paste the /exec URL into the app. The script only reads the first sheet and answers only requests with the private key the app generates and appends itself.
+Fallback stays: Open CSV → Upload CSV.
+
+## dev7
+- Rally leaders are always sorted A-Z; tick **Main** to put a leader on top (A-Z within Main, then the rest A-Z). Main leaders show a star in the map tray, the pet schedule and the availability grid.
+- Pet schedule keeps its own order (drag). New leaders are added at the end of it.
+- Auto-plan: when more pet-hours are needed than "max at once" allows, pet starts are now spread evenly over the hours (e.g. 16 leaders, 6 hours, max 3 gives 4,3,3,3,3 starts). When everything fits, it still tiles without overlap (6 leaders in 6 hours = 2 each).
+
+## dev8
+- Prep countdown: new **5 sec** option.
+- Live timer: everyone with the same call time is shown together in the middle; **Next up** on the right, **Queue** (the ones after that) on the left. On a phone the two side lists sit under the timer.
+- Voice: simultaneous calls are spoken in one go ("Anna, Bob, Cy" or "Anna, Bob, Cy, call rally in 3, 2, 1, now"). Group names are no longer spoken (calls, start, impact).
+
+## dev9
+- Pet schedule: hours a leader can play are tinted green, hours they cannot are red-hatched (light and dark theme).
+
+## dev10
+- Live timer: left = Queue (waiting, small, first group with its countdown), middle = to call now (large), right = Called list (most recent first).
+
+## dev11
+- Run panel (Advanced): option **Say group name once, before the first call**. The group name is spoken only before the first call of each run, never between names.
+
+## dev12
+- Start announcement during the prep countdown: "Timer started, <Group name>, get ready" (10 and 20 sec prep). With 5 sec prep it is shortened to "<Group name>, get ready" so it does not collide with the call countdown. No prep: "Timer started".
+
+## dev13
+- Each group card (Advanced) has its own **Pause / Resume** next to ±1s and Stop. The global Pause still pauses everything.
+- Calls are name only again. The earlier "say group name once" option is removed; the group name is only spoken in the start announcement ("Timer started, Group 1, get ready").

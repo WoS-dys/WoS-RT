@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WoS RT</title>
+<title>WoS RT (dev)</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#13806f">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -94,6 +94,18 @@ body.advanced .mainonly{display:none!important}
 .csub{color:var(--mute);min-height:1.4em}
 .cwho{font-size:34px;font-weight:800;line-height:1.1;word-break:break-word;letter-spacing:-.5px}
 .ccd{font-size:62px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15;letter-spacing:-1px}
+.cstage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.7fr) minmax(0,1fr);gap:10px;align-items:center;grid-template-areas:"q m n"}
+.cq{grid-area:q;text-align:left}.cmid{grid-area:m}.cnx{grid-area:n;text-align:right}
+.cq,.cnx{font-size:14px;color:var(--mute);line-height:1.35;min-width:0;word-break:break-word}
+.cq small,.cnx small{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+.cq div,.cnx div{font-weight:600;color:var(--ink);opacity:.85}
+.cq em{font-style:normal;font-weight:400;color:var(--mute);font-variant-numeric:tabular-nums}
+.cnx div{opacity:.6}
+.cnx em{display:block;font-style:normal;font-variant-numeric:tabular-nums}
+.cwho div+div{margin-top:2px}
+.cwho.many{font-size:26px}
+.big.multi .cwho.many{font-size:18px}
+@media(max-width:600px){.cstage{grid-template-columns:1fr 1fr;grid-template-areas:"m m" "q n"}.cwho.many{font-size:22px}}
 .big.multi .cwho{font-size:21px}
 .big.multi .ccd{font-size:40px}
 .gcard.go{border-top-color:var(--hot)}.gcard.go .ccd,.gcard.go .cwho{color:var(--hot)}
@@ -168,6 +180,7 @@ details.panel[open]>summary{margin-bottom:12px}
 .petscroll{overflow:auto;max-width:100%;border:1px solid var(--line);border-radius:10px;margin:10px 0}
 .backup{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:10px;opacity:.75}
 .backup button,.backup .btnlike{padding:4px 10px;font-size:13px;font-weight:500}
+.rw .mn{margin-left:auto;margin-right:6px;white-space:nowrap}
 .dh{cursor:grab;touch-action:none;user-select:none;color:var(--mute);font-size:18px;line-height:1;padding:2px 8px 2px 0;display:inline-block;vertical-align:middle}
 .dh:active{cursor:grabbing}
 tr.dragging td{opacity:.45}
@@ -175,6 +188,18 @@ tr.dropbefore td{box-shadow:inset 0 3px 0 var(--accent,#1aa6a0)}
 tr.dropafter td{box-shadow:inset 0 -3px 0 var(--accent,#1aa6a0)}
 #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;z-index:60;max-width:90vw;box-shadow:var(--sh)}
 #toast[hidden]{display:none}
+#availView textarea{width:100%;min-height:90px;font:13px/1.4 ui-monospace,monospace;background:var(--field);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}
+.petgrid td.na{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--hot) 30%,transparent) 0 6px,color-mix(in srgb,var(--hot) 14%,transparent) 6px 12px);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--hot) 45%,transparent)}
+.petgrid td.av{background:color-mix(in srgb,var(--ok) 26%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ok) 40%,transparent)}
+.avgrid td{padding:0}.avc{display:block;width:100%;height:38px;border:0;border-radius:0;background:transparent;color:var(--ok);font-weight:800;cursor:pointer;padding:0}
+.avgrid tr.unk .sticky{opacity:.75}
+#avView select{padding:3px 4px;border-radius:6px;background:var(--field);color:var(--ink);border:1px solid var(--line);font:inherit;font-size:13px}
+.avgrid th small{font-weight:400}
+.avgrid td.y{background:color-mix(in srgb,var(--ok) 38%,var(--panel))}
+.avgrid td.n{opacity:.5}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;border:1px solid var(--line);margin-left:4px}
+.tag.yes{color:var(--ok)}.tag.maybe{color:var(--warn)}.tag.no{color:var(--hot)}.tag.new{color:var(--accent)}
+.linkbox{font:12px ui-monospace,monospace;word-break:break-all;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px;margin-top:8px}
 table.petgrid{border-collapse:separate;border-spacing:0;font-size:13px;width:max-content;min-width:100%}
 .petgrid th,.petgrid td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:0;text-align:center;min-width:58px;background:var(--panel)}
 .petgrid th{padding:6px 4px;font-weight:600;color:var(--mute);font-variant-numeric:tabular-nums}
@@ -237,7 +262,8 @@ table.petgrid{border-collapse:separate;border-spacing:0;font-size:13px;width:max
 #leadersBtn.on{background:var(--accent);color:#04202e;border-color:transparent}
 .btnlike{display:inline-flex;flex-direction:row;align-items:center;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--field);cursor:pointer;font-weight:600;color:var(--ink);font-size:15px}
 body.poolopen .layout{display:none!important}
-body.leadersopen #poolView,body.petopen #poolView{display:none!important}
+body.leadersopen #poolView,body.petopen #poolView,body.availopen #poolView{display:none!important}
+body:not(.poolopen.availopen) #availView{display:none}
 body:not(.poolopen.petopen) #petView{display:none}
 body:not(.poolopen.leadersopen) #leadersView{display:none}
 body:not(.poolopen) #poolView{display:none}
@@ -271,7 +297,7 @@ body:not(.poolopen) #poolView{display:none}
 <body>
 <div class="wrap">
 <header>
-  <h1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5"/></svg>WoS RT<input id="grp" class="gname" maxlength="24" placeholder="Preset name" aria-label="Preset name"></h1>
+  <h1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5"/></svg>WoS RT <small style="font-size:.5em;color:var(--hot);vertical-align:middle">DEV</small><input id="grp" class="gname" maxlength="24" placeholder="Preset name" aria-label="Preset name"></h1>
   <div class="row">
     <div class="seg" role="group" aria-label="Mode"><button type="button" data-mode="easy">Main</button><button type="button" data-mode="adv">Advanced</button></div>
     <label class="chk"><input type="checkbox" id="voice" checked> Voice</label>
@@ -290,7 +316,7 @@ body:not(.poolopen) #poolView{display:none}
     <button class="start" id="start" type="button">Start timer</button>
     <button id="pause" data-pause type="button" hidden>Pause</button>
     <button class="stop" id="stop" type="button" hidden>Stop</button>
-    <label>Prep countdown<select id="prep"><option value="0">Off</option><option value="10" selected>10 sec</option><option value="20">20 sec</option></select></label>
+    <label>Prep countdown<select id="prep"><option value="0">Off</option><option value="5">5 sec</option><option value="10" selected>10 sec</option><option value="20">20 sec</option></select></label>
     <label>Voice<select id="vg"><option value="female">Female</option><option value="male">Male</option></select></label>
     <label>Voice style<select id="vstyle"><option value="1">1 · Name only</option><option value="2" selected>2 · Name + countdown</option></select></label>
     <details class="mainonly" id="landDet"><summary>Landing time (optional)</summary>
@@ -420,6 +446,7 @@ body:not(.poolopen) #poolView{display:none}
       <label>Max pets on at once<input type="number" id="petMax" min="1" max="12" style="width:100px"></label>
       <button class="pri" type="button" id="petAuto">Auto-plan</button>
       <button type="button" id="petClear">Clear</button>
+      <label class="chk"><input type="checkbox" id="petUseAv"> Use availability</label>
       <label class="chk"><input type="checkbox" id="petApply"> Apply to preset tabs</label>
       <label class="chk"><input type="checkbox" id="petAnn30"> Announce 30 s before</label>
       <label class="chk"><input type="checkbox" id="petAnnCnt"> Countdown from 5 at start</label>
@@ -428,12 +455,63 @@ body:not(.poolopen) #poolView{display:none}
     <p class="muted" style="margin-bottom:0" id="petNote2"></p>
   </div>
 </section>
+<section id="availView">
+  <div class="panel"><div class="row" style="align-items:center">
+    <button type="button" id="availBack">← Back to Vault</button>
+    <h2 style="margin:0;flex:1">Availability</h2>
+  </div></div>
+  <details class="panel" id="avSetup" open>
+    <summary>1. Your Google Form (reused every time)</summary>
+    <p class="muted" style="margin-top:0">Same form every round: <b>Name</b>, <b>Participate</b> (Yes/No) and the <b>UTC hours</b> as checkboxes. Paste the link players use to answer.</p>
+    <div class="row" style="align-items:flex-end">
+      <label style="flex:1 1 260px">Form link<input id="avForm" placeholder="https://forms.gle/…" autocomplete="off"></label>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="pri" type="button" id="avCopyForm">Copy link</button>
+      <a class="btnlike" id="avOpenForm" href="#" target="_blank" rel="noopener">Open form</a>
+      <button type="button" id="avInvite">Copy invitation text</button>
+    </div>
+    <p class="muted" style="margin-bottom:0">Hours outside the Pet schedule window are ignored, so the form can list more hours than you use.</p>
+  </details>
+  <details class="panel" id="avImp" open>
+    <summary>2. Import the answers</summary>
+    <details style="margin-bottom:10px"><summary><b>One-click refresh (Google Apps Script)</b></summary>
+    <ol class="muted" style="margin:8px 0 0 18px;padding:0">
+      <li>Open the sheet that collects the form answers: <b>Extensions → Apps Script</b>.</li>
+      <li>Delete the code in the editor, press <button type="button" id="avScript" style="padding:2px 8px">Copy script</button>, paste it and press Save.</li>
+      <li><b>Deploy → New deployment</b>, gear icon → <b>Web app</b>. Execute as: <b>Me</b>. Who has access: <b>Anyone</b>. Deploy, then allow access when Google asks.</li>
+      <li>Copy the <b>Web app URL</b> (ends in <code>/exec</code>) and paste it below. Done: <b>Refresh from link</b> now works.</li>
+    </ol>
+    <p class="muted" style="margin-bottom:0">The script only reads the first sheet and only answers requests that carry your private key, which the app adds by itself. It never changes anything.</p></details>
+    <p class="muted" style="margin-top:0">Or without a script: in the form <b>Responses → Link to Sheets</b>. In the sheet: <b>File → Share → Publish to web → CSV</b>, and paste that link here. <b>Refresh</b> then pulls the newest answers. Or download the CSV and upload or paste it.</p>
+    <div class="row" style="align-items:flex-end">
+      <label style="flex:1 1 260px">Web app URL (or published CSV link)<input id="avUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></label>
+      <button class="pri" type="button" id="avFetch">Refresh from link</button>
+      <a class="btnlike" id="avOpenCsv" href="#" target="_blank" rel="noopener">Open CSV</a>
+    </div>
+    <div class="row" style="margin-top:10px;align-items:center">
+      <label class="btnlike">Upload CSV<input type="file" id="avFile" accept=".csv,text/csv,text/plain" hidden></label>
+      <button type="button" id="avTog">Paste instead</button><button type="button" id="avClear">Start new round</button><span class="muted" id="avMsg"></span>
+    </div>
+    <p class="muted" style="margin:10px 0 0"><b>New round:</b> press <b>Start new round</b>. It clears the answers here and remembers where the sheet ends, so older rows are ignored (Google keeps them in the sheet). Then send the same form link again. Each Refresh mirrors the sheet: answers that were removed there are removed here too, and rows you edited by hand are kept.</p>
+    <div id="avPasteBox" hidden style="margin-top:10px"><textarea id="avPaste" placeholder="Paste the CSV here"></textarea><div class="row" style="margin-top:8px"><button class="pri" type="button" id="avImport">Import</button></div></div>
+  </details>
+  <div class="panel">
+    <h3 style="margin-top:0">3. Availability</h3>
+    <p class="muted" style="margin-top:0">Rows are your Rally leaders (the master list). Green = can play that hour (UTC hour on top, your local time below). Click a cell to change it, or use the dropdown for Yes / No. Manual changes are kept when you import again.</p>
+    <div class="row" style="align-items:center"><button class="pri" type="button" id="avPlan">Plan pets from availability</button></div>
+    <div class="petscroll" style="margin-top:12px"><div id="avGrid"></div></div>
+    <div id="avExtra"></div>
+    <p class="muted" style="margin-bottom:0" id="avNote"></p>
+  </div>
+</section>
 <section id="poolView">
   <div class="panel"><div class="row" style="align-items:center">
     <button type="button" id="poolBack">← Back to timer</button>
     <h2 style="margin:0;flex:1">Vault</h2>
     <button type="button" id="leadersBtn">Rally leaders</button>
     <button type="button" id="petBtn">Pet schedule</button>
+    <button type="button" id="availBtn">Availability</button>
   </div></div>
 
   <div class="poolgrid">
@@ -476,16 +554,17 @@ body:not(.poolopen) #poolView{display:none}
 
 <script>
 // One-time copy of data from the original Rally Timer (same site only), so nothing has to be retyped.
-try{const ks=[];for(let i=0;i<localStorage.length;i++)ks.push(localStorage.key(i));for(const k of ks){if(/^wos_/.test(k)){const nk='wosp_'+k.slice(4);if(localStorage.getItem(nk)===null)localStorage.setItem(nk,localStorage.getItem(k))}}}catch(e){}
+// DEV copy: uses its own storage keys (wosd_). On first run it copies the live app's data (wosp_) once.
+try{const ks=[];for(let i=0;i<localStorage.length;i++)ks.push(localStorage.key(i));for(const k of ks){if(/^wosp_/.test(k)){const nk='wosd_'+k.slice(5);if(localStorage.getItem(nk)===null)localStorage.setItem(nk,localStorage.getItem(k))}}}catch(e){}
 const $=id=>document.getElementById(id);
 let rallies=[],reinf=[],hits=[],lastAdded=null,groups=[{name:'Group 1',lin:'',clock:''}];
 let runs=[],paused=null,sst={},ridc=0;
-try{rallies=JSON.parse(localStorage.getItem('wosp_rallies')||'[]')}catch(e){}
-try{reinf=JSON.parse(localStorage.getItem('wosp_reinf')||'[]')}catch(e){}
-try{const g=JSON.parse(localStorage.getItem('wosp_groups')||'null');if(Array.isArray(g)&&g.length)groups=g}catch(e){}
+try{rallies=JSON.parse(localStorage.getItem('wosd_rallies')||'[]')}catch(e){}
+try{reinf=JSON.parse(localStorage.getItem('wosd_reinf')||'[]')}catch(e){}
+try{const g=JSON.parse(localStorage.getItem('wosd_groups')||'null');if(Array.isArray(g)&&g.length)groups=g}catch(e){}
 let tabs=[],curTab=0;
-try{const t=JSON.parse(localStorage.getItem('wosp_tabs')||'null');if(Array.isArray(t)&&t.length){tabs=t.slice(0,6);curTab=Math.min(Math.max(+localStorage.getItem('wosp_tab')||0,0),tabs.length-1);const c=tabs[curTab];rallies=c.rallies||[];reinf=c.reinf||[];groups=c.groups&&c.groups.length?c.groups:groups}}catch(e){}
-if(!tabs.length){let lg='';try{lg=localStorage.getItem('wosp_grp')||''}catch(e){}tabs=[{name:lg||'Preset 1'}]}
+try{const t=JSON.parse(localStorage.getItem('wosd_tabs')||'null');if(Array.isArray(t)&&t.length){tabs=t.slice(0,6);curTab=Math.min(Math.max(+localStorage.getItem('wosd_tab')||0,0),tabs.length-1);const c=tabs[curTab];rallies=c.rallies||[];reinf=c.reinf||[];groups=c.groups&&c.groups.length?c.groups:groups}}catch(e){}
+if(!tabs.length){let lg='';try{lg=localStorage.getItem('wosd_grp')||''}catch(e){}tabs=[{name:lg||'Preset 1'}]}
 const PET_MS=2*3600*1000;
 const migrate=()=>{
   for(const t of tabs)for(const r of (t.rallies||[])){if(r.pet&&!r.petEnd)r.petEnd=Date.now()+PET_MS;if(r.pet&&r.petEnd<=Date.now()){r.pet=false;r.petEnd=null}}
@@ -494,11 +573,11 @@ const migrate=()=>{
   for(const x of reinf){if(!(x.off>=0))x.off=0;if(!x.ref||x.ref==='imp')x.ref='g0'}
 };
 migrate();
-const save=()=>{tabs[curTab]=Object.assign(tabs[curTab]||{name:'Preset '+(curTab+1)},{rallies,reinf,groups});try{localStorage.setItem('wosp_tabs',JSON.stringify(tabs));localStorage.setItem('wosp_tab',String(curTab));localStorage.setItem('wosp_pct',$('petpct').value);localStorage.setItem('wosp_prep',$('prep').value);localStorage.setItem('wosp_vg',$('vg').value);localStorage.setItem('wosp_vstyle',$('vstyle').value);localStorage.setItem('wosp_voice',$('voice').checked?'1':'0');localStorage.setItem('wosp_snd',$('snd').checked?'1':'0')}catch(e){}};
-try{const p=localStorage.getItem('wosp_pct');if(p!==null)$('petpct').value=p;const q=localStorage.getItem('wosp_prep');if(q!==null)$('prep').value=q;const g=localStorage.getItem('wosp_vg');if(g)$('vg').value=g;const vs0=localStorage.getItem('wosp_vstyle');if(vs0)$('vstyle').value=vs0;const v=localStorage.getItem('wosp_voice');if(v)$('voice').checked=v==='1';const gp=localStorage.getItem('wosp_grp');if(gp)$('grp').value=gp;const n=localStorage.getItem('wosp_snd');if(n)$('snd').checked=n==='1'}catch(e){}
+const save=()=>{tabs[curTab]=Object.assign(tabs[curTab]||{name:'Preset '+(curTab+1)},{rallies,reinf,groups});try{localStorage.setItem('wosd_tabs',JSON.stringify(tabs));localStorage.setItem('wosd_tab',String(curTab));localStorage.setItem('wosd_pct',$('petpct').value);localStorage.setItem('wosd_prep',$('prep').value);localStorage.setItem('wosd_vg',$('vg').value);localStorage.setItem('wosd_vstyle',$('vstyle').value);localStorage.setItem('wosd_voice',$('voice').checked?'1':'0');localStorage.setItem('wosd_snd',$('snd').checked?'1':'0')}catch(e){}};
+try{const p=localStorage.getItem('wosd_pct');if(p!==null)$('petpct').value=p;const q=localStorage.getItem('wosd_prep');if(q!==null)$('prep').value=q;const g=localStorage.getItem('wosd_vg');if(g)$('vg').value=g;const vs0=localStorage.getItem('wosd_vstyle');if(vs0)$('vstyle').value=vs0;const v=localStorage.getItem('wosd_voice');if(v)$('voice').checked=v==='1';const gp=localStorage.getItem('wosd_grp');if(gp)$('grp').value=gp;const n=localStorage.getItem('wosd_snd');if(n)$('snd').checked=n==='1'}catch(e){}
 
-function setTheme(t){document.documentElement.dataset.theme=t;$('theme').textContent=t==='dark'?'Light mode':'Dark mode';try{localStorage.setItem('wosp_theme',t)}catch(e){}}
-let th=null;try{th=localStorage.getItem('wosp_theme')}catch(e){}
+function setTheme(t){document.documentElement.dataset.theme=t;$('theme').textContent=t==='dark'?'Light mode':'Dark mode';try{localStorage.setItem('wosd_theme',t)}catch(e){}}
+let th=null;try{th=localStorage.getItem('wosd_theme')}catch(e){}
 setTheme(th||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
 $('theme').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
 
@@ -649,7 +728,7 @@ R('Timer started','Minuteur démarré','Timer gestartet');R('{} started','{1} d�
 R('Voice test. Call rally now','Test de voix. Lancez le ralliement maintenant','Stimmentest. Rally jetzt starten');
 R('{}, call rally in, 3, 2, 1, now','{1}, lancez le ralliement dans, 3, 2, 1, maintenant','{1}, Rally starten in, 3, 2, 1, jetzt');
 R('{}, call rally in','{1}, lancez le ralliement dans','{1}, Rally starten in');R('now','maintenant','jetzt');R('{}, send in','{1}, envoyez dans','{1}, senden in');R('{}, send','{1}, envoyez','{1}, senden');
-R('impact','impact','Einschlag');R('{}, impact','{1}, impact','{1}, Einschlag');
+R('impact','impact','Einschlag');R('Called','Appelés','Aufgerufen');R('Timer started, {*}get ready','Minuteur lancé, {1}prêt','Timer gestartet, {1}bereit machen');R('{*}get ready','{1}prêt','{1}bereit machen');R('Get ready','Prêt','Bereit machen');R('Queue',"File d'attente",'Warteschlange');R('in {}','dans {1}','in {1}');R('+{} more','+{1} de plus','+{1} weitere');R('{}, impact','{1}, impact','{1}, Einschlag');
 R('Vault','Coffre','Tresor');R('Timer','Minuteur','Timer');R('← Back to timer','← Retour au minuteur','← Zurück zum Timer');
 R('Players','Joueurs','Spieler');R('Spots','Lieux','Orte');R('· {#}','· {1}','· {1}');R('Map','Carte','Karte');R('Add player','Ajouter un joueur','Spieler hinzufügen');R('Add spot','Ajouter un lieu','Ort hinzufügen');
 R('Spot name','Nom du lieu','Ortsname');R('e.g. Bear Trap','ex. Piège à ours','z. B. Bärenfalle');R('Note (optional)','Note (facultatif)','Notiz (optional)');
@@ -746,7 +825,7 @@ const gcol=k=>GC[k%GC.length];
 const tabName=i=>{const n=tabs[i]&&tabs[i].name;return n&&!/^Preset \d+$/.test(n)?n:tr('Preset '+(i+1))};
 const nowT=()=>paused||Date.now();
 const anyRun=()=>runs.some(Boolean);
-function setMode(m){document.body.classList.toggle('advanced',m==='adv');document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));try{localStorage.setItem('wosp_mode',m)}catch(e){}}
+function setMode(m){document.body.classList.toggle('advanced',m==='adv');document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));try{localStorage.setItem('wosd_mode',m)}catch(e){}}
 function targetOf(x){
   const g=refGroup(x);
   if(g!==null){const R=runs[g];return R?{key:'g'+g+'#'+R.rid,ref:R.impact,label:groups.length>1?gname(g):'own rally'}:null}
@@ -825,9 +904,9 @@ function buildCards(){
   const n=ngEff(),multi=n>1;
   $('big').classList.toggle('multi',multi);
   $('gcards').innerHTML=Array.from({length:n},(_,k)=>`<div class="gcard off" data-k="${k}"${multi?` style="--gc:${gcol(k)}"`:''}>
-<div class="cname">${multi?esc(gname(k)):''}</div><div class="cphase"></div><div class="ccount"></div><div class="csub"></div><div class="cwho"></div><div class="ccd"></div>
+<div class="cname">${multi?esc(gname(k)):''}</div><div class="cphase"></div><div class="ccount"></div><div class="csub"></div><div class="cstage"><div class="cq"></div><div class="cmid"><div class="cwho"></div><div class="ccd"></div></div><div class="cnx"></div></div>
 <div class="stats"><div><span>Until march</span><b class="csm"></b><small class="csmn"></small></div><div><span>Until impact</span><b class="csi"></b><small class="csit"></small></div></div>
-${multi?`<div class="cstartw"><button type="button" class="start" data-start="${k}">Start ${esc(gname(k))}</button></div><div class="adj cadj" hidden><span>This group</span><button type="button" data-adj="-10" data-k="${k}">−10s</button><button type="button" data-adj="-1" data-k="${k}">−1s</button><button type="button" data-adj="1" data-k="${k}">+1s</button><button type="button" data-adj="10" data-k="${k}">+10s</button><button type="button" class="stop" data-stopg="${k}">Stop</button></div>`:''}
+${multi?`<div class="cstartw"><button type="button" class="start" data-start="${k}">Start ${esc(gname(k))}</button></div><div class="adj cadj" hidden><span>This group</span><button type="button" data-adj="-10" data-k="${k}">−10s</button><button type="button" data-adj="-1" data-k="${k}">−1s</button><button type="button" data-adj="1" data-k="${k}">+1s</button><button type="button" data-adj="10" data-k="${k}">+10s</button><button type="button" data-gpause="${k}">Pause</button><button type="button" class="stop" data-stopg="${k}">Stop</button></div>`:''}
 <div class="prog"><i class="cpg"></i></div></div>`).join('');
 }
 let wake=null,waking=false;
@@ -923,7 +1002,7 @@ $('hlist').addEventListener('change',e=>{
   lastAdded=h.id;render();
 });
 $('hlist').addEventListener('keydown',enterBlur);
-function setGrp(){document.title='WoS RT'+' – '+tabName(curTab)}
+function setGrp(){document.title='WoS RT dev'+' – '+tabName(curTab)}
 $('grp').addEventListener('input',()=>{tabs[curTab].name=$('grp').value.trim();save();renderTabs()});
 $('grp').addEventListener('change',()=>{if(!tabs[curTab].name)tabs[curTab].name='Preset '+(curTab+1);save();$('grp').value=tabName(curTab);renderTabs()});
 $('petpct').addEventListener('change',()=>{save();render()});
@@ -941,11 +1020,11 @@ if(window.speechSynthesis){const lv=()=>{voices=speechSynthesis.getVoices()};lv(
 const FEM=/amelie|audrey|aurelie|marie|hortense|denise|julie|katja|petra|hedda|marlene|vicki|sabine|birgit|ingrid|elsa|female|samantha|zira|victoria|karen|moira|tessa|fiona|susan|hazel|jenny|aria|serena|allison|ava|libby|sonia|natasha|linda|heather|catherine/i;
 const MAL=/henri|paul|claude|stefan|hans|markus|conrad|killian|jonas|yannick|bernd|fabrice|nicolas|antoine|mathieu|lucas|male|daniel|david|alex|fred|mark|guy|thomas|oliver|george|james|ryan|liam|ralph|rishi|arthur|aaron/i;
 function pickVoice(g){const en=voices.filter(v=>new RegExp('^'+lang,'i').test(v.lang));const pool=en.length?en:voices;return pool.find(v=>g==='female'?FEM.test(v.name):(MAL.test(v.name)&&!/female/i.test(v.name)))}
-function say(t){
+function say(t,queue){
   if(!$('voice').checked||!window.speechSynthesis)return;
   try{const g=$('vg').value,u=new SpeechSynthesisUtterance(tr(t)),v=pickVoice(g);u.lang=LOC[lang];
     if(v)u.voice=v;else u.pitch=g==='female'?1.35:0.65;
-    speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}
+    if(!(queue&&speechSynthesis.speaking))speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}
 }
 
 /* ---------- run control ---------- */
@@ -961,7 +1040,7 @@ function startGroup(k,quiet){
   if((src.lin||src.clock)&&impact-g*1000<S-500&&!confirm((groups.length>1&&adv?gname(k)+': ':'')+'that landing time is too soon for the first call. Start anyway with the first calls late?'))return false;
   const items=leaders.map(r=>({id:r.id,name:r.name,call:impact-total(r)*1000,ms:impact-effMarch(r)*1000,pre:false,called:false,lb:null})).sort((a,b)=>a.call-b.call);
   runs[k]={rid:++ridc,start:S,impact,span:g||1,items,fin:false};
-  beep(660,.1);say(adv&&groups.length>1?gname(k)+' started':'Timer started');
+  beep(660,.1);{const G=adv&&groups.length>1?gname(k)+', ':'';say(!prep?'Timer started':prep>=10?'Timer started, '+G+'get ready':G+(G?'get ready':'Get ready'))}
   syncButtons();render();return true;
 }
 function stopGroup(k){runs[k]=null;if(!anyRun()&&!hits.length)paused=null;syncButtons();render()}
@@ -981,7 +1060,7 @@ function adjust(d,k){
 }
 function togglePause(){
   if(!anyRun()&&!hits.length)return;
-  if(paused){const d=Date.now()-paused;paused=null;shiftAll(d,true)}
+  if(paused){const d=Date.now()-paused;paused=null;shiftAll(d,true);runs.forEach(R=>{if(R&&R.gp)R.gp.last=Date.now()})}
   else{paused=Date.now();try{speechSynthesis.cancel()}catch(e){}}
   syncButtons();render();
 }
@@ -989,6 +1068,8 @@ document.addEventListener('click',e=>{
   if(e.target.closest('[data-pause]'))return togglePause();
   const b=e.target.closest('[data-adj]');if(b)return adjust(+b.dataset.adj,b.dataset.k===undefined?null:+b.dataset.k);
   const s=e.target.closest('[data-start]');if(s)return void startGroup(+s.dataset.start);
+  const gpb=e.target.closest('[data-gpause]');
+  if(gpb){const R=runs[+gpb.dataset.gpause];if(R&&!paused){if(R.gp)R.gp=null;else{R.gp={last:Date.now()};try{speechSynthesis.cancel()}catch(_){}}render()}return}
   const t=e.target.closest('[data-stopg]');if(t)stopGroup(+t.dataset.stopg);
 });
 
@@ -1043,13 +1124,21 @@ const castleGrid=(()=>{
 function ctime(k){const o=pool.ctimes&&pool.ctimes[k];return o&&o[0]>0?o:[CK[k][2],CK[k][3]]}
 /* ---------- info pool (players, spots, map) ---------- */
 let pool={players:[],spots:[],scale:3,ctimes:{},leaders:[]},poolSel=null,poolDrag=null,poolMapMode='tiles';
-try{const p=JSON.parse(localStorage.getItem('wosp_pool')||'null');if(p&&Array.isArray(p.players))pool=Object.assign({players:[],spots:[],scale:3},p)}catch(e){}
+try{const p=JSON.parse(localStorage.getItem('wosd_pool')||'null');if(p&&Array.isArray(p.players))pool=Object.assign({players:[],spots:[],scale:3},p)}catch(e){}
+const lname=l=>(l.main?'★ ':'')+l.name;
+function sortLeaders(){pool.leaders.sort((a,b)=>(b.main?1:0)-(a.main?1:0)||String(a.name).localeCompare(String(b.name),undefined,{sensitivity:'base',numeric:true}))}
+function petList(){ // pet schedule order: the order set by dragging, anyone new follows in A-Z order
+  const o=Array.isArray(pool.petOrder)?pool.petOrder:[],m=new Map(pool.leaders.map(l=>[String(l.id),l]));
+  const out=[];for(const id of o){const l=m.get(String(id));if(l){out.push(l);m.delete(String(id))}}
+  return out.concat(pool.leaders.filter(l=>m.has(String(l.id))));
+}
 function normPool(){
   pool.leaders=Array.isArray(pool.leaders)?pool.leaders:[];
   for(const p of pool.players){
     if(p.leader&&!pool.leaders.some(l=>l.name.trim().toLowerCase()===p.name.trim().toLowerCase()))pool.leaders.push({id:Date.now()+Math.random(),name:p.name});
     delete p.leader;delete p.joining;
   }
+  sortLeaders();
   const P=pool.pet&&typeof pool.pet==='object'?pool.pet:(pool.pet={});
   if(!(P.start>0))P.start=Math.ceil(Date.now()/3600e3)*3600e3;
   P.hours=Math.min(24,Math.max(1,Math.round(+P.hours)||8));
@@ -1057,9 +1146,10 @@ function normPool(){
   P.apply=P.apply!==false;P.ann30=P.ann30!==false;P.annCnt=P.annCnt!==false;
   pool.mapRot=0;
   if(!P.cells||typeof P.cells!=='object')P.cells={};
+  pool.avail=Array.isArray(pool.avail)?pool.avail:[];if(typeof pool.availName!=='string')pool.availName='';if(typeof pool.availForm!=='string')pool.availForm='https://forms.gle/hC2bY8H3fT1GPz7C6';
 }
 normPool();
-const savePool=()=>{try{localStorage.setItem('wosp_pool',JSON.stringify(pool))}catch(e){}};
+const savePool=()=>{try{localStorage.setItem('wosd_pool',JSON.stringify(pool))}catch(e){}};
 const pdist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const pid=()=>Date.now()+Math.random();
 function autoMarch(p,s){return p&&s&&p.x!=null&&s.x!=null?Math.max(1,Math.round(pdist(p,s)*pool.scale)):null}
@@ -1091,6 +1181,7 @@ function addLeaderNames(names){
   for(const n of names){const k=lc(n);
     if(seen.has(k)||pool.leaders.some(l=>lc(l.name)===k)){if(!dup.some(d=>lc(d)===k))dup.push(n);seen.add(k);continue}
     seen.add(k);pool.leaders.push({id:pid(),name:n})}
+  sortLeaders();
   if(dup.length)toast('Already in the list: '+dup.join(', '));
   return dup;
 }
@@ -1119,8 +1210,8 @@ function addFromPool(id){
   if(m&&mp)r.marchPet=mp;
   rallies.push(r);save();render();
 }
-try{if(localStorage.getItem('wosp_fp')==='0')$('fromPool').open=false}catch(e){}
-$('fromPool').addEventListener('toggle',()=>{try{localStorage.setItem('wosp_fp',$('fromPool').open?'1':'0')}catch(e){}});
+try{if(localStorage.getItem('wosd_fp')==='0')$('fromPool').open=false}catch(e){}
+$('fromPool').addEventListener('toggle',()=>{try{localStorage.setItem('wosd_fp',$('fromPool').open?'1':'0')}catch(e){}});
 $('poolChips').addEventListener('click',e=>{
   const nb=e.target.closest('[data-pickname]');
   if(nb){const n=nb.dataset.pickname;if(rallies.some(r=>lc(r.name)===lc(n)))return;const fm=MS.test($('march').value)?parseMS($('march').value):60;lastAdded=Date.now()+Math.random();rallies.push({id:lastAdded,name:n,march:fm,len:+$('len').value,pet:false,petEnd:null,grp:ADV()?+$('agrp').value||0:0});save();render();return}
@@ -1134,7 +1225,7 @@ for(const id of ['march','hmarch','hrally','rmarch','lin','cm'])$(id).addEventLi
 $('name').addEventListener('input',()=>{const m=poolMarch($('name').value);if(m)$('march').value=String(Math.floor(m/60)).padStart(2,'0')+':'+pad(m%60)});
 $('name').addEventListener('change',()=>{const m=poolMarch($('name').value);if(m)$('march').value=String(Math.floor(m/60)).padStart(2,'0')+':'+pad(m%60)});
 function setPool(open){
-  document.body.classList.toggle('poolopen',open);if(!open){document.body.classList.remove('leadersopen');document.body.classList.remove('petopen')}
+  document.body.classList.toggle('poolopen',open);if(!open){document.body.classList.remove('leadersopen');document.body.classList.remove('petopen');document.body.classList.remove('availopen')}
   $('poolBtn').textContent=open?'Timer':'Vault';
   if(open)renderPoolView();
 }
@@ -1262,7 +1353,7 @@ $('pform').addEventListener('submit',()=>{
   const n=$('pname').value.trim();if(!n)return;
   {const ex=poolByName(n);if(ex){toast(ex.name+' is already in the Vault');poolSel={t:'p',id:ex.id};$('pname').value='';renderPoolView();return}}
   const id=pid();pool.players.push({id,name:n,note:'',x:Math.round((30+Math.random()*40)*10)/10,y:Math.round((30+Math.random()*40)*10)/10,m:{}});
-  if(!pool.leaders.some(l=>lc(l.name)===lc(n)))pool.leaders.push({id:pid(),name:n});
+  if(!pool.leaders.some(l=>lc(l.name)===lc(n))){pool.leaders.push({id:pid(),name:n});sortLeaders()}
   poolSel={t:'p',id};$('pname').value='';$('pname').focus();savePool();renderLeaders();renderPoolView();render();
 });
 $('sform').addEventListener('submit',()=>{
@@ -1324,12 +1415,13 @@ function renderLeaders(){
   $('ldcount').textContent=L.length?'· '+L.length:'';
   $('llist').innerHTML=L.length?L.map(l=>`<div class="rw" data-lid="${l.id}"><div class="top"><span class="ord">${esc((l.name||'?').trim().slice(0,1).toUpperCase())}</span>
 <input class="nm" data-lf="name" value="${esc(l.name)}" maxlength="24" aria-label="Name">
+<label class="chk mn"><input type="checkbox" data-lf="main"${l.main?' checked':''}> Main</label>
 <button class="x" data-ldel="${l.id}" aria-label="Remove ${esc(l.name)}">✕</button></div></div>`).join(''):'<div class="empty">No names yet. Add some above.</div>';
 }
 function renderLeaderTray(){
   const L=pool.leaders,free=poolMapMode==='free';
   $('ltray').innerHTML=L.length?L.map(l=>{const p=poolByName(l.name),k=p&&p.tile&&p.ckey&&CK[p.ckey]?CK[p.ckey]:null,placed=free?!!p:!!k,on=poolSel&&((poolSel.t==='n'&&lc(poolSel.name)===lc(l.name))||(poolSel.t==='p'&&p&&String(poolSel.id)===String(p.id)));
-    return `<button type="button" class="chip${on?' sel':''}${placed?' done':''}" data-tray="${esc(l.name)}">${esc(l.name)}${!free&&k?`<small>${k[0]}</small>`:''}</button>`}).join(''):'<span class="muted">No names yet. Type a name below, or add several under Rally leaders.</span>';
+    return `<button type="button" class="chip${on?' sel':''}${placed?' done':''}" data-tray="${esc(l.name)}">${l.main?'★ ':''}${esc(l.name)}${!free&&k?`<small>${k[0]}</small>`:''}</button>`}).join(''):'<span class="muted">No names yet. Type a name below, or add several under Rally leaders.</span>';
 }
 $('ltray').addEventListener('click',e=>{const b=e.target.closest('[data-tray]');if(!b)return;
   let p=poolByName(b.dataset.tray);
@@ -1346,7 +1438,7 @@ $('trayAdd').addEventListener('keydown',e=>{
   $('trayAdd').value='';savePool();renderLeaders();renderPoolView();render();$('trayAdd').focus();
 });
 $('clearMap').onclick=()=>{if(!pool.players.some(p=>p.tile))return;if(!confirm('Remove everyone from the map?'))return;pool.players.forEach(p=>{p.tile=null;delete p.ckey});poolSel=null;savePool();renderPoolView();render()};
-$('leadersBtn').onclick=()=>{document.body.classList.remove('petopen');document.body.classList.add('leadersopen');renderLeaders();$('lnames').focus()};
+$('leadersBtn').onclick=()=>{document.body.classList.remove('petopen','availopen');document.body.classList.add('leadersopen');renderLeaders();$('lnames').focus()};
 $('leadersBack').onclick=()=>{document.body.classList.remove('leadersopen');renderPoolView()};
 $('lform').addEventListener('submit',()=>{
   const names=$('lnames').value.split(/[,;]+/).map(x=>x.trim().slice(0,24)).filter(Boolean);if(!names.length)return;
@@ -1354,10 +1446,12 @@ $('lform').addEventListener('submit',()=>{
   $('lnames').value='';$('lnames').focus();savePool();renderLeaders();renderPoolView();render();
 });
 $('llist').addEventListener('change',e=>{
-  const row=e.target.closest('[data-lid]');if(!row||e.target.dataset.lf!=='name')return;
-  const l=pool.leaders.find(x=>String(x.id)===row.dataset.lid),v=e.target.value.trim();if(!l||!v)return;
+  const row=e.target.closest('[data-lid]');if(!row||!e.target.dataset.lf)return;
+  const l=pool.leaders.find(x=>String(x.id)===row.dataset.lid);if(!l)return;
+  if(e.target.dataset.lf==='main'){l.main=e.target.checked;sortLeaders();savePool();renderLeaders();renderLeaderTray();renderPoolView();render();renderPet();return}
+  const v=e.target.value.trim();if(!v)return;
   const pl=poolByName(l.name);if(pl&&!poolByName(v))pl.name=v;
-  l.name=v;savePool();renderLeaders();renderPoolView();render();
+  l.name=v;sortLeaders();savePool();renderLeaders();renderPoolView();render();
 });
 $('llist').addEventListener('click',e=>{const d=e.target.closest('[data-ldel]');if(!d)return;pool.leaders=pool.leaders.filter(x=>String(x.id)!==d.dataset.ldel);delete pool.pet.cells[d.dataset.ldel];savePool();renderLeaders();renderPoolView();render()});
 $('llist').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT')e.target.blur()});
@@ -1422,15 +1516,15 @@ function petCounts(){
   return{starts,on};
 }
 function renderPet(){
-  const P=pool.pet,L=pool.leaders,H=P.hours,now=Date.now();
-  $('petStart').value=toLocalInput(P.start);$('petHours').value=H;$('petMax').value=P.max;$('petApply').checked=P.apply;$('petAnn30').checked=P.ann30;$('petAnnCnt').checked=P.annCnt;
+  const P=pool.pet,L=petList(),H=P.hours,now=Date.now();
+  $('petStart').value=toLocalInput(P.start);$('petHours').value=H;$('petMax').value=P.max;$('petApply').checked=P.apply;$('petUseAv').checked=P.useAvail!==false;$('petAnn30').checked=P.ann30;$('petAnnCnt').checked=P.annCnt;
   if(!L.length){$('petGrid').innerHTML='<div class="empty">Add names under Rally leaders first.</div>';$('petNote2').textContent='';return}
   const cur=now>=P.start&&now<P.start+H*HR?Math.floor((now-P.start)/HR):-1,d0=new Date(P.start).toDateString();
   const hh=Array.from({length:H},(_,h)=>{const dt=new Date(P.start+h*HR),day=dt.toDateString()!==d0?'<br><small>'+dt.toLocaleDateString(LOC[lang]||undefined,{weekday:'short'})+'</small>':'';return `<th class="${h===cur?'now':''}">${hhmm(P.start+h*HR)}${day}</th>`}).join('');
   const rows=L.map(l=>{
     const st=new Set(petStartsOf(l)),off=l.pet===false;
-    const cells=Array.from({length:H},(_,h)=>{const s=st.has(h),c=st.has(h-1),wst=s&&h+2>H;return `<td><button type="button" class="pc${s?' s':c?' c':''}${wst?' w':''}" data-pl="${l.id}" data-ph="${h}" ${off?'disabled':''} aria-label="${esc(l.name)} ${hhmm(P.start+h*HR)}">${s?'●':c?'○':''}</button></td>`}).join('');
-    return `<tr class="${off?'off':''}" data-row="${l.id}"><td class="sticky"><span class="dh" data-drag="${l.id}" title="Drag to reorder" aria-label="Drag to reorder">⠿</span><label class="chk" style="display:inline-flex"><input type="checkbox" data-pt="${l.id}" ${off?'':'checked'} aria-label="Has pet"> ${esc(l.name)}</label></td>${cells}</tr>`;
+    const cells=Array.from({length:H},(_,h)=>{const s=st.has(h),c=st.has(h-1),wst=s&&h+2>H;return `<td${(()=>{const a=availCell(l.name,h);return a===false?' class="na" title="Not available (UTC '+z2(utcH(h))+')"':a===true?' class="av" title="Available (UTC '+z2(utcH(h))+')"':''})()}><button type="button" class="pc${s?' s':c?' c':''}${wst?' w':''}" data-pl="${l.id}" data-ph="${h}" ${off?'disabled':''} aria-label="${esc(l.name)} ${hhmm(P.start+h*HR)}">${s?'●':c?'○':''}</button></td>`}).join('');
+    return `<tr class="${off?'off':''}" data-row="${l.id}"><td class="sticky"><span class="dh" data-drag="${l.id}" title="Drag to reorder" aria-label="Drag to reorder">⠿</span><label class="chk" style="display:inline-flex"><input type="checkbox" data-pt="${l.id}" ${off?'':'checked'} aria-label="Has pet"> ${esc(lname(l))}</label></td>${cells}</tr>`;
   }).join('');
   const {starts,on}=petCounts();
   const sRow='<tr class="cnt"><th class="sticky">Starting</th>'+starts.map(n=>`<td>${n||''}</td>`).join('')+'</tr>';
@@ -1438,8 +1532,9 @@ function renderPet(){
   $('petGrid').innerHTML=`<table class="petgrid"><thead><tr><th class="sticky">Leader</th>${hh}</tr></thead><tbody>${rows}${sRow}${oRow}</tbody></table>`;
   const peak=Math.max(0,...on);
   const ns=L.filter(l=>l.pet!==false&&!(P.cells[l.id]||[]).length).map(l=>l.name),any=Object.values(P.cells).some(a=>a.length);
+  const outAv=L.filter(l=>l.pet!==false&&petStartsOf(l).some(h=>!availOk(l,h))).map(l=>l.name);
   const wasted=L.filter(l=>l.pet!==false&&(P.cells[l.id]||[]).some(h=>h+2>H)).map(l=>l.name);
-  $('petNote2').textContent=(peak>P.max?'Over the limit in the red hours. ':'')+(wasted.length?'Runs past the end of the battle window: '+wasted.join(', ')+'. ':'')+(any&&ns.length?'No slot yet: '+ns.join(', '):'');
+  $('petNote2').textContent=(peak>P.max?'Over the limit in the red hours. ':'')+(wasted.length?'Runs past the end of the battle window: '+wasted.join(', ')+'. ':'')+(any&&ns.length?'No slot yet: '+ns.join(', ')+'. ':'')+(outAv.length?'Placed outside their availability (kept as you set it): '+outAv.join(', '):'');
 }
 /* Auto-plan: every leader gets one full 2-hour pet inside the battle window.
    Dynamic programming over the start hours picks, in this order of importance:
@@ -1447,19 +1542,21 @@ function renderPet(){
    3) keep the number of pets on as even as possible (no overlap when the pets fit, overlap when they do not),
    4) spread the start times evenly from the start to the end of the window. */
 function petPlanDP(N,H,M){
-  const P=H>=2?H-1:1,INF=1e30,W_OVER=1e11,W_UNC=1e9,W_VAR=1e5,K=N+1;
+  const P=H>=2?H-1:1,INF=1e30,W_OVER=1e11,W_UNC=1e9,W_VAR=1e5,W_POS=1,K=N+1;
+  // When more pet-hours are needed than max pets allows, overlap is unavoidable. Then also spread the START times evenly (every hour gets about the same number of new pets).
+  const over=2*N>M*H,W_ST=over?3*W_VAR:0,mean=N/P,stCost=(h,sn)=>h<P?W_ST*(sn-mean)*(sn-mean):0;
   const size=(H+1)*K*K,cost=new Float64Array(size).fill(INF),back=new Int32Array(size).fill(-2);
   const idx=(h,u,s)=>(h*K+u)*K+s,pj=j=>N>1?j*(P-1)/(N-1):0;
   const hourCost=(on)=>(on>M?(on-M)*W_OVER:0)+(on===0?W_UNC:0)+W_VAR*on*on;
-  const posCost=(h,u,s)=>{let c=0;for(let j=u;j<u+s;j++){const d=h-pj(j);c+=d*d}return c};
-  for(let s=0;s<=N;s++){cost[idx(0,s,s)]=hourCost(s)+posCost(0,0,s);back[idx(0,s,s)]=-1}
+  const posCost=(h,u,s)=>{let c=0;for(let j=u;j<u+s;j++){const d=h-pj(j);c+=d*d}return c*W_POS};
+  for(let s=0;s<=N;s++){cost[idx(0,s,s)]=hourCost(s)+stCost(0,s)+posCost(0,0,s);back[idx(0,s,s)]=-1}
   for(let h=1;h<H;h++){
     const maxP=h<P;
     for(let u=0;u<=N;u++)for(let sp=0;sp<=N;sp++){
       const cur=cost[idx(h-1,u,sp)];if(cur>=INF)continue;
       const mx=maxP?N-u:0;
       for(let s=0;s<=mx;s++){
-        const c=cur+hourCost(s+sp)+posCost(h,u,s),k=idx(h,u+s,s);
+        const c=cur+hourCost(s+sp)+stCost(h,s)+posCost(h,u,s),k=idx(h,u+s,s);
         if(c<cost[k]){cost[k]=c;back[k]=idx(h-1,u,sp)}
       }
     }
@@ -1471,13 +1568,14 @@ function petPlanDP(N,H,M){
   return starts.sort((a,b)=>a-b);
 }
 function petAutoPlan(){
-  const P=pool.pet,L=pool.leaders.filter(l=>l.pet!==false);
+  const P=pool.pet,L=petList().filter(l=>l.pet!==false);
   P.cells={};if(!L.length)return;
   const starts=petPlanDP(L.length,P.hours,P.max);
-  L.forEach((l,i)=>{P.cells[l.id]=[starts[i]]});
+  if(!(pool.avail||[]).length||pool.pet.useAvail===false){L.forEach((l,i)=>{P.cells[l.id]=[starts[i]]});return}
+  petAssignAvail(L,starts);
 }
 const petSave=()=>{savePool();renderPet();render()};
-$('petBtn').onclick=()=>{document.body.classList.remove('leadersopen');document.body.classList.add('petopen');renderPet()};
+$('petBtn').onclick=()=>{document.body.classList.remove('leadersopen','availopen');document.body.classList.add('petopen');renderPet()};
 $('petBack').onclick=()=>{document.body.classList.remove('petopen');renderPoolView()};
 $('petGrid').addEventListener('click',e=>{
   const b=e.target.closest('.pc');if(!b||b.disabled)return;
@@ -1512,15 +1610,205 @@ $('petGrid').addEventListener('change',e=>{
   const end=e=>{
     if(!d)return;const m=d;d=null;clr();
     if(e.type==='pointercancel'||m.to===null)return;
-    const L=pool.leaders,i=L.findIndex(x=>String(x.id)===m.id);if(i<0)return;
+    const L=petList(),i=L.findIndex(x=>String(x.id)===m.id);if(i<0)return;
     const [it]=L.splice(i,1);let j=L.findIndex(x=>String(x.id)===m.to);if(j<0)j=L.length;
-    if(m.after)j++;L.splice(j,0,it);petSave();
+    if(m.after)j++;L.splice(j,0,it);pool.petOrder=L.map(x=>x.id);petSave();
   };
   $('petGrid').addEventListener('pointerup',end);$('petGrid').addEventListener('pointercancel',end);
 })();
+
+/* ===== Availability (dev) =====
+   pool.avail = [{name, part:true|false, hrs:[UTC hours 0-23], src:'form'|'manual'}]. Rally leaders stay the master list. */
+const utcH=h=>new Date(Math.round((pool.pet.start+h*HR)/HR)*HR).getUTCHours();
+const respOf=n=>(pool.avail||[]).find(r=>lc(r.name)===lc(n));
+const useAv=()=>pool.pet.useAvail!==false;
+function availCell(name,h){
+  if(!useAv())return null;
+  const r=respOf(name);if(!r||r.part==null)return null;
+  if(r.part===false)return false;
+  if(!r.hrs.length)return null;
+  return r.hrs.includes(utcH(h));
+}
+function availOk(l,h){ // a 2-hour pet starting at hour h needs hours h and h+1
+  const r=respOf(l.name);if(!r||!useAv())return true;
+  const a=availCell(l.name,h);if(a===null)return true;
+  if(!a)return false;
+  if(h+1>=pool.pet.hours)return true;
+  const b=availCell(l.name,h+1);return b===null||b;
+}
+function petAssignAvail(L,starts){
+  const P=pool.pet,H=P.hours,n=L.length;
+  const allowed=L.map(l=>starts.map((h,j)=>availOk(l,h)?j:-1).filter(j=>j>=0));
+  const owner=Array(starts.length).fill(-1);
+  const tryL=(i,seen)=>{for(const j of allowed[i]){if(seen[j])continue;seen[j]=1;if(owner[j]<0||tryL(owner[j],seen)){owner[j]=i;return true}}return false};
+  const order=L.map((_,i)=>i).sort((a,b)=>allowed[a].length-allowed[b].length);
+  for(const i of order)if(allowed[i].length)tryL(i,Array(starts.length).fill(0));
+  const on=Array(H+1).fill(0);
+  owner.forEach((i,j)=>{if(i>=0){P.cells[L[i].id]=[starts[j]];on[starts[j]]++;if(starts[j]+1<H)on[starts[j]+1]++}});
+  for(let i=0;i<n;i++){
+    if(owner.includes(i))continue;
+    let best=-1,bc=1e9;
+    for(let h=0;h<H;h++){if(!availOk(L[i],h)||(h+2>H&&H>=2))continue;if(respOf(L[i].name)&&availCell(L[i].name,h)===null&&respOf(L[i].name).part===false)continue;const c=on[h]+(h+1<H?on[h+1]:0);if(c<bc){bc=c;best=h}}
+    if(best>=0){P.cells[L[i].id]=[best];on[best]++;if(best+1<H)on[best+1]++}
+  }
+}
+const z2=n=>String(n).padStart(2,'0');
+function slotLabels(){const P=pool.pet,t0=Math.round(P.start/HR)*HR;return Array.from({length:Math.min(24,P.hours)},(_,i)=>{const h=new Date(t0+i*HR).getUTCHours();return z2(h)+'-'+z2((h+1)%24)})}
+function formTitle(){const P=pool.pet,t=new Date(Math.round(P.start/HR)*HR);return (pool.availName||'Availability')+' ('+t.toISOString().slice(0,10)+', UTC)'}
+function appsScript(){
+  const L=slotLabels();
+  return `function createAvailabilityForm() {
+  var form = FormApp.create(${JSON.stringify(formTitle())});
+  form.setDescription('All times are UTC.');
+  form.addTextItem().setTitle('Name').setRequired(true);
+  form.addMultipleChoiceItem().setTitle('Participate?').setChoiceValues(['Yes', 'No']).setRequired(true);
+  form.addCheckboxItem().setTitle('Which hours can you play? (UTC)').setChoiceValues(${JSON.stringify(L)});
+  Logger.log('Share this link: ' + form.getPublishedUrl());
+  Logger.log('Edit / responses: ' + form.getEditUrl());
+}`;
+}
+function parseHours(txt){
+  const out=new Set();let m;const re=/(\d{1,2})(?::\d{2})?\s*(?:-|–|—|to)\s*\d{1,2}(?::\d{2})?/g;
+  while((m=re.exec(txt))){const h=+m[1];if(h<24)out.add(h)}
+  if(!out.size){const r2=/\b(\d{1,2})(?::\d{2})?\b/g;while((m=r2.exec(txt))){const h=+m[1];if(h<24)out.add(h)}}
+  return [...out];
+}
+function csvRows(t){
+  const rows=[];let row=[],f='',q=false;
+  for(let i=0;i<t.length;i++){const c=t[i];
+    if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true;else if(c===','||c===';'||c==='\t'){row.push(f);f=''}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(f);f='';if(row.some(x=>x.trim()))rows.push(row);row=[]}
+    else f+=c}
+  row.push(f);if(row.some(x=>x.trim()))rows.push(row);return rows;
+}
+const isYes=v=>/^\s*(y|yes|ja|oui|true|1|x|participat|attend|join)/i.test(v||''),isNo=v=>/^\s*(n|no|nei|non|nein|false|0)\b/i.test(v||'');
+function readSheet(t){
+  const rows=csvRows(t.replace(/^﻿/,''));if(!rows.length)return null;
+  const H=rows[0].map(x=>x.toLowerCase().trim());
+  const bad=/timestamp|tidsstempel|email|e-post|e-mail/;
+  const cn=H.findIndex(x=>/name|navn|nom\b|namn/.test(x)),cp=H.findIndex(x=>/particip|attend|join|delta|coming|yes\/no|ja\/nei|deltar/.test(x));
+  let ch=H.findIndex((x,i)=>i!==cn&&i!==cp&&!bad.test(x)&&/hour|time|utc|slot|when|available|tid\b|timer|klokk|når/.test(x));
+  if(ch<0)ch=H.findIndex((x,i)=>i!==cn&&i!==cp&&!bad.test(x));
+  if(cn<0)return null;
+  const data=rows.slice(1).map(r=>({r,sig:r.map(x=>x.trim()).join('|')}));
+  return {data,cn,cp,ch};
+}
+function entriesFrom(sh,mark){
+  let from=0;
+  if(mark){const k=sh.data.map(d=>d.sig).lastIndexOf(mark);if(k>=0)from=k+1}
+  const map=new Map();
+  for(const d of sh.data.slice(from)){
+    const r=d.r,name=(r[sh.cn]||'').trim().slice(0,24);if(!name)continue;
+    const hrs=sh.ch>=0?parseHours(r[sh.ch]||''):[];
+    const pv=sh.cp>=0?(r[sh.cp]||''):'yes';
+    const part=isNo(pv)?false:(isYes(pv)||hrs.length?true:null);
+    map.set(lc(name),{name,part,hrs:part===false?[]:hrs,src:'form'});
+  }
+  return [...map.values()];
+}
+function importAnswers(text){
+  const sh=readSheet(text);
+  if(!sh){$('avMsg').textContent='Could not read the sheet. Check the columns: Name, Participate, Hours.';return false}
+  pool.availLastSig=sh.data.length?sh.data[sh.data.length-1].sig:'';
+  const got=entriesFrom(sh,pool.availMark||'');
+  const manual=pool.avail.filter(r=>r.src==='manual'),old=pool.avail.length-manual.length;
+  const keep=got.filter(r=>!manual.some(m=>lc(m.name)===lc(r.name)));
+  pool.avail=[...manual,...keep];
+  $('avMsg').textContent=keep.length+' answers loaded'+(manual.length?', '+manual.length+' edited by hand kept':'')+(old>0?' ('+old+' older replaced)':'')+'.';
+  savePool();renderAvail();renderPet();return true;
+}
+function setAv(name,fn){
+  let r=respOf(name);
+  if(!r){r={name,part:null,hrs:[],src:'manual'};pool.avail.push(r)}
+  fn(r);r.src='manual';
+  if(r.part==null&&!r.hrs.length)pool.avail=pool.avail.filter(x=>x!==r);
+  savePool();renderAvail();renderPet();
+}
+function renderAvail(){
+  const P=pool.pet,H=P.hours;
+  $('avForm').value=pool.availForm||'';$('avUrl').value=pool.availUrl||'';$('avOpenCsv').href=pool.availUrl?avFetchUrl():'#';$('avOpenCsv').style.opacity=pool.availUrl?'':'.4';
+  $('avOpenForm').href=pool.availForm||'#';$('avOpenForm').style.opacity=pool.availForm?'':'.4';
+  const L=pool.leaders;
+  if(!L.length){$('avGrid').innerHTML='<div class="empty">Add names under Rally leaders first.</div>';$('avExtra').innerHTML='';$('avNote').textContent='';return}
+  const t0=h=>P.start+h*HR;
+  const hh=Array.from({length:H},(_,h)=>`<th>${z2(utcH(h))}-${z2((utcH(h)+1)%24)}<br><small>${hhmm(t0(h))}</small></th>`).join('');
+  const cnt=Array(H).fill(0);
+  const row=n=>{
+    const r=respOf(n),st=!r||r.part==null?'':r.part?'1':'0';
+    const cells=Array.from({length:H},(_,h)=>{const y=r&&r.part!==false&&r.hrs.includes(utcH(h));if(y&&r.part)cnt[h]++;return `<td class="${y?'y':r&&r.part===false?'n':''}"><button type="button" class="avc" data-avc="${esc(n)}" data-h="${h}" aria-label="${esc(n)} ${z2(utcH(h))}">${y?'✓':''}</button></td>`}).join('');
+    return `<tr class="${r?'':'unk'}"><td class="sticky"><select data-avp="${esc(n)}" aria-label="Participate"><option value=""${st===''?' selected':''}>?</option><option value="1"${st==='1'?' selected':''}>Yes</option><option value="0"${st==='0'?' selected':''}>No</option></select> ${esc(n)}${(pool.leaders.find(x=>lc(x.name)===lc(n))||{}).main?' ★':''}${r&&r.src==='manual'?'<span class="tag">edited</span>':''}${!r?'<span class="muted"> no answer</span>':''}</td>${cells}<td>${r?`<button type="button" data-avdel="${esc(n)}" aria-label="Clear">×</button>`:''}</td></tr>`;
+  };
+  const rows=L.map(l=>row(l.name)).join('');
+  const cr='<tr class="cnt"><th class="sticky">Available</th>'+cnt.map(n=>`<td>${n}</td>`).join('')+'<td></td></tr>';
+  $('avGrid').innerHTML=`<table class="petgrid avgrid"><thead><tr><th class="sticky">Rally leader</th>${hh}<th></th></tr></thead><tbody>${rows}${cr}</tbody></table>`;
+  const extra=(pool.avail||[]).filter(r=>!L.some(l=>lc(l.name)===lc(r.name)));
+  $('avExtra').innerHTML=extra.length?'<h3>Answered but not a Rally leader</h3><div class="chips">'+extra.map(r=>`<span class="chip">${esc(r.name)}${r.part===false?' (no)':''} <button type="button" data-avadd="${esc(r.name)}" title="Add to Rally leaders">+ add</button> <button type="button" data-avdel="${esc(r.name)}" title="Remove" aria-label="Remove">×</button></span>`).join('')+'</div>':'';
+  const noans=L.filter(l=>!respOf(l.name)).map(l=>l.name);
+  $('avNote').textContent=noans.length?'No answer yet: '+noans.join(', '):'';
+}
+$('availBtn').onclick=()=>{document.body.classList.remove('petopen','leadersopen');document.body.classList.add('availopen');renderAvail()};
+$('availBack').onclick=()=>{document.body.classList.remove('availopen');renderPoolView()};
+const copyTxt=async(t,msg)=>{try{await navigator.clipboard.writeText(t);toast(msg)}catch(_){window.prompt('Copy this',t)}};
+$('avUrl').addEventListener('change',()=>{pool.availUrl=$('avUrl').value.trim();savePool();renderAvail()});
+function avKey(){if(!pool.availKey){const a=new Uint8Array(12);crypto.getRandomValues(a);pool.availKey=[...a].map(x=>x.toString(16).padStart(2,'0')).join('');savePool()}return pool.availKey}
+function sheetScript(){return `const KEY = '${avKey()}';
+
+function doGet(e) {
+  if (!e || !e.parameter || e.parameter.key !== KEY) {
+    return ContentService.createTextOutput('forbidden');
+  }
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+  var rows = sheet.getDataRange().getDisplayValues();
+  var csv = rows.map(function (r) {
+    return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',');
+  }).join('\\n');
+  return ContentService.createTextOutput(csv).setMimeType(ContentService.MimeType.CSV);
+}`}
+function avFetchUrl(){let u=(pool.availUrl||'').trim();if(/script\.google\.com\/macros/.test(u)&&!/[?&]key=/.test(u))u+=(u.includes('?')?'&':'?')+'key='+avKey();return u}
+$('avScript').onclick=()=>copyTxt(sheetScript(),'Script copied');
+$('avFetch').onclick=async()=>{
+  pool.availUrl=$('avUrl').value.trim();if(!pool.availUrl){$('avMsg').textContent='Paste the Web app URL (or published CSV link) first.';return}
+  savePool();$('avMsg').textContent='Loading…';
+  try{const r=await fetch(avFetchUrl(),{cache:'no-store'});if(!r.ok)throw new Error(r.status);importAnswers(await r.text())}
+  catch(e){const st=/^\d+$/.test(String(e.message));$('avMsg').textContent=st?'Google answered with error '+e.message+'. Check that the sheet is still published as CSV.':'Your browser blocked the direct download (Google does not always allow it). Use "Open CSV", save the file, then "Upload CSV".'}
+};
+$('avFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>importAnswers(String(rd.result));rd.readAsText(f);e.target.value=''});
+$('avTog').onclick=()=>{$('avPasteBox').hidden=!$('avPasteBox').hidden};
+$('avImport').onclick=()=>{importAnswers($('avPaste').value);$('avPaste').value=''};
+$('avForm').addEventListener('change',()=>{pool.availForm=$('avForm').value.trim();savePool();renderAvail()});
+$('avCopyForm').onclick=()=>{if(pool.availForm)copyTxt(pool.availForm,'Link copied')};
+$('avInvite').onclick=()=>{if(!pool.availForm)return;const P=pool.pet,a=slotLabels();copyTxt((pool.availName?pool.availName+'\n':'')+'Please fill in your availability. All times are UTC.\nWe need hours '+a[0]+' to '+a[a.length-1]+'.\n'+pool.availForm,'Text copied')};
+$('avClear').onclick=async()=>{
+  if(!confirm('Start a new round? This clears all answers here (also the ones you edited). Older rows in the sheet will be ignored.'))return;
+  let sig=pool.availLastSig||'';
+  const u=avFetchUrl();
+  if(u){try{const r=await fetch(u,{cache:'no-store'});if(r.ok){const sh=readSheet(await r.text());if(sh)sig=sh.data.length?sh.data[sh.data.length-1].sig:''}}catch(_){}}
+  pool.availMark=sig;pool.avail=[];savePool();renderAvail();renderPet();
+  $('avMsg').textContent='New round started. Send the form link again.';
+};
+$('avGrid').addEventListener('click',e=>{
+  const c=e.target.closest('[data-avc]');
+  if(c){const h=+c.dataset.h,u=utcH(h);setAv(c.dataset.avc,r=>{const on=r.hrs.includes(u);r.hrs=on?r.hrs.filter(x=>x!==u):[...r.hrs,u].sort((a,b)=>a-b);if(!on&&r.part!==true)r.part=true;if(r.part===false)r.part=true});return}
+  const d=e.target.closest('[data-avdel]');if(d){pool.avail=pool.avail.filter(r=>lc(r.name)!==lc(d.dataset.avdel));savePool();renderAvail();renderPet()}
+});
+$('avGrid').addEventListener('change',e=>{
+  const n=e.target.dataset.avp;if(n===undefined)return;const v=e.target.value;
+  setAv(n,r=>{r.part=v===''?null:v==='1';if(r.part===false)r.hrs=[]});
+});
+$('avExtra').addEventListener('click',e=>{
+  const a=e.target.closest('[data-avadd]');
+  if(a){addLeaderNames([a.dataset.avadd]);savePool();renderLeaders();renderPoolView();render();renderAvail();renderPet();return}
+  const d=e.target.closest('[data-avdel]');if(d){pool.avail=pool.avail.filter(r=>lc(r.name)!==lc(d.dataset.avdel));savePool();renderAvail()}
+});
+$('avPlan').onclick=()=>{
+  petAutoPlan();savePool();renderPet();render();
+  document.body.classList.remove('availopen');document.body.classList.add('petopen');renderPet();
+};
 $('petStart').addEventListener('change',()=>{const t=new Date($('petStart').value).getTime();if(t>0){pool.pet.start=t;petSave()}else renderPet()});
 $('petHours').addEventListener('change',()=>{const n=Math.min(24,Math.max(1,Math.round(+$('petHours').value)||pool.pet.hours));pool.pet.hours=n;for(const k of Object.keys(pool.pet.cells))pool.pet.cells[k]=pool.pet.cells[k].filter(h=>h<n);petSave()});
 $('petMax').addEventListener('change',()=>{pool.pet.max=Math.min(12,Math.max(1,Math.round(+$('petMax').value)||pool.pet.max));petSave()});
+$('petUseAv').addEventListener('change',()=>{pool.pet.useAvail=$('petUseAv').checked;petSave()});
 $('petApply').addEventListener('change',()=>{pool.pet.apply=$('petApply').checked;petSave()});
 $('petAnn30').addEventListener('change',()=>{pool.pet.ann30=$('petAnn30').checked;savePool()});
 $('petAnnCnt').addEventListener('change',()=>{pool.pet.annCnt=$('petAnnCnt').checked;savePool()});
@@ -1530,23 +1818,36 @@ $('petClear').onclick=()=>{if(Object.keys(pool.pet.cells).length&&!confirm('Clea
 /* ---------- tick ---------- */
 function vcd(o,dt,intro){
   if(dt>6){o.v0=o.v1=o.v2=o.v3=false}
-  if(dt>3.6&&dt<=5.5&&!o.v0){o.v0=true;say(intro)}
+  let said=false;
+  if(dt>3.6&&dt<=5.5&&!o.v0){o.v0=true;say(intro,true);said=true}
   if(dt>0&&dt<=3.2){const n=Math.max(1,Math.ceil(dt-0.2));if(!o['v'+n]){for(let i=n;i<=3;i++)o['v'+i]=true;say(String(n))}}
+  return said;
 }
 const q=(c,s)=>c.querySelector(s);
+const setH=(el,h)=>{if(el._h!==h){el._h=h;el.innerHTML=h}};
 function step(){
-  const now=nowT(),prep=+$('prep').value,multi=ngEff()>1,pf=k=>multi?gname(k)+', ':'',vs2=$('vstyle').value==='2';
+  if(!paused)runs.forEach(R=>{ // a run paused on its own is kept in place by moving it forward with the clock
+    if(!R||!R.gp)return;const t=Date.now(),d=t-R.gp.last;R.gp.last=t;if(d<=0)return;
+    R.impact+=d;R.start+=d;for(const it of R.items){it.call+=d;it.ms+=d}});
+  const now=nowT(),prep=+$('prep').value,multi=ngEff()>1,vs2=$('vstyle').value==='2';
   const nextR=[];let changed=false;
+  const UG=[];
   runs.forEach((R,k)=>{
     if(!R)return;
+    const seen=new Set(),calledNow=[];
     for(const it of R.items){
-      const dt=(it.call-now)/1000;
+      const dt=(it.call-now)/1000,gk=Math.round(it.call/1000),first=!seen.has(gk);seen.add(gk);
       if(it.called&&dt>0){it.called=false;it.pre=false;it.lb=null}
-      if(prep&&dt>0&&dt<=5){const c=Math.ceil(dt);if(it.lb!==c){it.lb=c;beep(700,.08)}}
-      if(vs2&&!it.called)vcd(it,dt,pf(k)+it.name+', call rally in');
-      if(!it.called&&dt<=0){it.called=true;it.pre=true;beep(1000,.4);say(vs2?'now':pf(k)+it.name)}
+      if(first&&prep&&dt>0&&dt<=5){const c=Math.ceil(dt);if(it.lb!==c){it.lb=c;beep(700,.08)}}
+      // several leaders with the same call time are announced together, by the first of them
+      if(first&&vs2&&!it.called)vcd(it,dt,R.items.filter(x=>!x.called&&Math.round(x.call/1000)===gk).map(x=>x.name).join(', ')+', call rally in');
+      if(!it.called&&dt<=0){it.called=true;it.pre=true;calledNow.push(it.name)}
       if(!it.called&&nextR[k]===undefined)nextR[k]=it;
     }
+    if(calledNow.length){beep(1000,.4);say(vs2?'now':calledNow.join(', '))}
+    const ug=[];
+    for(const it of R.items){if(it.called)continue;const key=Math.round(it.call/1000),g=ug[ug.length-1];if(g&&g.key===key)g.items.push(it);else ug.push({key,call:it.call,items:[it]})}
+    UG[k]=ug;
   });
   const nowReal=Date.now();let petExp=false;
   for(const r of [...tabs.filter((t,i)=>i!==curTab).flatMap(t=>t.rallies||[]),...rallies])if(r.pet&&r.petEnd&&nowReal>=r.petEnd){r.pet=false;r.petEnd=null;petExp=true}
@@ -1575,7 +1876,7 @@ function step(){
     const it=R&&R.items.find(i=>i.id===r.id);
     if(!it){row.className='rw'+(r.pet?' haspet':'');q(row,'.st').textContent='';continue}
     const dt=(it.call-now)/1000;
-    row.className='rw'+(r.pet?' haspet':'')+(it.called?' done':it===nextR[k]?' next':'');
+    row.className='rw'+(r.pet?' haspet':'')+(it.called?' done':(UG[k]&&UG[k][0]&&UG[k][0].items.includes(it))?' next':'');
     q(row,'.st').textContent=!it.called?'Waiting · call in '+fmt(dt):now>=R.impact?'Landed':now>=it.ms?'Marching':'Filling · march in '+fmt((it.ms-now)/1000);
   }
   for(const x of reinf){
@@ -1596,7 +1897,7 @@ function step(){
       c.className='gcard off';const ph=q(c,'.cphase');ph.className='cphase ph-wait';ph.textContent='Not started';
       q(c,'.ccount').textContent=n+' leader'+(n===1?'':'s');
       q(c,'.csub').textContent=src.lin?'Lands in '+src.lin:src.clock?'Lands at '+src.clock:'Starts right away';
-      q(c,'.cwho').textContent='Timer idle';q(c,'.ccd').textContent='--:--';q(c,'.csm').textContent='--:--';q(c,'.csmn').textContent='';q(c,'.csi').textContent='--:--';q(c,'.csit').textContent='';q(c,'.cpg').style.width='0';
+      {const w=q(c,'.cwho');w._h=null;w.textContent='Timer idle';w.classList.remove('many');q(c,'.cq').innerHTML='';q(c,'.cnx').innerHTML='';q(c,'.cq')._h=null;q(c,'.cnx')._h=null}q(c,'.ccd').textContent='--:--';q(c,'.csm').textContent='--:--';q(c,'.csmn').textContent='';q(c,'.csi').textContent='--:--';q(c,'.csit').textContent='';q(c,'.cpg').style.width='0';
       continue;
     }
     const left=(R.impact-now)/1000,nx=nextR[k];
@@ -1612,12 +1913,22 @@ function step(){
     q(c,'.csm').textContent=nm?fmt((nm.ms-now)/1000):'--:--';q(c,'.csmn').textContent=nm?nm.name+' marches':'All marching';
     q(c,'.csi').textContent=fmt(Math.max(0,left));q(c,'.csit').textContent='lands '+new Date(R.impact).toLocaleTimeString();
     q(c,'.cpg').style.width=Math.min(100,Math.max(0,(now-R.start)/(R.impact-R.start)*100))+'%';
-    let cls='gcard',sub,who,cd;
-    if(nx){const dt=(nx.call-now)/1000;if(prep&&dt<=prep)cls+=' soon';if(dt<=1.5)cls+=' go';sub=(prep&&dt<=prep?'Get ready: ':'Next: ')+'call rally';who=nx.name;cd=fmt(dt)}
+    let cls='gcard',sub,who,cd,whoH=null,qH='',nxH='';
+    const ug=UG[k]||[];
+    if(nx&&ug.length){const dt=(ug[0].call-now)/1000;if(prep&&dt<=prep)cls+=' soon';if(dt<=1.5)cls+=' go';sub=(prep&&dt<=prep?'Get ready: ':'Next: ')+'call rally';who=ug[0].items.map(i=>i.name).join(', ');cd=fmt(dt);
+      whoH=ug[0].items.map(i=>'<div>'+esc(i.name)+'</div>').join('');
+      if(ug.length>1){const rest=ug.slice(1),shown=rest.slice(0,5);qH='<small>Queue</small>'+shown.map((g,n)=>'<div>'+g.items.map(i=>esc(i.name)).join(', ')+(n===0?' <em>in '+fmt((g.call-now)/1000)+'</em>':'')+'</div>').join('')+(rest.length>shown.length?'<em>+'+(rest.length-shown.length)+' more</em>':'')}}
     else if(left>0){sub='Landing in';who='All rallies called';cd=fmt(left)}
-    else{cls+=' fin';sub='';who='Impact!';cd='';if(!R.fin){R.fin=true;beep(1200,.5);say((multi?gname(k)+', ':'')+'impact')}}
-    if(paused){cls+=' paused';sub='Paused · '+sub}
-    c.className=cls;q(c,'.csub').textContent=sub;q(c,'.cwho').textContent=who;q(c,'.ccd').textContent=cd;
+    else{cls+=' fin';sub='';who='Impact!';cd='';if(!R.fin){R.fin=true;beep(1200,.5);say('impact')}}
+    if(paused||R.gp){cls+=' paused';sub='Paused · '+sub}
+    {const gb2=q(c,'[data-gpause]');if(gb2){gb2.textContent=R.gp?'Resume':'Pause';gb2.disabled=!!paused}}
+    {const done=R.items.filter(i=>i.called).sort((x,y)=>y.call-x.call),shown=done.slice(0,6);
+      nxH=done.length?'<small>Called</small>'+shown.map(i=>'<div>'+esc(i.name)+'</div>').join('')+(done.length>shown.length?'<em>+'+(done.length-shown.length)+' more</em>':''):''}
+    c.className=cls;q(c,'.csub').textContent=sub;
+    const wEl=q(c,'.cwho');wEl.classList.toggle('many',!!whoH&&ug[0].items.length>1);
+    if(whoH!==null)setH(wEl,whoH);else{wEl._h=null;wEl.textContent=who}
+    setH(q(c,'.cq'),qH);setH(q(c,'.cnx'),nxH);
+    q(c,'.ccd').textContent=cd;
   }
   const gb=$('gbox'),gshow=adv&&(hits.length>0||sen.length>0);gb.hidden=!gshow;
   if(gshow){
@@ -1637,14 +1948,14 @@ function step(){
 }
 setInterval(step,200);
 
-let md='easy';try{md=localStorage.getItem('wosp_mode')||'easy'}catch(e){}
+let md='easy';try{md=localStorage.getItem('wosd_mode')||'easy'}catch(e){}
 const _al=window.alert.bind(window),_co=window.confirm.bind(window);
 window.alert=m=>_al(tr(m));window.confirm=m=>_co(tr(m));
-try{const sl=localStorage.getItem('wosp_lang');lang=sl||((navigator.language||'en').slice(0,2));if(!LOC[lang]||!['en','fr','de'].includes(lang))lang='en'}catch(e){}
+try{const sl=localStorage.getItem('wosd_lang');lang=sl||((navigator.language||'en').slice(0,2));if(!LOC[lang]||!['en','fr','de'].includes(lang))lang='en'}catch(e){}
 $('lang').value=lang;document.documentElement.lang=lang;
-$('lang').onchange=()=>{lang=$('lang').value;try{localStorage.setItem('wosp_lang',lang)}catch(e){}document.documentElement.lang=lang;TC.clear();render();if(poolOpen)renderPoolView()};
+$('lang').onchange=()=>{lang=$('lang').value;try{localStorage.setItem('wosd_lang',lang)}catch(e){}document.documentElement.lang=lang;TC.clear();render();if(poolOpen)renderPoolView()};
 setMode(md);setGrp();render();
-const APP_VERSION='p22';$('ver').textContent=APP_VERSION;
+const APP_VERSION='dev13';$('ver').textContent=APP_VERSION;
 $('updbtn').onclick=()=>location.reload();
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){
   let had=!!navigator.serviceWorker.controller;

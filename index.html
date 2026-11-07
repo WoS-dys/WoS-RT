@@ -197,6 +197,7 @@ tr.dropafter td{box-shadow:inset 0 -3px 0 var(--accent,#1aa6a0)}
 .avgrid th small{font-weight:400}
 .avgrid td.y{background:color-mix(in srgb,var(--ok) 38%,var(--panel))}
 .avgrid td.n{opacity:.5}
+.avgrid td.x{background:color-mix(in srgb,var(--hot) 30%,var(--panel))}.avgrid td.x .avc{color:var(--hot)}
 .tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;border:1px solid var(--line);margin-left:4px}
 .tag.yes{color:var(--ok)}.tag.maybe{color:var(--warn)}.tag.no{color:var(--hot)}.tag.new{color:var(--accent)}
 .linkbox{font:12px ui-monospace,monospace;word-break:break-all;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px;margin-top:8px}
@@ -304,6 +305,7 @@ body:not(.poolopen) #poolView{display:none}
     <label class="chk"><input type="checkbox" id="snd" checked> Sound</label>
     <button id="poolBtn" type="button">Vault</button>
     <select id="lang" aria-label="Language"><option value="en">English</option><option value="fr">Français</option><option value="de">Deutsch</option></select>
+    <select id="clock" aria-label="Clock"><option value="auto">Clock: auto</option><option value="12">12 h</option><option value="24">24 h</option></select>
     <button id="theme" type="button">Dark mode</button>
   </div>
 </header>
@@ -498,7 +500,7 @@ body:not(.poolopen) #poolView{display:none}
   </details>
   <div class="panel">
     <h3 style="margin-top:0">3. Availability</h3>
-    <p class="muted" style="margin-top:0">Rows are your Rally leaders (the master list). Green = can play that hour (UTC hour on top, your local time below). Click a cell to change it, or use the dropdown for Yes / No. Manual changes are kept when you import again.</p>
+    <p class="muted" style="margin-top:0">Rows are your Rally leaders (the master list). Green = can play that hour (UTC hour on top, your local time below). Click a cell to cycle: blank (unknown) → green ✓ available → red ✗ not available. Use the dropdown for Yes / No for the whole player. Manual changes are kept when you import again.</p>
     <div class="row" style="align-items:center"><button class="pri" type="button" id="avPlan">Plan pets from availability</button></div>
     <div class="petscroll" style="margin-top:12px"><div id="avGrid"></div></div>
     <div id="avExtra"></div>
@@ -612,6 +614,8 @@ const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 /* ---------- i18n (English / French / German) ---------- */
 let lang='en';
 const LOC={en:'en-US',fr:'fr-FR',de:'de-DE'};
+let clk='auto';try{clk=localStorage.getItem('wosd_clock')||'auto'}catch(e){}
+const tstr=(ms,sec)=>new Date(ms).toLocaleTimeString(LOC[lang]||undefined,Object.assign({hour:'2-digit',minute:'2-digit'},sec?{second:'2-digit'}:{},clk==='12'?{hour12:true}:clk==='24'?{hourCycle:'h23'}:{}));
 const EXACT=new Map(),RULES=[];
 function R(en,fr,de){
   if(!/\{/.test(en)){EXACT.set(en,[fr,de]);return}
@@ -848,7 +852,7 @@ function rowHtml(r,i,k,max,n){
 <div class="petbox"><input class="pt${!r.pet&&plannedLabel(r)?' planned':''}" data-f="pett" value="${r.pet&&r.petEnd?fmtHMS(r.petEnd-Date.now()):(plannedLabel(r)||'2:00:00')}" ${r.pet?'':'disabled'} aria-label="Pet bonus time left h:mm:ss" title="Pet bonus time left. Type seconds (50), m:ss, h:mm:ss, or +50 / -50 to adjust."><label class="chk pet"><input type="checkbox" data-f="pet" ${r.pet?'checked':''} ${lock}> Pet</label></div>
 <button class="x" data-del="${r.id}" aria-label="Remove ${esc(r.name)}" ${lock}>✕</button></div>
 <div class="trk" role="img" aria-label="${esc(r.name)} timeline"><i style="width:${(max-total(r))/max*100}%"></i><i class="rl" style="width:${r.len/max*100}%"></i><i class="mr" style="width:${em/max*100}%"></i></div>
-<div class="meta"><span>Call at <b>T+${mmss(max-total(r))}</b>${it?' · <b>'+new Date(it.call).toLocaleTimeString()+'</b>':''}</span><span>${r.pet?'March '+mmss(em)+' with pet (normal '+mmss(r.march)+')':'March '+mmss(em)}</span><span>Total ${mmss(total(r))}</span><span class="st"></span></div></div>`;
+<div class="meta"><span>Call at <b>T+${mmss(max-total(r))}</b>${it?' · <b>'+tstr(it.call,true)+'</b>':''}</span><span>${r.pet?'March '+mmss(em)+' with pet (normal '+mmss(r.march)+')':'March '+mmss(em)}</span><span>Total ${mmss(total(r))}</span><span class="st"></span></div></div>`;
 }
 function render(){
   renderTabs();renderPoolMini();renderR();renderGroups();
@@ -886,7 +890,7 @@ function renderR(){
 <label class="f">March<input class="mt" data-f="march" value="${mmss(h.march)}" aria-label="March to impact"></label>
 <label class="f">Rally left<input class="mt" data-f="rally" value="${mmss(h.rally)}" aria-label="Rally time left when added"></label>
 <button class="x" data-del="${h.id}" aria-label="Remove ${esc(h.name)}">✕</button></div>
-<div class="meta"><span>Lands at <b>${new Date(h.t).toLocaleTimeString()}</b></span><span class="st"></span></div></div>`).join(''):'<div class="empty">No incoming enemy rally. Enter its march time and rally time left, then press Add &amp; start.</div>';
+<div class="meta"><span>Lands at <b>${tstr(h.t,true)}</b></span><span class="st"></span></div></div>`).join(''):'<div class="empty">No incoming enemy rally. Enter its march time and rally time left, then press Add &amp; start.</div>';
   $('rlist').innerHTML=s.length?s.map(x=>{
     const T=senderT(x),h=hitOf(x),g=refGroup(x);
     const opts=OFFS.map(([v,l])=>`<option value="${v}" ${v===x.off?'selected':''}>${l}</option>`).join('');
@@ -898,7 +902,7 @@ function renderR(){
 <label class="f">Toward<select data-f="ref" aria-label="Counts toward">${refOpts(selRef(x))}</select></label>
 <label class="f">Arrive<select data-f="off" aria-label="Arrival offset">${opts}</select></label>
 <button class="x" data-del="${x.id}" aria-label="Remove ${esc(x.name)}">✕</button></div>
-<div class="meta"><span>Send <b>${mmss(x.march-x.off)}</b> before landing${T?' · <b>'+new Date(T.call).toLocaleTimeString()+'</b>':''}</span><span>Arrives ${x.off?x.off+'s after':'with'} ${tgt}</span><span class="st"></span></div></div>`}).join(''):'<div class="empty">No senders yet. Add a sender and their march time to the garrison.</div>';
+<div class="meta"><span>Send <b>${mmss(x.march-x.off)}</b> before landing${T?' · <b>'+tstr(T.call,true)+'</b>':''}</span><span>Arrives ${x.off?x.off+'s after':'with'} ${tgt}</span><span class="st"></span></div></div>`}).join(''):'<div class="empty">No senders yet. Add a sender and their march time to the garrison.</div>';
 }
 function buildCards(){
   const n=ngEff(),multi=n>1;
@@ -1458,7 +1462,7 @@ $('llist').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==
 
 /* ---------- pet schedule ---------- */
 const HR=3600e3;
-const hhmm=ms=>new Date(ms).toLocaleTimeString(LOC[lang]||undefined,{hour:'2-digit',minute:'2-digit'});
+const hhmm=ms=>tstr(ms,false);
 const toLocalInput=ms=>{const d=new Date(ms),z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'T'+z(d.getHours())+':'+z(d.getMinutes())};
 const petStartsOf=l=>(pool.pet.cells[l.id]||[]).slice().sort((a,b)=>a-b);
 function plannedStartFor(name){
@@ -1529,7 +1533,9 @@ function renderPet(){
   const {starts,on}=petCounts();
   const sRow='<tr class="cnt"><th class="sticky">Starting</th>'+starts.map(n=>`<td>${n||''}</td>`).join('')+'</tr>';
   const oRow='<tr class="cnt"><th class="sticky">On at once</th>'+on.map(n=>`<td class="${n>P.max?'over':''}">${n||''}</td>`).join('')+'</tr>';
-  $('petGrid').innerHTML=`<table class="petgrid"><thead><tr><th class="sticky">Leader</th>${hh}</tr></thead><tbody>${rows}${sRow}${oRow}</tbody></table>`;
+  const _pa=L.filter(l=>l.pet!==false).length;
+  $('petGrid').innerHTML=`<table class="petgrid"><thead><tr><th class="sticky"><label class="chk" style="display:inline-flex" title="Select all / none"><input type="checkbox" id="petAll" aria-label="All leaders have a pet"> Leader</label></th>${hh}</tr></thead><tbody>${rows}${sRow}${oRow}</tbody></table>`;
+  {const pa=$('petAll');if(pa){pa.checked=_pa===L.length&&L.length>0;pa.indeterminate=_pa>0&&_pa<L.length}}
   const peak=Math.max(0,...on);
   const ns=L.filter(l=>l.pet!==false&&!(P.cells[l.id]||[]).length).map(l=>l.name),any=Object.values(P.cells).some(a=>a.length);
   const outAv=L.filter(l=>l.pet!==false&&petStartsOf(l).some(h=>!availOk(l,h))).map(l=>l.name);
@@ -1585,6 +1591,7 @@ $('petGrid').addEventListener('click',e=>{
   petSave();
 });
 $('petGrid').addEventListener('change',e=>{
+  if(e.target.id==='petAll'){const on=e.target.checked;for(const l of pool.leaders){l.pet=on;if(!on)delete pool.pet.cells[l.id]}petSave();return}
   const id=e.target.dataset.pt;if(id===undefined)return;
   const l=pool.leaders.find(x=>String(x.id)===id);if(!l)return;
   l.pet=e.target.checked;if(!l.pet)delete pool.pet.cells[l.id];petSave();
@@ -1626,8 +1633,11 @@ function availCell(name,h){
   if(!useAv())return null;
   const r=respOf(name);if(!r||r.part==null)return null;
   if(r.part===false)return false;
-  if(!r.hrs.length)return null;
-  return r.hrs.includes(utcH(h));
+  const u=utcH(h);
+  if(r.hrs.includes(u))return true;
+  if((r.na||[]).includes(u))return false;
+  // answers that came from the form: hours that were not ticked count as not available
+  return (r.imp!==undefined?r.imp:r.hrs.length>0)?false:null;
 }
 function availOk(l,h){ // a 2-hour pet starting at hour h needs hours h and h+1
   const r=respOf(l.name);if(!r||!useAv())return true;
@@ -1703,7 +1713,7 @@ function entriesFrom(sh,mark){
     const hrs=sh.ch>=0?parseHours(r[sh.ch]||''):[];
     const pv=sh.cp>=0?(r[sh.cp]||''):'yes';
     const part=isNo(pv)?false:(isYes(pv)||hrs.length?true:null);
-    map.set(lc(name),{name,part,hrs:part===false?[]:hrs,src:'form'});
+    map.set(lc(name),{name,part,hrs:part===false?[]:hrs,na:[],imp:part!==false&&hrs.length>0,src:'form'});
   }
   return [...map.values()];
 }
@@ -1720,9 +1730,10 @@ function importAnswers(text){
 }
 function setAv(name,fn){
   let r=respOf(name);
-  if(!r){r={name,part:null,hrs:[],src:'manual'};pool.avail.push(r)}
+  if(!r){r={name,part:null,hrs:[],na:[],imp:false,src:'manual'};pool.avail.push(r)}
+  if(!Array.isArray(r.na))r.na=[];
   fn(r);r.src='manual';
-  if(r.part==null&&!r.hrs.length)pool.avail=pool.avail.filter(x=>x!==r);
+  if(r.part==null&&!r.hrs.length&&!r.na.length)pool.avail=pool.avail.filter(x=>x!==r);
   savePool();renderAvail();renderPet();
 }
 function renderAvail(){
@@ -1736,7 +1747,7 @@ function renderAvail(){
   const cnt=Array(H).fill(0);
   const row=n=>{
     const r=respOf(n),st=!r||r.part==null?'':r.part?'1':'0';
-    const cells=Array.from({length:H},(_,h)=>{const y=r&&r.part!==false&&r.hrs.includes(utcH(h));if(y&&r.part)cnt[h]++;return `<td class="${y?'y':r&&r.part===false?'n':''}"><button type="button" class="avc" data-avc="${esc(n)}" data-h="${h}" aria-label="${esc(n)} ${z2(utcH(h))}">${y?'✓':''}</button></td>`}).join('');
+    const cells=Array.from({length:H},(_,h)=>{const u=utcH(h),y=r&&r.part!==false&&r.hrs.includes(u),x=r&&r.part!==false&&(r.na||[]).includes(u);if(y)cnt[h]++;return `<td class="${y?'y':x?'x':r&&r.part===false?'n':''}"><button type="button" class="avc" data-avc="${esc(n)}" data-h="${h}" aria-label="${esc(n)} ${z2(u)}">${y?'✓':x?'✗':''}</button></td>`}).join('');
     return `<tr class="${r?'':'unk'}"><td class="sticky"><select data-avp="${esc(n)}" aria-label="Participate"><option value=""${st===''?' selected':''}>?</option><option value="1"${st==='1'?' selected':''}>Yes</option><option value="0"${st==='0'?' selected':''}>No</option></select> ${esc(n)}${(pool.leaders.find(x=>lc(x.name)===lc(n))||{}).main?' ★':''}${r&&r.src==='manual'?'<span class="tag">edited</span>':''}${!r?'<span class="muted"> no answer</span>':''}</td>${cells}<td>${r?`<button type="button" data-avdel="${esc(n)}" aria-label="Clear">×</button>`:''}</td></tr>`;
   };
   const rows=L.map(l=>row(l.name)).join('');
@@ -1789,12 +1800,17 @@ $('avClear').onclick=async()=>{
 };
 $('avGrid').addEventListener('click',e=>{
   const c=e.target.closest('[data-avc]');
-  if(c){const h=+c.dataset.h,u=utcH(h);setAv(c.dataset.avc,r=>{const on=r.hrs.includes(u);r.hrs=on?r.hrs.filter(x=>x!==u):[...r.hrs,u].sort((a,b)=>a-b);if(!on&&r.part!==true)r.part=true;if(r.part===false)r.part=true});return}
+  if(c){const h=+c.dataset.h,u=utcH(h);setAv(c.dataset.avc,r=>{
+      if(r.part===false)r.part=null;
+      if(r.hrs.includes(u)){r.hrs=r.hrs.filter(x=>x!==u);r.na=[...r.na.filter(x=>x!==u),u]}
+      else if(r.na.includes(u)){r.na=r.na.filter(x=>x!==u)}
+      else{r.hrs=[...r.hrs,u].sort((a,b)=>a-b);if(r.part!==true)r.part=true}
+    });return}
   const d=e.target.closest('[data-avdel]');if(d){pool.avail=pool.avail.filter(r=>lc(r.name)!==lc(d.dataset.avdel));savePool();renderAvail();renderPet()}
 });
 $('avGrid').addEventListener('change',e=>{
   const n=e.target.dataset.avp;if(n===undefined)return;const v=e.target.value;
-  setAv(n,r=>{r.part=v===''?null:v==='1';if(r.part===false)r.hrs=[]});
+  setAv(n,r=>{r.part=v===''?null:v==='1';if(r.part===false){r.hrs=[];r.na=[]}});
 });
 $('avExtra').addEventListener('click',e=>{
   const a=e.target.closest('[data-avadd]');
@@ -1911,7 +1927,7 @@ function step(){
     const ph=q(c,'.cphase');ph.className='cphase '+pcls;ph.textContent=phase;
     q(c,'.ccount').textContent=wait+' waiting · '+open+' open · '+march+' marching';
     q(c,'.csm').textContent=nm?fmt((nm.ms-now)/1000):'--:--';q(c,'.csmn').textContent=nm?nm.name+' marches':'All marching';
-    q(c,'.csi').textContent=fmt(Math.max(0,left));q(c,'.csit').textContent='lands '+new Date(R.impact).toLocaleTimeString();
+    q(c,'.csi').textContent=fmt(Math.max(0,left));q(c,'.csit').textContent='lands '+tstr(R.impact,true);
     q(c,'.cpg').style.width=Math.min(100,Math.max(0,(now-R.start)/(R.impact-R.start)*100))+'%';
     let cls='gcard',sub,who,cd,whoH=null,qH='',nxH='';
     const ug=UG[k]||[];
@@ -1952,10 +1968,11 @@ let md='easy';try{md=localStorage.getItem('wosd_mode')||'easy'}catch(e){}
 const _al=window.alert.bind(window),_co=window.confirm.bind(window);
 window.alert=m=>_al(tr(m));window.confirm=m=>_co(tr(m));
 try{const sl=localStorage.getItem('wosd_lang');lang=sl||((navigator.language||'en').slice(0,2));if(!LOC[lang]||!['en','fr','de'].includes(lang))lang='en'}catch(e){}
-$('lang').value=lang;document.documentElement.lang=lang;
+$('lang').value=lang;document.documentElement.lang=lang;$('clock').value=clk;
+$('clock').onchange=()=>{clk=$('clock').value;try{localStorage.setItem('wosd_clock',clk)}catch(e){}TC.clear();render();renderPet();renderAvail();if(poolOpen)renderPoolView()};
 $('lang').onchange=()=>{lang=$('lang').value;try{localStorage.setItem('wosd_lang',lang)}catch(e){}document.documentElement.lang=lang;TC.clear();render();if(poolOpen)renderPoolView()};
 setMode(md);setGrp();render();
-const APP_VERSION='dev13';$('ver').textContent=APP_VERSION;
+const APP_VERSION='dev14';$('ver').textContent=APP_VERSION;
 $('updbtn').onclick=()=>location.reload();
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){
   let had=!!navigator.serviceWorker.controller;

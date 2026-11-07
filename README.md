@@ -1,4 +1,4 @@
-[README.md](https://github.com/user-attachments/files/34453208/README.md)
+[README.md](https://github.com/user-attachments/files/34517245/README.md)
 # WoS RT – DEV copy (availability from a Google Form)
 
 Own storage keys (`wosd_`), seeded once from the live app's data. Host it in its own folder.
@@ -52,3 +52,8 @@ Fallback stays: Open CSV → Upload CSV.
 ## dev13
 - Each group card (Advanced) has its own **Pause / Resume** next to ±1s and Stop. The global Pause still pauses everything.
 - Calls are name only again. The earlier "say group name once" option is removed; the group name is only spoken in the start announcement ("Timer started, Group 1, get ready").
+
+## dev14
+- **Clock** selector in the header: auto (browser) / 12 h / 24 h. Applies to the pet grid, availability grid, call times and landing times. (The pet Start date picker is the browser's own and follows your system setting.)
+- Pet schedule: master checkbox next to "Leader" selects / clears the pet checkbox for everyone (clearing also removes their planned starts).
+- Availability: each cell cycles blank (unknown) -> green available -> red not available. Not-available hours are respected by the planner and shown red in the pet schedule.
